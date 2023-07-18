@@ -28,7 +28,7 @@ func main() {
 
 	app.Post("/clicked", func(c *fiber.Ctx) error {
 		return renderPartial(c, "test", "Hello, World!")
-		
+
 	})
 
 	fmt.Println("Server is running on port 3000")
