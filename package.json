@@ -1,0 +1,13 @@
+{
+  "name": "stacky",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build-css": "npx tailwindcss -i ./assets/app.css -o ./public/assets/app.css --watch"
+  },
+  "devDependencies": {
+    "daisyui": "^3.2.1",
+    "tailwindcss": "^3.3.3"
+  }
+}
