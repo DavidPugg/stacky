@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/davidpugg/stacky/data"
 	"github.com/davidpugg/stacky/handlers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
@@ -11,7 +12,6 @@ import (
 )
 
 func main() {
-
 	//Config
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
@@ -27,9 +27,16 @@ func main() {
 
 	app.Static("/public", "./public")
 
+	//Data
+	db := data.DBconnect()
+	defer db.Close()
+
+	// data := data.New(db)
+
 	//Routes
 	handlers.New().RegisterRoutes(app)
 
+	//Server
 	port := viper.GetInt("PORT")
 
 	fmt.Printf("Server is running on port %d", port)
