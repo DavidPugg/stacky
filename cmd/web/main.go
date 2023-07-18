@@ -26,6 +26,15 @@ func main() {
 		})
 	})
 
+	app.Post("/clicked", func(c *fiber.Ctx) error {
+		return renderPartial(c, "test", "Hello, World!")
+		
+	})
+
 	fmt.Println("Server is running on port 3000")
 	log.Fatal(app.Listen(":3000"))
+}
+
+func renderPartial(c *fiber.Ctx, view string, data interface{}) error {
+	return c.Render(fmt.Sprintf("partials/%s", view), data, "layouts/empty")
 }
