@@ -31,10 +31,10 @@ func main() {
 	db := data.DBconnect()
 	defer db.Close()
 
-	// data := data.New(db)
+	data := data.New(db)
 
 	//Routes
-	handlers.New().RegisterRoutes(app)
+	handlers.New(data).RegisterRoutes(app)
 
 	//Server
 	port := viper.GetInt("PORT")

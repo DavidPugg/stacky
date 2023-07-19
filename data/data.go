@@ -7,7 +7,5 @@ type Data struct {
 }
 
 func New(db *sqlx.DB) *Data {
-	return &Data{
-		DB: db,
-	}
+	return &Data{ DB: db }
 }

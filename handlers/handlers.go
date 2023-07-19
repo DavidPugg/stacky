@@ -1,14 +1,17 @@
 package handlers
 
 import (
+	"github.com/davidpugg/stacky/data"
 	"github.com/davidpugg/stacky/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
-type Handlers struct{}
+type Handlers struct{
+	data *data.Data
+}
 
-func New() *Handlers {
-	return &Handlers{}
+func New(data *data.Data) *Handlers {
+	return &Handlers{ data: data }
 }
 
 func (h *Handlers) RegisterRoutes(c *fiber.App) {
