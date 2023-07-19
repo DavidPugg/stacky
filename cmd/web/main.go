@@ -25,7 +25,9 @@ func main() {
 		PassLocalsToViews: true,
 	})
 
-	app.Static("/public", "./public")
+	app.Static("/public", "./public", fiber.Static{
+		CacheDuration: 0,
+	})
 
 	//Data
 	db := data.DBconnect()

@@ -1,30 +1,24 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/davidpugg/stacky/data"
-	"github.com/davidpugg/stacky/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
-type Handlers struct{
+type Handlers struct {
 	data *data.Data
 }
 
 func New(data *data.Data) *Handlers {
-	return &Handlers{ data: data }
+	return &Handlers{data: data}
 }
 
 func (h *Handlers) RegisterRoutes(c *fiber.App) {
-	c.Get("/", h.index)
-	c.Post("/clicked", h.clicked)
+	h.registerTodoRoutes(c)
 }
 
-func (h *Handlers) index(c *fiber.Ctx) error {
-	return c.Render("index", fiber.Map{
-		"Title": "Hello, World!",
-	})
-}
-
-func (h *Handlers) clicked(c *fiber.Ctx) error {
-	return utils.RenderPartial(c, "test", "Hello, World!")
+func renderPartial(c *fiber.Ctx, view string, data interface{}) error {
+	return c.Render(fmt.Sprintf("partials/%s", view), data, "layouts/empty")
 }

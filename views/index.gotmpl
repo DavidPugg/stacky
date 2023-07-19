@@ -1,7 +1,27 @@
-<h1>{{ .Title }}</h1>
+<div class="mx-auto w-[700px] h-screen my-20 gap-20 flex flex-col">
+  <form
+    class="flex flex-col gap-3"
+    hx-post="/addTodo"
+    hx-target="#todo-list"
+    hx-swap="beforeend"
+    hx-reset-on-success>
+    <input
+      type="text"
+      class="input input-bordered input-primary"
+      id="todo"
+      name="todo"
+      placeholder="Insert new todo..." />
+    <button class="btn btn-primary">Add</button>
+  </form>
 
-<button class="btn btn-primary" hx-post="/clicked" hx-swap="outerHTML">
-  Click me
-</button>
+  <div>
+    <h1 class="font-bold text-2xl text-center mb-6">Todos</h1>
+    <ul class="flex flex-col gap-3" id="todo-list">
+      {{ range.Todos -}}
 
-{{ template "partials/test" .Title }}
+      {{ template "partials/todo" . }}
+
+      {{ end -}}
+    </ul>
+  </div>
+</div>
