@@ -3,8 +3,11 @@ include .env
 build-css:
 	yarn run build-css
 
-start:
+dev:
 	air
+
+start:
+	go run cmd/web/main.go
 
 migrate-up:
 	docker run -v $(shell pwd)/server/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "mysql://${DB_URL}" up
