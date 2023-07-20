@@ -10,10 +10,14 @@
     <title>Document</title>
   </head>
   <body hx-ext="reset-on-success">
+    {{ template "partials/alert" . }}
+
     {{ embed }}
 
     <script src="https://unpkg.com/htmx.org@1.9.3"></script>
     <script src="/public/js/htmx/extensions.js"></script>
     <script src="/public/js/htmx/listeners.js"></script>
+
+    <script></script>
   </body>
 </html>

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/davidpugg/stacky/data"
@@ -38,13 +39,12 @@ func renderPage(c *fiber.Ctx, view string, data interface{}, layout ...string) e
 	return c.Render(fmt.Sprintf("%s", view), data, l)
 }
 
-type Error struct {
-	Status int
-	Error  interface{}
-}
+func sendTrigger(c *fiber.Ctx, status int, trigger string, message string) error {
+	alert, err := json.Marshal(fiber.Map{trigger : message})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Something went wrong")
+	}
 
-func redirectWithError(c *fiber.Ctx, status int, err interface{}, handler func(c *fiber.Ctx) error) error {
-	c.Status(status)
-	c.Locals("Error", Error{Status: status, Error: err})
-	return handler(c)
+	c.Status(status).Set("HX-Trigger", string(alert))
+	return c.SendString(message)
 }
