@@ -17,6 +17,24 @@ func (d *Data) GetTodos() ([]Todo, error) {
 	return todos, nil
 }
 
+func (d *Data) AddTodo(text string) (Todo, error) {
+	var ID int
+	if len(todos) == 0 {
+		ID = 1
+	} else {
+		ID = todos[len(todos)-1].ID + 1
+	}
+
+	todo := Todo{
+		ID:   ID,
+		Text: text,
+	}
+
+	todos = append(todos, todo)
+
+	return todo, nil
+}
+
 func (d *Data) DeleteTodo(ID int) error {
 	for i, todo := range todos {
 		if todo.ID == ID {

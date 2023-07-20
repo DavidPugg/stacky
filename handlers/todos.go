@@ -3,7 +3,6 @@ package handlers
 import (
 	"strconv"
 
-	"github.com/davidpugg/stacky/data"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -15,33 +14,25 @@ func (h *Handlers) registerTodoRoutes(c *fiber.App) {
 
 func (h *Handlers) renderTodos(c *fiber.Ctx) error {
 	todos, _ := h.data.GetTodos()
-	return c.Render("index", fiber.Map{
-		"Todos": todos,
-	})
+	return renderPage(c, "index", fiber.Map{"Todos": todos})
 }
 
 func (h *Handlers) addTodo(c *fiber.Ctx) error {
-	todos, _ := h.data.GetTodos()
-
-	var ID int
-	if len(todos) == 0 {
-		ID = 1
-	} else {
-		ID = todos[len(todos)-1].ID + 1
-	}
-
-	todo := data.Todo{
-		ID:   ID,
-		Text: c.FormValue("todo"),
-	}
+	todo, _ := h.data.AddTodo(c.FormValue("todo"))
 
 	return renderPartial(c, "todo", todo)
 }
 
 func (h *Handlers) deleteTodo(c *fiber.Ctx) error {
-	ID, _ := strconv.Atoi(c.Params("id", "0"))
+	ID, err := strconv.Atoi(c.Params("id", "0"))
+	if err != nil {
+		return redirectWithError(c, fiber.StatusNotFound, "Todo not found", h.renderTodos)
+	}
 
-	h.data.DeleteTodo(ID)
+	err = h.data.DeleteTodo(ID)
+	if err != nil {
+		return redirectWithError(c, fiber.StatusNotFound, "Todo not found", h.renderTodos)
+	}
 
 	return c.Send(nil)
 }

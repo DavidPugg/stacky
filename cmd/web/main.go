@@ -7,6 +7,7 @@ import (
 	"github.com/davidpugg/stacky/data"
 	"github.com/davidpugg/stacky/handlers"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/template/html/v2"
 	"github.com/spf13/viper"
 )
@@ -28,6 +29,11 @@ func main() {
 	app.Static("/public", "./public", fiber.Static{
 		CacheDuration: 0,
 	})
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
 	//Data
 	db := data.DBconnect()
