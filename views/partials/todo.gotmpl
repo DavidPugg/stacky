@@ -1,1 +1,6 @@
-<li class="border border-primary py-5 px-7 rounded-xl">{{ .Text }}</li>
+<li
+  hx-delete="/deleteTodo/{{ .ID }}"
+  hx-swap="outerHTML"
+  class="border border-primary py-5 px-7 rounded-xl hover:border-secondary transition-all cursor-pointer">
+  {{ .Text }}
+</li>

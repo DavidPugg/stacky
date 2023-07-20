@@ -1246,6 +1246,10 @@ html {
   width: 700px;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .flex-col {
   flex-direction: column;
 }
@@ -1264,6 +1268,11 @@ html {
 
 .border {
   border-width: 1px;
+}
+
+.border-accent {
+  --tw-border-opacity: 1;
+  border-color: hsl(var(--a) / var(--tw-border-opacity));
 }
 
 .border-primary {
@@ -1292,4 +1301,15 @@ html {
 
 .font-bold {
   font-weight: 700;
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.hover\:border-secondary:hover {
+  --tw-border-opacity: 1;
+  border-color: hsl(var(--s) / var(--tw-border-opacity));
 }

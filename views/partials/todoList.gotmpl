@@ -1,0 +1,7 @@
+<ul class="flex flex-col gap-3" id="todo-list">
+  {{ range . -}}
+
+  {{ template "partials/todo" . }}
+
+  {{ end -}}
+</ul>
