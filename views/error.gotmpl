@@ -1,0 +1,29 @@
+<div class="mx-auto w-[1000px] text-center my-20">
+  <h1 id="status" class="text-9xl mb-5">500</h1>
+  <h2 id="message" class="text-5xl">Internal server error</h2>
+
+  <div id="details-container" class="collapse hidden">
+    <input type="checkbox" class="[&+.collapse-title]:hover:text-primary" />
+    <div class="collapse-title text-xl font-medium px-5 transition-all">
+      Details
+    </div>
+    <div class="collapse-content">
+      <p id="details">hello</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const message = urlParams.get('message');
+  const details = urlParams.get('details');
+  const status = urlParams.get('status');
+
+  document.getElementById('status').textContent = status;
+  document.getElementById('message').textContent = message;
+
+  if (details != null) {
+    document.getElementById('details').textContent = details;
+    document.getElementById('details-container').classList.remove('hidden');
+  }
+</script>

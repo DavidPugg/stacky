@@ -21,8 +21,37 @@
   const alert = document.getElementById('alert');
   const alertText = document.getElementById('alert-text');
 
+  const alertTypes = {
+    ERROR: 'alert-error',
+    SUCCESS: 'alert-success',
+    INFO: 'alert-info',
+  };
+
+  let currentAlertType = 'alert-error';
+
+  function replaceAlertType(newType) {
+    alert.classList.replace(currentAlertType, newType);
+    currentAlertType = newType;
+  }
+
+  function getTypeFromStatus(status) {
+    switch (status / 100) {
+      case 2:
+        return 'SUCCESS';
+      case 4:
+      case 5:
+        return 'ERROR';
+      default:
+        return 'INFO';
+    }
+  }
+
   document.body.addEventListener('showAlert', (event) => {
-    alertText.textContent = event.detail.value;
+    const type = getTypeFromStatus(event.detail.status);
+    const newAlertType = alertTypes[type];
+    replaceAlertType(newAlertType);
+
+    alertText.textContent = event.detail.message;
     alert.classList.replace('opacity-0', 'opacity-100');
 
     setTimeout(() => {
