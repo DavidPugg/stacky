@@ -1,4 +1,8 @@
-<div class="mx-auto w-[700px] h-screen my-40 gap-20 flex flex-col">
+<a href="/test" hx-boost="true" hx-swap="innerHTML show:no-scroll">Go Test</a>
+
+<div
+  class="mx-auto w-[700px] h-screen gap-20 flex flex-col"
+  hx-ext="reset-on-success">
   <form
     class="flex flex-col gap-3"
     hx-post="/addTodo"
@@ -19,7 +23,3 @@
     {{ template "partials/todoList" .Todos }}
   </div>
 </div>
-
-<script>
-  document.title = 'Todos';
-</script>

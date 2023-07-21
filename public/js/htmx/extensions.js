@@ -17,3 +17,13 @@
     },
   });
 })();
+
+(function () {
+  htmx.defineExtension('page-navigate', {
+    onEvent: function (_, event) {
+      if (!event.detail.boosted) return;
+
+      event.detail.target = htmx.find('#content');
+    },
+  });
+})();

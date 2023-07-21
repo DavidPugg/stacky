@@ -21,6 +21,10 @@ func (h *Handlers) RegisterRoutes(c *fiber.App) {
 		return renderPage(c, "error", nil)
 	})
 
+	c.Get("/test", func(c *fiber.Ctx) error {
+		return renderPage(c, "test", nil)
+	})
+
 	h.registerErrorRoutes(c)
 	h.registerTodoRoutes(c)
 }
@@ -37,10 +41,14 @@ func renderPage(c *fiber.Ctx, view string, data interface{}, layout ...string) e
 		l = layout[0]
 	}
 
+	if(c.Get("HX-Request") == "true") {
+		l = "layouts/empty"
+	}
+
 	return c.Render(fmt.Sprintf("%s", view), data, l)
 }
 
-func renderError(c *fiber.Ctx, status int, details string, nonRender ...bool) error {
+func renderError(c *fiber.Ctx, status int, details string) error {
 	var message string
 	switch status {
 	case fiber.StatusInternalServerError:
@@ -63,7 +71,7 @@ func renderError(c *fiber.Ctx, status int, details string, nonRender ...bool) er
 func setTrigger(c *fiber.Ctx, trigger string, message interface{}) error {
 	alert, err := json.Marshal(fiber.Map{trigger: message})
 	if err != nil {
-		return renderError(c, fiber.StatusInternalServerError, "Could not marshal alert", true)
+		return renderError(c, fiber.StatusInternalServerError, "Could not marshal alert")
 	}
 
 	c.Set("HX-Trigger", string(alert))
@@ -77,16 +85,17 @@ func setAlert(c *fiber.Ctx, status int, message string) error {
 	}
 
 	c.Status(status)
-	err := setTrigger(c, "showAlert", value)
-	if err != nil {
+	if err := setTrigger(c, "showAlert", value); err != nil {
 		return err
 	}
+	
 	return nil
 }
 
 func sendAlert(c *fiber.Ctx, status int, message string) error {
-	if err := setAlert(c, fiber.StatusBadRequest, message); err != nil {
+	if err := setAlert(c, status, message); err != nil {
 		return err
 	}
-	return c.SendStatus(fiber.StatusBadRequest)
+	
+	return c.SendStatus(status)
 }
