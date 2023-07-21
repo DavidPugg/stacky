@@ -26,12 +26,12 @@ func (h *Handlers) addTodo(c *fiber.Ctx) error {
 func (h *Handlers) deleteTodo(c *fiber.Ctx) error {
 	ID, err := strconv.Atoi(c.Params("id", "0"))
 	if err != nil {
-		return sendTrigger(c, fiber.StatusBadRequest, "showAlert", "Todo not found")
+		return showAlert(c, fiber.StatusBadRequest, "Todo not found")
 	}
 
 	err = h.data.DeleteTodo(ID)
 	if err != nil {
-		return sendTrigger(c, fiber.StatusBadRequest, "showAlert", "Todo not found")
+		return showAlert(c, fiber.StatusBadRequest, "Todo not found")
 	}
 
 	return c.Send(nil)

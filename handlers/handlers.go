@@ -17,6 +17,11 @@ func New(data *data.Data) *Handlers {
 }
 
 func (h *Handlers) RegisterRoutes(c *fiber.App) {
+	c.Get("/error", func(c *fiber.Ctx) error {
+		return renderPage(c, "error", nil)
+	})
+
+	h.registerErrorRoutes(c)
 	h.registerTodoRoutes(c)
 }
 
@@ -32,19 +37,19 @@ func renderPage(c *fiber.Ctx, view string, data interface{}, layout ...string) e
 		l = layout[0]
 	}
 
-	if c.Locals("Error") != nil {
-		l = "layouts/empty"
-	}
-
 	return c.Render(fmt.Sprintf("%s", view), data, l)
 }
 
 func sendTrigger(c *fiber.Ctx, status int, trigger string, message string) error {
-	alert, err := json.Marshal(fiber.Map{trigger : message})
+	alert, err := json.Marshal(fiber.Map{trigger: message})
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Something went wrong")
 	}
 
 	c.Status(status).Set("HX-Trigger", string(alert))
 	return c.SendString(message)
+}
+
+func showAlert(c *fiber.Ctx, status int, message string) error {
+	return sendTrigger(c, status, "showAlert", message)
 }
