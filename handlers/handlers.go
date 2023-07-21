@@ -40,7 +40,7 @@ func renderPage(c *fiber.Ctx, view string, data interface{}, layout ...string) e
 	return c.Render(fmt.Sprintf("%s", view), data, l)
 }
 
-func sendError(c *fiber.Ctx, status int, details string) *fiber.Ctx {
+func renderError(c *fiber.Ctx, status int, details string, nonRender ...bool) error {
 	var message string
 	switch status {
 	case fiber.StatusInternalServerError:
@@ -51,27 +51,41 @@ func sendError(c *fiber.Ctx, status int, details string) *fiber.Ctx {
 		message = "Something went wrong"
 	}
 
-	c.Set("HX-Redirect", fmt.Sprintf("/error?status=%d&message=%s&details=%s", status, message, details))
-	return c
+	if len(nonRender) > 0 && nonRender[0] {
+		c.Set("HX-Redirect", fmt.Sprintf("/error?status=%d&message=%s&details=%s", status, message, details))
+		return c.SendStatus(status)
+	}
+
+	return c.Redirect(fmt.Sprintf("/error?status=%d&message=%s&details=%s", status, message, details))
 }
 
-func sendTrigger(c *fiber.Ctx, trigger string, message interface{}) *fiber.Ctx {
+func setTrigger(c *fiber.Ctx, trigger string, message interface{}) error {
 	alert, err := json.Marshal(fiber.Map{trigger: message})
 	if err != nil {
-		return sendError(c, fiber.StatusInternalServerError, "Could not marshal alert")
+		return renderError(c, fiber.StatusInternalServerError, "Could not marshal alert", true)
 	}
 
 	c.Set("HX-Trigger", string(alert))
-	return c
+	return nil
 }
 
-func sendAlert(c *fiber.Ctx, status int, message string) *fiber.Ctx {
+func setAlert(c *fiber.Ctx, status int, message string) error {
 	value := fiber.Map{
 		"status":  status,
 		"message": message,
 	}
 
 	c.Status(status)
-	sendTrigger(c, "showAlert", value)
-	return c
+	err := setTrigger(c, "showAlert", value)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func sendAlert(c *fiber.Ctx, status int, message string) error {
+	if err := setAlert(c, fiber.StatusBadRequest, message); err != nil {
+		return err
+	}
+	return c.SendStatus(fiber.StatusBadRequest)
 }

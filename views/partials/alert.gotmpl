@@ -35,7 +35,7 @@
   }
 
   function getTypeFromStatus(status) {
-    switch (status / 100) {
+    switch (Math.floor(status / 100)) {
       case 2:
         return 'SUCCESS';
       case 4:
@@ -46,6 +46,13 @@
     }
   }
 
+  let alertTimeout;
+  function startTimer() {
+    alertTimeout = setTimeout(() => {
+      alert.classList.replace('opacity-100', 'opacity-0');
+    }, 3000);
+  }
+
   document.body.addEventListener('showAlert', (event) => {
     const type = getTypeFromStatus(event.detail.status);
     const newAlertType = alertTypes[type];
@@ -53,9 +60,7 @@
 
     alertText.textContent = event.detail.message;
     alert.classList.replace('opacity-0', 'opacity-100');
-
-    setTimeout(() => {
-      alert.classList.replace('opacity-100', 'opacity-0');
-    }, 3000);
+    clearTimeout(alertTimeout);
+    startTimer();
   });
 </script>
