@@ -51,12 +51,13 @@ func renderError(c *fiber.Ctx, status int, details string, nonRender ...bool) er
 		message = "Something went wrong"
 	}
 
-	if len(nonRender) > 0 && nonRender[0] {
-		c.Set("HX-Redirect", fmt.Sprintf("/error?status=%d&message=%s&details=%s", status, message, details))
-		return c.SendStatus(status)
-	}
-
-	return c.Redirect(fmt.Sprintf("/error?status=%d&message=%s&details=%s", status, message, details))
+	c.Status(status)
+	c.Set("Replace-Content", "true")
+	return renderPage(c, "error", fiber.Map{
+		"Status":  status,
+		"Message": message,
+		"Details": details,
+	})
 }
 
 func setTrigger(c *fiber.Ctx, trigger string, message interface{}) error {
