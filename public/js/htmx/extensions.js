@@ -21,9 +21,15 @@
 (function () {
   htmx.defineExtension('page-navigate', {
     onEvent: function (_, event) {
-      if (!event.detail.boosted) return;
+      if (!event.detail.xhr) return;
 
-      event.detail.target = htmx.find('#content');
+      if (
+        event.detail.boosted ||
+        event.detail.xhr.getResponseHeader('Page-Navigate') == 'true'
+      ) {
+        event.detail.shouldSwap = true;
+        event.detail.target = htmx.find('#content');
+      }
     },
   });
 })();

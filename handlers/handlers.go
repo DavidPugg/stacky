@@ -41,7 +41,7 @@ func renderPage(c *fiber.Ctx, view string, data interface{}, layout ...string) e
 		l = layout[0]
 	}
 
-	if(c.Get("HX-Request") == "true") {
+	if c.Get("HX-Request") == "true" {
 		l = "layouts/empty"
 	}
 
@@ -60,7 +60,7 @@ func renderError(c *fiber.Ctx, status int, details string) error {
 	}
 
 	c.Status(status)
-	c.Set("Replace-Content", "true")
+	c.Set("Page-Navigate", "true")
 	return renderPage(c, "error", fiber.Map{
 		"Status":  status,
 		"Message": message,
@@ -88,7 +88,7 @@ func setAlert(c *fiber.Ctx, status int, message string) error {
 	if err := setTrigger(c, "showAlert", value); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -96,6 +96,6 @@ func sendAlert(c *fiber.Ctx, status int, message string) error {
 	if err := setAlert(c, status, message); err != nil {
 		return err
 	}
-	
+
 	return c.SendStatus(status)
 }
