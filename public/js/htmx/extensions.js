@@ -17,19 +17,3 @@
     },
   });
 })();
-
-(function () {
-  htmx.defineExtension('page-navigate', {
-    onEvent: function (_, event) {
-      if (!event.detail.xhr) return;
-
-      if (
-        event.detail.boosted ||
-        event.detail.xhr.getResponseHeader('Page-Navigate') == 'true'
-      ) {
-        event.detail.shouldSwap = true;
-        event.detail.target = htmx.find('#content');
-      }
-    },
-  });
-})();

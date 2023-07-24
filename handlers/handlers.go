@@ -45,6 +45,8 @@ func renderPage(c *fiber.Ctx, view string, data interface{}, layout ...string) e
 		l = "layouts/empty"
 	}
 
+	c.Set("HX-Reswap", "innerHTML show:no-scroll")
+	c.Set("HX-Retarget", "#content")
 	return c.Render(fmt.Sprintf("%s", view), data, l)
 }
 
@@ -60,7 +62,7 @@ func renderError(c *fiber.Ctx, status int, details string) error {
 	}
 
 	c.Status(status)
-	c.Set("Page-Navigate", "true")
+	c.Set("HX-Push-Url", "/error")
 	return renderPage(c, "error", fiber.Map{
 		"Status":  status,
 		"Message": message,
@@ -97,5 +99,6 @@ func sendAlert(c *fiber.Ctx, status int, message string) error {
 		return err
 	}
 
+	c.Set("HX-Reswap", "none")
 	return c.SendStatus(status)
 }
