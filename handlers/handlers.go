@@ -43,10 +43,12 @@ func renderPage(c *fiber.Ctx, view string, data interface{}, layout ...string) e
 
 	if c.Get("HX-Request") == "true" {
 		l = "layouts/empty"
+
+		c.Set("HX-Push-Url", c.Path())
+		c.Set("HX-Reswap", "innerHTML show:no-scroll")
+		c.Set("HX-Retarget", "#content")
 	}
 
-	c.Set("HX-Reswap", "innerHTML show:no-scroll")
-	c.Set("HX-Retarget", "#content")
 	return c.Render(fmt.Sprintf("%s", view), data, l)
 }
 
