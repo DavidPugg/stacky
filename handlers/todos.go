@@ -42,6 +42,6 @@ func (h *Handlers) deleteTodo(c *fiber.Ctx) error {
 		return sendAlert(c, fiber.StatusBadRequest, "Todo not found")
 	}
 
-	setAlert(c, fiber.StatusOK, "Todo deleted")
-	return c.Send(nil)
+	setAlert(c, fiber.StatusNoContent, "Todo deleted")
+	return c.SendStatus(fiber.StatusNoContent)
 }

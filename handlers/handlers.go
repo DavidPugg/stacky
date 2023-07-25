@@ -25,6 +25,17 @@ func (h *Handlers) RegisterRoutes(c *fiber.App) {
 		return renderPage(c, "test", nil)
 	})
 
+	c.Get("/showAlert", func(c *fiber.Ctx) error {
+		t := c.Query("type")
+		m := c.Query("message")
+
+		c.Set("HX-Retarget", "#alert")
+		return renderPartial(c, "alert", fiber.Map{
+			"Type":    t,
+			"Message": m,
+		})
+	})
+
 	h.registerErrorRoutes(c)
 	h.registerTodoRoutes(c)
 }
@@ -72,8 +83,8 @@ func renderError(c *fiber.Ctx, status int, details string) error {
 	})
 }
 
-func setTrigger(c *fiber.Ctx, trigger string, message interface{}) error {
-	alert, err := json.Marshal(fiber.Map{trigger: message})
+func setTrigger(c *fiber.Ctx, trigger string, value interface{}) error {
+	alert, err := json.Marshal(fiber.Map{trigger: value})
 	if err != nil {
 		return renderError(c, fiber.StatusInternalServerError, "Could not marshal alert")
 	}
@@ -83,8 +94,20 @@ func setTrigger(c *fiber.Ctx, trigger string, message interface{}) error {
 }
 
 func setAlert(c *fiber.Ctx, status int, message string) error {
+	var t string
+	switch status / 100 {
+	case 1:
+		t = "info"
+	case 2:
+		t = "success"
+	case 3:
+		t = "info"
+	default:
+		t = "error"
+	}
+
 	value := fiber.Map{
-		"status":  status,
+		"type":    t,
 		"message": message,
 	}
 

@@ -994,6 +994,14 @@ html {
   --alert-bg-mix: hsl(var(--b1));
 }
 
+.alert-warning {
+  border-color: hsl(var(--wa) / 0.2);
+  --tw-text-opacity: 1;
+  color: hsl(var(--wac) / var(--tw-text-opacity));
+  --alert-bg: hsl(var(--wa));
+  --alert-bg-mix: hsl(var(--b1));
+}
+
 .alert-error {
   border-color: hsl(var(--er) / 0.2);
   --tw-text-opacity: 1;
@@ -1626,6 +1634,28 @@ details.collapse summary::-webkit-details-marker {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+@keyframes show {
+  0% {
+    opacity: 0;
+  }
+
+  5% {
+    opacity: 1;
+  }
+
+  95% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-show-alert {
+  animation: show 5s ease-in-out;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -1708,10 +1738,6 @@ details.collapse summary::-webkit-details-marker {
 
 .opacity-0 {
   opacity: 0;
-}
-
-.opacity-100 {
-  opacity: 1;
 }
 
 .transition-all {

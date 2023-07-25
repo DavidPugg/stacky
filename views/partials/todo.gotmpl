@@ -1,7 +1,7 @@
 <li
   id="todo-{{ .ID }}"
   hx-delete="/deleteTodo/{{ .ID }}"
-  hx-swap="outerHTML"
+  hx-swap="delete"
   class="border border-primary py-5 px-7 rounded-xl hover:border-secondary transition-all cursor-pointer">
   {{ .Text }}
 </li>
