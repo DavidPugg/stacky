@@ -7,8 +7,10 @@ import (
 	"github.com/davidpugg/stacky/internal/data"
 	"github.com/davidpugg/stacky/internal/handlers"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/template/html/v2"
+	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 )
 
@@ -26,20 +28,24 @@ func main() {
 		PassLocalsToViews: true,
 	})
 
-	app.Static("/public", "./public", fiber.Static{
-		CacheDuration: 0,
-	})
+	app.Static("/public", "./public")
+
+	//Middleware
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
-	//Data
-	db := data.DBconnect()
-	defer db.Close()
+	app.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed,
+	}))
 
-	data := data.New(db)
+	//Data
+	// db := data.DBconnect()
+	// defer db.Close()
+
+	data := data.New(&sqlx.DB{})
 
 	//Routes
 	handlers.New(data).RegisterRoutes(app)

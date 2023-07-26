@@ -7,23 +7,28 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-var titles = map[string]string{
-	"/":     "Todos",
-	"/test": "Test",
+type PageDetails struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
-func UpdateTitle(c *fiber.Ctx) error {
-	title := titles[c.Path()]
+var details = map[string]PageDetails{
+	"/":     {"Home", "Home page description"},
+	"/test": {"Test", "Test page description"},
+}
 
-	if title == "" {
-		fmt.Println("No title found for path: ", c.Path(), " please add it to internal/middleware/title.go")
+func UpdatePageDetails(c *fiber.Ctx) error {
+	pd := details[c.Path()]
+
+	if pd == (PageDetails{}) {
+		fmt.Println("No page details found for path: ", c.Path(), " please add it to internal/middleware/title.go")
 	}
 
-	c.Locals("PageTitle", title)
+	c.Locals("PageDetails", pd)
 
 	utils.SetTrigger(c, utils.Trigger{
-		Name: "updateTitle",
-		Data: title,
+		Name: "updatePageDetails",
+		Data: pd,
 	})
 
 	return c.Next()

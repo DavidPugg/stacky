@@ -7,8 +7,8 @@ import (
 )
 
 func (h *Handlers) registerViewRoutes(c *fiber.App) {
-	c.Get("/", middleware.UpdateTitle, h.renderMain)
-	c.Get("/test", middleware.UpdateTitle, h.renderTest)
+	c.Get("/", middleware.UpdatePageDetails, h.renderMain)
+	c.Get("/test", middleware.UpdatePageDetails, h.renderTest)
 }
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {

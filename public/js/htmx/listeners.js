@@ -9,6 +9,8 @@ document.body.addEventListener('showAlert', function (event) {
   );
 });
 
-document.body.addEventListener('updateTitle', function (event) {
-  document.title = event.detail.value;
+document.body.addEventListener('updatePageDetails', function (event) {
+  document.title = event.detail.title;
+  document.querySelector('meta[name="description"]').content =
+    event.detail.description;
 });
