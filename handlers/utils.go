@@ -8,7 +8,8 @@ import (
 )
 
 func (h *Handlers) registerUtilRoutes(c *fiber.App) {
-	c.Get("/showAlert", h.showAlert)
+	r := c.Group("/utils")
+	r.Get("/showAlert", h.showAlert)
 }
 
 func (h *Handlers) showAlert(c *fiber.Ctx) error {

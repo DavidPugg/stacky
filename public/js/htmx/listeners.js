@@ -5,6 +5,6 @@ document.body.addEventListener('htmx:beforeSwap', function (event) {
 document.body.addEventListener('showAlert', function (event) {
   htmx.ajax(
     'GET',
-    `/showAlert?message=${event.detail.message}&type=${event.detail.type}`,
+    `/utils/showAlert?message=${event.detail.message}&type=${event.detail.type}`,
   );
 });

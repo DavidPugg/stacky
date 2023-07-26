@@ -7,8 +7,9 @@ import (
 )
 
 func (h *Handlers) registerTodoRoutes(c *fiber.App) {
-	c.Post("/addTodo", h.addTodo)
-	c.Delete("/deleteTodo/:id", h.deleteTodo)
+	r := c.Group("/todos")
+	r.Post("/", h.addTodo)
+	r.Delete("/:id", h.deleteTodo)
 }
 
 func (h *Handlers) addTodo(c *fiber.Ctx) error {
