@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/davidpugg/stacky/data"
-	"github.com/davidpugg/stacky/handlers"
+	"github.com/davidpugg/stacky/internal/data"
+	"github.com/davidpugg/stacky/internal/handlers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/template/html/v2"

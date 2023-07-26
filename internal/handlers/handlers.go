@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/davidpugg/stacky/data"
+	"github.com/davidpugg/stacky/internal/data"
 	"github.com/gofiber/fiber/v2"
 )
 

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/davidpugg/stacky/utils"
+	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
 

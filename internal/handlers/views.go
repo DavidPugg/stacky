@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/davidpugg/stacky/middleware"
-	"github.com/davidpugg/stacky/utils"
+	"github.com/davidpugg/stacky/internal/middleware"
+	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
