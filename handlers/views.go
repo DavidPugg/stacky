@@ -1,8 +1,23 @@
 package handlers
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+)
+
+var titles = map[string]string{
+	"/":     "Todos",
+	"/test": "Test",
+}
 
 func (h *Handlers) registerViewRoutes(c *fiber.App) {
+	c.Use(func(c *fiber.Ctx) error {
+		title := titles[c.Path()]
+
+		c.Locals("PageTitle", title)
+		setTrigger(c, "updateTitle", title)
+		return c.Next()
+	})
+
 	c.Get("/", h.renderMain)
 	c.Get("/test", h.renderTest)
 }
@@ -17,5 +32,5 @@ func (h *Handlers) renderMain(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) renderTest(c *fiber.Ctx) error {
-	return renderPage(c, "test", nil)
+	return renderPage(c, "test", fiber.Map{})
 }
