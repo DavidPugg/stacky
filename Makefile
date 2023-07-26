@@ -1,13 +1,19 @@
 include .env
 
-build-css:
-	yarn run build-css
+watch-css:
+	yarn run watch-css
 
 dev:
 	air
 
-start:
-	go run cmd/web/main.go
+build-css:
+	yarn run build-css
+
+build: build-css
+	go build -o web cmd/web/main.go
+
+start: build
+	./web
 
 migrate-up:
 	docker run -v $(shell pwd)/server/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "mysql://${DB_URL}" up
@@ -18,4 +24,4 @@ migrate-force:
 migrate-down:
 	docker run -v $(shell pwd)/server/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "mysql://${DB_URL}" down
 
-.PHONY: build-css start migrate-up migrate-force migrate-down
+.PHONY: build-css start migrate-up migrate-force migrate-down watch-css dev

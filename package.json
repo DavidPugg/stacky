@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build-css": "npx tailwindcss -i ./assets/app.css -o ./public/assets/app.css --watch"
+    "build-css": "npx tailwindcss -i ./assets/app.css -o ./public/assets/app.css",
+    "watch-css": "npx tailwindcss -i ./assets/app.css -o ./public/assets/app.css --watch"
   },
   "devDependencies": {
     "daisyui": "^3.2.1",

@@ -3,3 +3,5 @@ bin/
 tmp/build-errors.log
 .env
 node_modules/
+web
+public/assets/app.css
