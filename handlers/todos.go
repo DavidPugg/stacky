@@ -7,18 +7,8 @@ import (
 )
 
 func (h *Handlers) registerTodoRoutes(c *fiber.App) {
-	c.Get("/", h.renderTodos)
 	c.Post("/addTodo", h.addTodo)
 	c.Delete("/deleteTodo/:id", h.deleteTodo)
-}
-
-func (h *Handlers) renderTodos(c *fiber.Ctx) error {
-	todos, err := h.data.GetTodos()
-	if err != nil {
-		return renderError(c, fiber.StatusInternalServerError, "Error getting todos")
-	}
-
-	return renderPage(c, "index", fiber.Map{"Todos": todos})
 }
 
 func (h *Handlers) addTodo(c *fiber.Ctx) error {
