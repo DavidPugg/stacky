@@ -20,7 +20,7 @@ func main() {
 	viper.SetConfigType("env")
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file, %s", err)
+		fmt.Printf("Error reading config file, %s", err)
 	}
 
 	//Fiber

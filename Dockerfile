@@ -10,7 +10,9 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o web cmd/web/main.go
+RUN apk add --no-cache make
+
+RUN make build
 
 # Second stage
 
@@ -26,9 +28,11 @@ RUN npm install -g yarn --force
 
 RUN yarn
 
+RUN apk add --no-cache make
+
 COPY . .
 
-RUN yarn run build-css
+RUN make build-css
 
 # Third stage
 

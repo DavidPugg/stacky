@@ -16,7 +16,7 @@ yarn:
 build-css: yarn
 	yarn run build-css
 
-build: build-css
+build:
 	go build -o web cmd/web/main.go
 
 start: build
