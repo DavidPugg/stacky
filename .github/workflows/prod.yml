@@ -36,4 +36,5 @@ jobs:
 
       - name: Build code
         run: |
+          make build-css
           make build
