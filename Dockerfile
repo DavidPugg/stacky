@@ -44,8 +44,6 @@ COPY --from=builder /app/web .
 
 COPY --from=builder /app/views ./views
 
-RUN touch .env
-
 EXPOSE 3000
 
 CMD ["./web"]
