@@ -10,7 +10,10 @@ watch-css:
 dev:
 	air
 
-build-css:
+yarn:
+	yarn
+
+build-css: yarn
 	yarn run build-css
 
 build: build-css
