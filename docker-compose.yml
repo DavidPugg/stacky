@@ -10,4 +10,5 @@ services:
     volumes:
       - .:/app
     environment:
-      - PORT=3000
+      - PORT=${PORT}
+      - DB_URL=${DB_URL}
