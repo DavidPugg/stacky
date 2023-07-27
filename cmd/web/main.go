@@ -17,7 +17,11 @@ import (
 func main() {
 	//Config
 	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
+	viper.SetConfigType("env")
+	viper.AutomaticEnv()
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file, %s", err)
+	}
 
 	//Fiber
 	engine := html.New("./views", ".gotmpl")
