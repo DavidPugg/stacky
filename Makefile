@@ -1,4 +1,8 @@
+ifeq ($(wildcard .env),)
+$(warning .env file not found, skipping inclusion.)
+else
 include .env
+endif
 
 watch-css:
 	yarn run watch-css
