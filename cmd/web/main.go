@@ -10,7 +10,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/template/html/v2"
-	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 )
 
@@ -46,10 +45,10 @@ func main() {
 	}))
 
 	//Data
-	// db := data.DBconnect()
-	// defer db.Close()
+	db := data.DBconnect()
+	defer db.Close()
 
-	data := data.New(&sqlx.DB{})
+	data := data.New(db)
 
 	//Routes
 	handlers.New(data).RegisterRoutes(app)

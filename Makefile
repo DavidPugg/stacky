@@ -23,12 +23,18 @@ start: build
 	./web
 
 migrate-up:
-	docker run -v $(shell pwd)/server/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "mysql://${DB_URL}" up
+	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_URL}" up
 
 migrate-force:
-	docker run -v $(shell pwd)/server/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "mysql://${DB_URL}" force 1
+	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_URL}" force 1
 
 migrate-down:
-	docker run -v $(shell pwd)/server/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "mysql://${DB_URL}" down
+	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_URL}" down 1
 
-.PHONY: build-css start migrate-up migrate-force migrate-down watch-css dev
+mysql:
+	docker run --name stacky-mysql -e MYSQL_ROOT_PASSWORD=password -p 3306:3306 -d mysql
+
+mysql-createdb:
+	docker exec -it stacky-mysql mysql -uroot -ppassword -e "CREATE DATABASE stacky;"
+
+.PHONY: build-css start migrate-up migrate-force migrate-down watch-css dev yarn mysql mysql-createdb
