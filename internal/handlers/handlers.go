@@ -17,4 +17,5 @@ func (h *Handlers) RegisterRoutes(c *fiber.App) {
 	h.registerViewRoutes(c)
 	h.registerUtilRoutes(c)
 	h.registerTodoRoutes(c)
+	h.registerAuthRoutes(c)
 }

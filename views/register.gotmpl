@@ -1,0 +1,48 @@
+<form
+  hx-post="/auth/register"
+  class="absolute top-96 left-1/2 -translate-x-[50%] gap-3 p-10 card card-bordered shadow-xl w-full max-w-[500px]">
+  <div class="flex flex-col gap-2">
+    <label for="username">Username</label>
+    <input
+      id="username"
+      type="text"
+      name="username"
+      placeholder="Bine..."
+      class="input input-bordered input-primary" />
+    <span class="text-xs text-gray-500">
+      Username must be at least 3 characters long</span
+    >
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="email">Email</label>
+    <input
+      id="email"
+      type="text"
+      name="email"
+      placeholder="Bine@gmail.com..."
+      class="input input-bordered input-primary" />
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="password">Password</label>
+    <input
+      id="password"
+      type="text"
+      name="password"
+      placeholder="12345678..."
+      class="input input-bordered input-primary" />
+
+    <span class="text-xs text-gray-500">
+      Password must be at least 8 characters long
+    </span>
+  </div>
+
+  <button class="btn btn-primary mt-3">
+    <span class="relative flex items-center">
+      Register
+      <span
+        class="absolute -right-8 htmx-indicator loading loading-spinner loading-md"
+    /></span>
+  </button>
+</form>
