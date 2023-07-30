@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -8,9 +11,105 @@ import (
 
 func (h *Handlers) registerAuthRoutes(c *fiber.App) {
 	r := c.Group("/auth")
+	r.Post("/validate_email", h.validateEmail)
+	r.Post("/validate_username", h.validateUsername)
+	r.Post("/validate_password", h.validatePassword)
 	r.Post("/login", h.login)
 	r.Post("/register", h.register)
 	r.Post("/logout", h.logout)
+}
+
+func (h *Handlers) validateEmail(c *fiber.Ctx) error {
+	var form struct {
+		Email string `validate:"required,email"`
+	}
+
+	form.Email = c.FormValue("email")
+
+	validate := validator.New()
+	if err := validate.Struct(form); err != nil {
+		fmt.Println(err.Error())
+
+		if strings.Contains(err.Error(), "email") {
+			return c.Status(fiber.StatusBadRequest).SendString("Please enter a valid email")
+		}
+
+		if strings.Contains(err.Error(), "required") {
+			return c.Status(fiber.StatusBadRequest).SendString("Please enter an email")
+		}
+
+		return c.Status(fiber.StatusBadRequest).SendString("Error validating email")
+	}
+
+	user, err := h.data.GetUserByEmail(form.Email)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("")
+	}
+
+	if user != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Email already in use")
+	}
+
+	return c.Status(fiber.StatusOK).SendString("")
+}
+
+func (h *Handlers) validateUsername(c *fiber.Ctx) error {
+	var form struct {
+		Username string `validate:"required,min=3,max=32"`
+	}
+
+	form.Username = c.FormValue("username")
+
+	validate := validator.New()
+	if err := validate.Struct(form); err != nil {
+		fmt.Println(err.Error())
+
+		if strings.Contains(err.Error(), "min") || strings.Contains(err.Error(), "max") {
+			return c.Status(fiber.StatusBadRequest).SendString("Username must be between 3 and 32 characters")
+		}
+
+		if strings.Contains(err.Error(), "required") {
+			return c.Status(fiber.StatusBadRequest).SendString("Please enter a username")
+		}
+
+		return c.Status(fiber.StatusBadRequest).SendString("Error validating username")
+	}
+
+	user, err := h.data.GetUserByUsername(form.Username)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("")
+	}
+
+	if user != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Username already in use")
+	}
+
+	return c.Status(fiber.StatusOK).SendString("")
+}
+
+func (h *Handlers) validatePassword(c *fiber.Ctx) error {
+	var form struct {
+		Password string `validate:"required,min=8,max=32"`
+	}
+
+	form.Password = c.FormValue("password")
+
+	validate := validator.New()
+	if err := validate.Struct(form); err != nil {
+		fmt.Println(err.Error())
+
+		if strings.Contains(err.Error(), "min") || strings.Contains(err.Error(), "max") {
+			return c.Status(fiber.StatusBadRequest).SendString("Password must be between 8 and 32 characters")
+		}
+
+		if strings.Contains(err.Error(), "required") {
+			return c.Status(fiber.StatusBadRequest).SendString("Please enter a password")
+		}
+
+		return c.Status(fiber.StatusBadRequest).SendString("Error validating password")
+	}
+
+	return c.Status(fiber.StatusOK).SendString("")
 }
 
 func (h *Handlers) login(c *fiber.Ctx) error {

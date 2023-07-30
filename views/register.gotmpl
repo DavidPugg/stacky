@@ -1,47 +1,81 @@
 <form
+  id="register-form"
   hx-post="/auth/register"
+  hx-reset-on-success
+  hx-indicator="#register-indicator"
   class="absolute top-96 left-1/2 -translate-x-[50%] gap-3 p-10 card card-bordered shadow-xl w-full max-w-[500px]">
   <div class="flex flex-col gap-2">
     <label for="username">Username</label>
-    <input
-      id="username"
-      type="text"
-      name="username"
-      placeholder="Bine..."
-      class="input input-bordered input-primary" />
-    <span class="text-xs text-gray-500">
-      Username must be at least 3 characters long</span
-    >
+    <div>
+      <input
+        id="username"
+        type="text"
+        name="username"
+        placeholder="Bine..."
+        class="input input-bordered input-primary w-full"
+        hx-post="/auth/validate_username"
+        hx-trigger="keyup changed delay:500ms"
+        hx-target="#username-error"
+        hx-swap="innerHTML"
+        hx-indicator="#username-indicator" />
+      <span
+        id="username-indicator"
+        class="absolute right-12 htmx-indicator loading loading-spinner loading-md" />
+    </div>
+
+    <span id="username-error" class="text-xs text-red-500"></span>
   </div>
 
   <div class="flex flex-col gap-2">
     <label for="email">Email</label>
-    <input
-      id="email"
-      type="text"
-      name="email"
-      placeholder="Bine@gmail.com..."
-      class="input input-bordered input-primary" />
+    <div class="flex items-center">
+      <input
+        id="email"
+        type="text"
+        name="email"
+        placeholder="Bine@gmail.com..."
+        class="input input-bordered input-primary w-full"
+        hx-post="/auth/validate_email"
+        hx-trigger="keyup changed delay:500ms"
+        hx-target="#email-error"
+        hx-swap="innerHTML"
+        hx-indicator="#email-indicator" />
+      <span
+        id="email-indicator"
+        class="absolute right-12 htmx-indicator loading loading-spinner loading-md" />
+    </div>
+
+    <span id="email-error" class="text-xs text-red-500"></span>
   </div>
 
   <div class="flex flex-col gap-2">
     <label for="password">Password</label>
-    <input
-      id="password"
-      type="text"
-      name="password"
-      placeholder="12345678..."
-      class="input input-bordered input-primary" />
+    <div>
+      <input
+        id="password"
+        type="text"
+        name="password"
+        placeholder="12345678..."
+        class="input input-bordered input-primary w-full"
+        hx-post="/auth/validate_password"
+        hx-trigger="keyup changed delay:500ms"
+        hx-target="#password-error"
+        hx-swap="innerHTML"
+        hx-indicator="#password-indicator" />
 
-    <span class="text-xs text-gray-500">
-      Password must be at least 8 characters long
-    </span>
+      <span
+        id="password-indicator"
+        class="absolute right-12 htmx-indicator loading loading-spinner loading-md" />
+    </div>
+
+    <span id="password-error" class="text-xs text-red-500"></span>
   </div>
 
   <button class="btn btn-primary mt-3">
     <span class="relative flex items-center">
       Register
       <span
+        id="register-indicator"
         class="absolute -right-8 htmx-indicator loading loading-spinner loading-md"
     /></span>
   </button>
