@@ -26,7 +26,7 @@ services:
       - db
     environment:
       - PORT=${PORT}
-      - DB_URL=${DB_URL}
+      - DB_URL=mysql://${DB_USER}:${DB_PASSWORD}@tcp(db:${DB_PORT})/${DB_NAME}
     networks:
       - stacky-network
 

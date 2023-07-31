@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -30,8 +29,6 @@ func (h *Handlers) validateEmail(c *fiber.Ctx) error {
 
 	validate := validator.New()
 	if err := validate.Struct(form); err != nil {
-		fmt.Println(err.Error())
-
 		if strings.Contains(err.Error(), "email") {
 			return c.Status(fiber.StatusBadRequest).SendString("Please enter a valid email")
 		}
@@ -64,8 +61,6 @@ func (h *Handlers) validateUsername(c *fiber.Ctx) error {
 
 	validate := validator.New()
 	if err := validate.Struct(form); err != nil {
-		fmt.Println(err.Error())
-
 		if strings.Contains(err.Error(), "min") || strings.Contains(err.Error(), "max") {
 			return c.Status(fiber.StatusBadRequest).SendString("Username must be between 3 and 32 characters")
 		}
@@ -98,8 +93,6 @@ func (h *Handlers) validatePassword(c *fiber.Ctx) error {
 
 	validate := validator.New()
 	if err := validate.Struct(form); err != nil {
-		fmt.Println(err.Error())
-
 		if strings.Contains(err.Error(), "min") || strings.Contains(err.Error(), "max") {
 			return c.Status(fiber.StatusBadRequest).SendString("Password must be between 8 and 32 characters")
 		}

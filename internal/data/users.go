@@ -46,7 +46,6 @@ func (d *Data) GetUserByUsername(username string) (*User_DB, error) {
 	user := &User_DB{}
 	err := d.DB.Get(user, "SELECT * FROM users WHERE username = ?", username)
 	if err != nil {
-		fmt.Println(err.Error())
 		return nil, err
 	}
 

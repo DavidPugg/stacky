@@ -1,7 +1,7 @@
 package data
 
 import (
-	"strings"
+	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -9,7 +9,7 @@ import (
 )
 
 func DBconnect() *sqlx.DB {
-	db, err := sqlx.Connect("mysql", strings.Split(viper.GetString("DB_URL"), "://")[1])
+	db, err := sqlx.Connect("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", viper.GetString("DB_USER"), viper.GetString("DB_PASSWORD"), viper.GetString("DB_HOST"), viper.GetString("DB_PORT"), viper.GetString("DB_NAME")))
 	if err != nil {
 		panic(err)
 	}
