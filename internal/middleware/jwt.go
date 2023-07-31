@@ -35,10 +35,6 @@ func ParseToken(c *fiber.Ctx) error {
 		Email:    claims["email"].(string),
 	}
 
-	utils.SetTrigger(c, utils.Trigger{
-		Name: "setUser",
-	})
-
 	c.Locals("User", data)
 
 	return c.Next()

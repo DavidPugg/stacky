@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -85,7 +86,7 @@ func SetTrigger(c *fiber.Ctx, triggers ...Trigger) error {
 			return RenderError(c, fiber.StatusInternalServerError, "Error setting trigger")
 		}
 	}
-	
+
 	c.Set("HX-Trigger", string(alert))
 
 	return nil
@@ -127,4 +128,29 @@ func SendAlert(c *fiber.Ctx, status int, message string) error {
 
 	c.Set("HX-Reswap", "none")
 	return c.SendStatus(status)
+}
+
+func SetRedirect(c *fiber.Ctx, url string) error {
+	location := c.Get("Referer")
+    location = strings.Split(location, "/")[3]
+
+	if location == "" {
+		location = "/"
+	}
+
+	if (location == url) {
+		return nil
+	}
+
+	r, err := json.Marshal(fiber.Map{
+		"redirect": url,
+	})
+	
+	if err != nil {
+		return err
+	}
+
+	c.Set("HX-Trigger-After-Settle", string(r))
+
+	return nil
 }
