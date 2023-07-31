@@ -1,4 +1,4 @@
 <div
-  class="absolute top-0 w-[300px] alert {{ if eq .Type "success" }} alert-success {{ else if eq .Type "info"}} alert-info {{ else if eq .Type "error"}} alert-error {{ end -}}  left-[50%] -translate-x-[50%] mt-3 animate-show-alert opacity-0">
+  class="fixed top-4 z-50 w-[300px] alert {{ if eq .Type "success" }} alert-success {{ else if eq .Type "info"}} alert-info {{ else if eq .Type "error"}} alert-error {{ end -}}  left-[50%] -translate-x-[50%] mt-3 animate-show-alert opacity-0">
   <span id="alert-text">{{ .Message }}</span>
 </div>

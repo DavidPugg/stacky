@@ -14,8 +14,8 @@
   <body>
     <div id="alert"></div>
 
-    <header>
-      {{ template "partials/navbar" . }}
+    <header id="header">
+      {{ template "partials/navbar" .User }}
     </header>
 
     <main id="content" class="my-24" hx-ext="reset-on-success">

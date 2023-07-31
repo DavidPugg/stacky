@@ -6,6 +6,7 @@ import (
 
 	"github.com/davidpugg/stacky/internal/data"
 	"github.com/davidpugg/stacky/internal/handlers"
+	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -36,13 +37,15 @@ func main() {
 	//Middleware
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowCredentials: true,
+		AllowOrigins:     viper.GetString("CLIENT_URL"),
 	}))
 
 	app.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed,
 	}))
+
+	app.Use(middleware.ParseToken)
 
 	//Data
 	db := data.DBconnect()

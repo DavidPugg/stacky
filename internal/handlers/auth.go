@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/go-playground/validator/v10"
@@ -17,6 +18,7 @@ func (h *Handlers) registerAuthRoutes(c *fiber.App) {
 	r.Post("/login", h.login)
 	r.Post("/register", h.register)
 	r.Post("/logout", h.logout)
+	r.Post("/set_user", h.setUser)
 }
 
 func (h *Handlers) validateEmail(c *fiber.Ctx) error {
@@ -113,7 +115,51 @@ func (h *Handlers) validatePassword(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) login(c *fiber.Ctx) error {
-	return c.SendString("login")
+	var form struct {
+		Username string `validate:"required,min=3,max=32"`
+		Password string `validate:"required,min=8,max=32"`
+	}
+
+	form.Username = c.FormValue("username")
+	form.Password = c.FormValue("password")
+
+	validate := validator.New()
+	if err := validate.Struct(form); err != nil {
+		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid username or password")
+	}
+
+	user, err := h.data.GetUserByUsername(form.Username)
+	if err != nil {
+		return utils.SendAlert(c, fiber.StatusInternalServerError, "Invalid username or password")
+	}
+
+	if user == nil {
+		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid username or password")
+	}
+
+	if !utils.CheckPasswordHash(form.Password, user.Password) {
+		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid username or password")
+	}
+
+	token, err := utils.GenerateToken(user)
+	if err != nil {
+		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error generating token")
+	}
+
+	cookie := fiber.Cookie{
+		Name: "jwt",
+		Value: token,
+		Expires: time.Now().Add(time.Hour * 24),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
+
+	utils.SetTrigger(c, utils.Trigger{
+		Name: "setLoggedInUser",
+	})
+
+	return utils.SendAlert(c, fiber.StatusOK, "Successfully logged in")
 }
 
 func (h *Handlers) register(c *fiber.Ctx) error {
@@ -135,7 +181,12 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid form data")
 	}
 
-	if err := h.data.CreateUser(form.Avatar, form.Username, form.Email, form.Password); err != nil {
+	hashedPassword, err := utils.HashPassword(form.Password)
+	if err != nil {
+		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error hashing password")
+	}
+
+	if err := h.data.CreateUser(form.Avatar, form.Username, form.Email, hashedPassword); err != nil {
 		if (err.Error() == "users.username") {
 			return utils.SendAlert(c, fiber.StatusBadRequest, "Username already exists")
 		}
@@ -151,5 +202,23 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) logout(c *fiber.Ctx) error {
-	return c.SendString("logout")
+	cookie := fiber.Cookie{
+		Name: "jwt",
+		Value: "",
+		Expires: time.Now().Add(-time.Hour),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
+
+	utils.SetTrigger(c, utils.Trigger{
+		Name: "setLoggedInUser",
+	})
+
+	return utils.SendAlert(c, fiber.StatusOK, "Successfully logged out")
+}
+
+func (h *Handlers) setUser(c *fiber.Ctx) error {
+	c.Set("HX-Retarget", "#header")
+	return utils.RenderPartial(c, "navbar", c.Locals("User"))
 }

@@ -1,1 +1,40 @@
-<h1>login page</h1>
+<form
+  id="login-form"
+  hx-post="/auth/login"
+  hx-reset-on-success
+  hx-indicator="#login-indicator"
+  hx-swap="none"
+  class="absolute top-96 left-1/2 -translate-x-[50%] gap-3 p-10 card card-bordered shadow-xl w-full max-w-[500px]">
+  <div class="flex flex-col gap-2">
+    <label for="username">Username</label>
+    <div>
+      <input
+        id="username"
+        type="text"
+        name="username"
+        placeholder="Bine..."
+        class="input input-bordered input-primary w-full" />
+    </div>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="password">Password</label>
+    <div>
+      <input
+        id="password"
+        type="text"
+        name="password"
+        placeholder="12345678..."
+        class="input input-bordered input-primary w-full" />
+    </div>
+  </div>
+
+  <button class="btn btn-primary mt-3">
+    <span class="relative flex items-center">
+      Login
+      <span
+        id="login-indicator"
+        class="absolute -right-8 htmx-indicator loading loading-spinner loading-md"
+    /></span>
+  </button>
+</form>

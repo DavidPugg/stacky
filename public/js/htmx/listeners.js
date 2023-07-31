@@ -14,3 +14,7 @@ document.body.addEventListener('updatePageDetails', function (event) {
   document.querySelector('meta[name="description"]').content =
     event.detail.description;
 });
+
+document.body.addEventListener('setLoggedInUser', function () {
+  htmx.ajax('POST', `/auth/set_user`);
+});

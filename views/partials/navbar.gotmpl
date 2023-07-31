@@ -1,9 +1,10 @@
 <div
+  id="navbar"
   class="flex fixed top-0 gap-4 bg-base-300 w-full py-4 items-center justify-between z-10 px-32">
   <a class="link-primary" href="/" hx-boost="true">HOME</a>
   <div class="flex gap-3">
-    {{ if .User }}
-    <button class="link-primary" on:click="{handleLogout}">Logout</button>
+    {{ if . }}
+    <a class="link-primary" hx-post="/auth/logout" hx-swap="none"> Logout </a>
     {{ else }}
     <a class="link-primary" href="/login" hx-boost="true">Login</a>
     <a class="link-primary" href="/register" hx-boost="true">Register</a>
