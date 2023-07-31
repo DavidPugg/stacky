@@ -1,6 +1,18 @@
 version: '1.0'
 
 services:
+  db:
+    image: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=stacky
+      - MYSQL_PASSWORD=password
+    networks:
+      - stacky-network
   web:
     build: 
       context: .
@@ -9,6 +21,15 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
+    restart: always
+    depends_on:
+      - db
     environment:
       - PORT=${PORT}
       - DB_URL=${DB_URL}
+    networks:
+      - stacky-network
+
+networks:
+  stacky-network:
+    driver: bridge

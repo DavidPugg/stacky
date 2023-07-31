@@ -38,7 +38,7 @@ func main() {
 
 	app.Use(cors.New(cors.Config{
 		AllowCredentials: true,
-		AllowOrigins:     viper.GetString("CLIENT_URL"),
+		AllowOrigins:     "*",
 	}))
 
 	app.Use(compress.New(compress.Config{
