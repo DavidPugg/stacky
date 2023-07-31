@@ -14,8 +14,12 @@
   <body>
     <div id="alert"></div>
 
-    <div id="content" class="my-24" hx-ext="reset-on-success">
+    <header>
+      {{ template "partials/navbar" . }}
+    </header>
+
+    <main id="content" class="my-24" hx-ext="reset-on-success">
       {{ embed }}
-    </div>
+    </main>
   </body>
 </html>
