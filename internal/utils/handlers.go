@@ -13,11 +13,16 @@ type Trigger struct {
 	Data interface{}
 }
 
+type PageDetails struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
 func RenderPartial(c *fiber.Ctx, view string, data interface{}) error {
 	return c.Render(fmt.Sprintf("partials/%s", view), data, "layouts/empty")
 }
 
-func RenderPage(c *fiber.Ctx, view string, data interface{}, layout ...string) error {
+func RenderPage(c *fiber.Ctx, view string, data interface{}, pd *PageDetails, layout ...string) error {
 	var l string
 	if len(layout) == 0 {
 		l = "layouts/main"
@@ -31,6 +36,14 @@ func RenderPage(c *fiber.Ctx, view string, data interface{}, layout ...string) e
 		c.Set("HX-Push-Url", c.Path())
 		c.Set("HX-Reswap", "innerHTML show:no-scroll")
 		c.Set("HX-Retarget", "#content")
+	}
+
+	c.Locals("PageDetails", pd)
+	if err := SetTrigger(c, Trigger{
+		Name: "updatePageDetails",
+		Data: pd,
+	}); err != nil {
+		return RenderError(c, fiber.StatusInternalServerError, "Error setting page details")
 	}
 
 	return c.Render(fmt.Sprintf("%s", view), data, l)
@@ -53,6 +66,9 @@ func RenderError(c *fiber.Ctx, status int, details string) error {
 		"Status":  status,
 		"Message": message,
 		"Details": details,
+	}, &PageDetails{
+		Title:       "Error",
+		Description: message,
 	})
 }
 
@@ -132,20 +148,20 @@ func SendAlert(c *fiber.Ctx, status int, message string) error {
 
 func SetRedirect(c *fiber.Ctx, url string) error {
 	location := c.Get("Referer")
-    location = strings.Split(location, "/")[3]
+	location = strings.Split(location, "/")[3]
 
 	if location == "" {
 		location = "/"
 	}
 
-	if (location == url) {
+	if location == url {
 		return nil
 	}
 
 	r, err := json.Marshal(fiber.Map{
 		"redirect": url,
 	})
-	
+
 	if err != nil {
 		return err
 	}
