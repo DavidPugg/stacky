@@ -15,21 +15,26 @@ type User_DB struct {
 	UpdatedAt string `json:"-" db:"updated_at"`
 }
 
-func (d *Data) CreateUser(avatar, username, email, password string) error {
-	_, err := d.DB.Exec("INSERT INTO users (avatar, username, email, password) VALUES (?, ?, ?, ?)", avatar, username, email, password)
+func (d *Data) CreateUser(avatar, username, email, password string) (int, error) {
+	result, err := d.DB.Exec("INSERT INTO users (avatar, username, email, password) VALUES (?, ?, ?, ?)", avatar, username, email, password)
 	if err != nil {
 		if strings.Contains(err.Error(), "users.email") {
-			return fmt.Errorf("users.email")
+			return 0, fmt.Errorf("users.email")
 		}
 
 		if strings.Contains(err.Error(), "users.username") {
-			return fmt.Errorf("users.username")
+			return 0, fmt.Errorf("users.username")
 		}
 
-		return err
+		return 0, err
 	}
 
-	return nil
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(id), nil
 }
 
 func (d *Data) GetUserByEmail(email string) (*User_DB, error) {

@@ -1,6 +1,8 @@
-<div class="mx-auto w-[700px] h-screen gap-20 flex flex-col">
+<div class="mx-auto max-w-[700px] h-screen gap-20 flex flex-col">
   <div>
     <h1 class="font-bold text-2xl text-center mb-6">Posts</h1>
+    <div class="flex flex-col gap-20 items-center pb-24" id="posts-list">
     {{ template "partials/postList" .Posts }}
+  </div>
   </div>
 </div>

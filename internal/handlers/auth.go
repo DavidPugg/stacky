@@ -140,9 +140,9 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 	}
 
 	cookie := fiber.Cookie{
-		Name: "jwt",
-		Value: token,
-		Expires: time.Now().Add(time.Hour * 24),
+		Name:     "jwt",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 24),
 		HTTPOnly: true,
 	}
 
@@ -161,9 +161,9 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 
 func (h *Handlers) register(c *fiber.Ctx) error {
 	var form struct {
-		Avatar string `validate:"required"`
+		Avatar   string `validate:"required"`
 		Username string `validate:"required,min=3,max=32"`
-		Email string `validate:"required,email"`
+		Email    string `validate:"required,email"`
 		Password string `validate:"required,min=8,max=32"`
 	}
 
@@ -171,7 +171,6 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 	form.Email = c.FormValue("email")
 	form.Password = c.FormValue("password")
 	form.Avatar = "hello.com" //TODO: replace with avatar url
-	
 
 	validate := validator.New()
 	if err := validate.Struct(form); err != nil {
@@ -183,32 +182,31 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error hashing password")
 	}
 
-	if err := h.data.CreateUser(form.Avatar, form.Username, form.Email, hashedPassword); err != nil {
-		if (err.Error() == "users.username") {
+	if _, err := h.data.CreateUser(form.Avatar, form.Username, form.Email, hashedPassword); err != nil {
+		if err.Error() == "users.username" {
 			return utils.SendAlert(c, fiber.StatusBadRequest, "Username already exists")
 		}
 
-		if (err.Error() == "users.email") {
+		if err.Error() == "users.email" {
 			return utils.SendAlert(c, fiber.StatusBadRequest, "Email already exists")
 		}
-		
+
 		return utils.SendAlert(c, fiber.StatusBadRequest, "Error creating user")
 	}
-	
+
 	err = utils.SetRedirect(c, "/login")
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error redirecting")
 	}
-
 
 	return utils.SendAlert(c, fiber.StatusOK, "User created")
 }
 
 func (h *Handlers) logout(c *fiber.Ctx) error {
 	cookie := fiber.Cookie{
-		Name: "jwt",
-		Value: "",
-		Expires: time.Now().Add(-time.Hour),
+		Name:     "jwt",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
 		HTTPOnly: true,
 	}
 
@@ -217,7 +215,6 @@ func (h *Handlers) logout(c *fiber.Ctx) error {
 	utils.SetTrigger(c, utils.Trigger{
 		Name: "setLoggedInUser",
 	})
-
 
 	err := utils.SetRedirect(c, "/")
 	if err != nil {
