@@ -13,10 +13,10 @@ type PageDetails struct {
 }
 
 var details = map[string]PageDetails{
-	"/":     {"Home", "Home page description"},
-	"/test": {"Test", "Test page description"},
-	"/login": {"Login", "Login page description"},
-	"/register": {"Register", "Register page description"}, 
+	"/":         {"Home", "Home page description"},
+	"/test":     {"Test", "Test page description"},
+	"/login":    {"Login", "Login page description"},
+	"/register": {"Register", "Register page description"},
 }
 
 func UpdatePageDetails(c *fiber.Ctx) error {

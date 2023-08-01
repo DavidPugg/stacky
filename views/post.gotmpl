@@ -1,0 +1,48 @@
+<div class="flex max-w-[800px] mt-20 mx-auto card rounded-lg overflow-hidden">
+	<img src="{{ .Post.Image }}" alt="post" class="aspect-square" />
+
+	<div class="bg-base-200 flex-grow flex flex-col">
+            <div class="p-4 flex items-center gap-3">
+                <div class="avatar placeholder">
+                    <div class="bg-neutral-focus text-neutral-content rounded-full w-9">
+                        <span class="text-md">D</span>
+                    </div>
+                </div>
+            
+                <p>{{ .Post.User.Username }}</p>
+                <button type="button" class="ml-auto">
+                    <svg viewBox="0 0 24 24" class="w-5 h-5 fill-white"
+                    ><path
+                        d="M17.5.917a6.4,6.4,0,0,0-5.5,3.3A6.4,6.4,0,0,0,6.5.917,6.8,6.8,0,0,0,0,7.967c0,6.775,10.956,14.6,11.422,14.932l.578.409.578-.409C13.044,22.569,24,14.742,24,7.967A6.8,6.8,0,0,0,17.5.917Z"
+                    /></svg
+                >            
+                </button>
+            </div>
+
+		<div class="border-[1px] border-slate-700" />
+
+		<form class="relative flex items-center">
+			<input
+				type="text"
+				placeholder="Add comment..."
+				name="comment"
+				class="p-4 bg-base-200 focus-visible:bg-base-300 rounded-br-xl outline-none border-none !border-0 focus-visible:outline-none w-full"
+			/>
+			<!-- {#if $commentMutation.isLoading}
+				<span class="loading loading-spinner loading-md absolute right-5" />
+			{/if} -->
+		</form>
+
+		<div class="border-[1px] border-slate-700" />
+
+		<!-- <div class="overflow-y-auto flex flex-col gap-3">
+			{#if post?.comments?.length}
+				{#each post?.comments as comment}
+					<Comment {comment} />
+				{/each}
+			{:else}
+				<div class="flex justify-center items-center p-10">No comments yet...</div>
+			{/if}
+		</div> -->
+	</div>
+</div>
