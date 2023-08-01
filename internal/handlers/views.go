@@ -13,12 +13,12 @@ func (h *Handlers) registerViewRoutes(c *fiber.App) {
 }
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
-	todos, err := h.data.GetTodos()
+	posts, err := h.data.GetPosts()
 	if err != nil {
-		return utils.RenderError(c, fiber.StatusInternalServerError, "Error getting todos")
+		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
 
-	return utils.RenderPage(c, "index", fiber.Map{"Todos": todos})
+	return utils.RenderPage(c, "index", fiber.Map{"Posts": posts})
 }
 
 func (h *Handlers) renderLogin(c *fiber.Ctx) error {
@@ -28,4 +28,3 @@ func (h *Handlers) renderLogin(c *fiber.Ctx) error {
 func (h *Handlers) renderRegister(c *fiber.Ctx) error {
 	return utils.RenderPage(c, "register", fiber.Map{})
 }
-

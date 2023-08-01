@@ -6,11 +6,11 @@ import (
 )
 
 type User_DB struct {
-	ID int `json:"id" db:"id"`
-	Avatar string `json:"avatar" db:"avatar"`
-	Username string `json:"username" db:"username"`
-	Email string `json:"email" db:"email"`
-	Password string `json:"-" db:"password"`
+	ID        int    `json:"id" db:"id"`
+	Avatar    string `json:"avatar" db:"avatar"`
+	Username  string `json:"username" db:"username"`
+	Email     string `json:"email" db:"email"`
+	Password  string `json:"-" db:"password"`
 	CreatedAt string `json:"created_at" db:"created_at"`
 	UpdatedAt string `json:"-" db:"updated_at"`
 }

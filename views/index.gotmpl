@@ -1,21 +1,6 @@
 <div class="mx-auto w-[700px] h-screen gap-20 flex flex-col">
-  <form
-    class="flex flex-col gap-3"
-    hx-post="/todos"
-    hx-target="#todo-list"
-    hx-swap="beforeend"
-    hx-reset-on-success>
-    <input
-      type="text"
-      class="input input-bordered input-primary"
-      id="todo"
-      name="todo"
-      placeholder="Insert new todo..." />
-    <button class="btn btn-primary">Add</button>
-  </form>
-
   <div>
-    <h1 class="font-bold text-2xl text-center mb-6">Todos</h1>
-    {{ template "partials/todoList" .Todos }}
+    <h1 class="font-bold text-2xl text-center mb-6">Posts</h1>
+    {{ template "partials/postList" .Posts }}
   </div>
 </div>
