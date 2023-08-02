@@ -7,20 +7,27 @@ import (
 )
 
 type UserTokenData struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	ID            int    `json:"id"`
+	Username      string `json:"username"`
+	Email         string `json:"email"`
+	Authenticated bool   `json:"authenticated"`
 }
 
 func ParseToken(c *fiber.Ctx) error {
+	c.Locals("User", &UserTokenData{})
+
+	var t string
 	authHeader := c.Get("Authorization")
 	if authHeader == "" {
-		return c.Next()
-	}
-
-	t := authHeader[7:]
-	if t == "" {
-		return c.Next()
+		t = c.Cookies("jwt")
+		if t == "" {
+			return c.Next()
+		}
+	} else {
+		t = authHeader[7:]
+		if t == "" {
+			return c.Next()
+		}
 	}
 
 	token, err := utils.ValidateToken(t)
@@ -34,9 +41,10 @@ func ParseToken(c *fiber.Ctx) error {
 	}
 
 	data := &UserTokenData{
-		ID:       int(claims["id"].(float64)),
-		Username: claims["username"].(string),
-		Email:    claims["email"].(string),
+		ID:            int(claims["id"].(float64)),
+		Username:      claims["username"].(string),
+		Email:         claims["email"].(string),
+		Authenticated: true,
 	}
 
 	c.Locals("User", data)
@@ -45,7 +53,7 @@ func ParseToken(c *fiber.Ctx) error {
 }
 
 func Authenticate(c *fiber.Ctx) error {
-	if c.Locals("User") == nil {
+	if c.Locals("User").(*UserTokenData).ID == 0 {
 		return utils.SendAlert(c, 401, "You must be logged in to do that.")
 	}
 

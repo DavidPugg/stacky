@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 
+	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,7 +16,9 @@ func (h *Handlers) registerViewRoutes(c *fiber.App) {
 }
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
-	posts, err := h.data.GetPosts()
+	userID := c.Locals("User").(*middleware.UserTokenData).ID
+
+	posts, err := h.data.GetPosts(userID)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
@@ -46,7 +49,9 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid post ID")
 	}
 
-	post, err := h.data.GetPostByID(postID)
+	userID := c.Locals("User").(*middleware.UserTokenData).ID
+
+	post, err := h.data.GetPostByID(userID, postID)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}

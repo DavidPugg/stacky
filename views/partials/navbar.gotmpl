@@ -3,7 +3,7 @@
   class="flex fixed top-0 gap-4 bg-base-300 w-full py-4 items-center justify-between z-10 px-32">
   <a class="link-primary" href="/" hx-boost="true">HOME</a>
   <div class="flex gap-3">
-    {{ if . }}
+    {{ if .Authenticated}}
     <a class="link-primary cursor-pointer" hx-post="/auth/logout" hx-swap="none"
       >Logout</a
     >

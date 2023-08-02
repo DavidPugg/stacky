@@ -13,6 +13,7 @@ type Post_DB struct {
 	UserEmail    string `json:"user_email" db:"user_email"`
 	UserCreated  string `json:"user_created" db:"user_created"`
 	LikeCount    int    `json:"like_count" db:"like_count"`
+	Liked        bool   `json:"liked" db:"liked"`
 }
 
 type Post struct {
@@ -22,14 +23,21 @@ type Post struct {
 	CreatedAt   string   `json:"created_at" db:"created_at"`
 	User        *User_DB `json:"user" db:"user"`
 	LikeCount   int      `json:"like_count" db:"like_count"`
+	Liked       bool     `json:"liked" db:"liked"`
 	// CommentCount int      `json:"comment_count" db:"comment_count"`
 }
 
-func (d *Data) GetPosts() ([]*Post, error) {
+func (d *Data) GetPosts(userID int) ([]*Post, error) {
 	query := `
 		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
 		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
-		COUNT(pl.id) AS like_count
+		COUNT(pl.id) AS like_count,
+		EXISTS (
+			SELECT 1
+			FROM post_likes AS pl2
+			WHERE pl2.post_id = p.id
+			AND pl2.user_id = ?
+		) AS liked
 		FROM posts AS p
 		LEFT JOIN users AS u ON p.user_id = u.id
 		LEFT JOIN post_likes AS pl ON p.id = pl.post_id
@@ -37,7 +45,7 @@ func (d *Data) GetPosts() ([]*Post, error) {
 		ORDER BY created_at`
 
 	posts := []*Post_DB{}
-	err := d.DB.Select(&posts, query)
+	err := d.DB.Select(&posts, query, userID)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -51,11 +59,17 @@ func (d *Data) GetPosts() ([]*Post, error) {
 	return postsData, nil
 }
 
-func (d *Data) GetPostByID(id string) (*Post, error) {
+func (d *Data) GetPostByID(userID int, postID string) (*Post, error) {
 	query := `
 		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
 		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
-		COUNT(pl.id) AS like_count
+		COUNT(pl.id) AS like_count,
+				EXISTS (
+			SELECT 1
+			FROM post_likes AS pl2
+			WHERE pl2.post_id = p.id
+			AND pl2.user_id = ?
+		) AS liked
 		FROM posts AS p
 		LEFT JOIN users AS u ON p.user_id = u.id
 		LEFT JOIN post_likes AS pl ON p.id = pl.post_id
@@ -63,7 +77,7 @@ func (d *Data) GetPostByID(id string) (*Post, error) {
 		GROUP BY p.id`
 
 	post := &Post_DB{}
-	err := d.DB.Get(post, query, id)
+	err := d.DB.Get(post, query, userID, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -114,6 +128,7 @@ func createPostFromDB(post *Post_DB) *Post {
 			CreatedAt: post.UserCreated,
 		},
 		LikeCount: post.LikeCount,
+		Liked:     post.Liked,
 		// CommentCount: post.CommentCount,
 	}
 }

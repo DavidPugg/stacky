@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -147,17 +146,6 @@ func SendAlert(c *fiber.Ctx, status int, message string) error {
 }
 
 func SetRedirect(c *fiber.Ctx, url string) error {
-	location := c.Get("Referer")
-	location = strings.Split(location, "/")[3]
-
-	if location == "" {
-		location = "/"
-	}
-
-	if location == url {
-		return nil
-	}
-
 	r, err := json.Marshal(fiber.Map{
 		"redirect": url,
 	})
