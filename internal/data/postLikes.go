@@ -17,7 +17,7 @@ func (d *Data) CreatePostLike(userID, postID int) error {
 }
 
 func (d *Data) DeletePostLike(userID, postID int) error {
-	_, err := d.DB.Exec("DELETE FROM post_likes WHERE post_id = ?", postID)
+	_, err := d.DB.Exec("DELETE FROM post_likes WHERE user_id = ? AND post_id = ?", userID, postID)
 	if err != nil {
 		return err
 	}

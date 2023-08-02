@@ -30,7 +30,10 @@ func (h *Handlers) likePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	return nil
+	return utils.RenderPartial(c, "likeButton", fiber.Map{
+		"ID":    postID,
+		"Liked": true,
+	})
 }
 
 func (h *Handlers) unlikePost(c *fiber.Ctx) error {
@@ -47,5 +50,8 @@ func (h *Handlers) unlikePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	return nil
+	return utils.RenderPartial(c, "likeButton", fiber.Map{
+		"ID":    postID,
+		"Liked": false,
+	})
 }
