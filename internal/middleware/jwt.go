@@ -13,13 +13,17 @@ type UserTokenData struct {
 }
 
 func ParseToken(c *fiber.Ctx) error {
-	cookie := c.Cookies("jwt")
-
-	if cookie == "" {
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
 		return c.Next()
 	}
 
-	token, err := utils.ValidateToken(cookie)
+	t := authHeader[7:]
+	if t == "" {
+		return c.Next()
+	}
+
+	token, err := utils.ValidateToken(t)
 	if err != nil {
 		return c.Next()
 	}
@@ -29,13 +33,21 @@ func ParseToken(c *fiber.Ctx) error {
 		return c.Next()
 	}
 
-	data := UserTokenData{
+	data := &UserTokenData{
 		ID:       int(claims["id"].(float64)),
 		Username: claims["username"].(string),
 		Email:    claims["email"].(string),
 	}
 
 	c.Locals("User", data)
+
+	return c.Next()
+}
+
+func Authenticate(c *fiber.Ctx) error {
+	if c.Locals("User") == nil {
+		return utils.SendAlert(c, 401, "You must be logged in to do that.")
+	}
 
 	return c.Next()
 }
