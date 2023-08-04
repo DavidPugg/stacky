@@ -37,7 +37,7 @@ func (d *Data) GetPosts(userID int) ([]*Post, error) {
 	query := `
 		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
 		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
-		COUNT(pl.id) AS like_count,
+		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
 		COUNT(c.id) AS comment_count,
 		EXISTS (
 			SELECT 1
@@ -47,7 +47,6 @@ func (d *Data) GetPosts(userID int) ([]*Post, error) {
 		) AS liked
 		FROM posts AS p
 		LEFT JOIN users AS u ON p.user_id = u.id
-		LEFT JOIN post_likes AS pl ON p.id = pl.post_id
 		LEFT JOIN comments AS c ON p.id = c.post_id
 		GROUP BY p.id
 		ORDER BY created_at`
@@ -66,12 +65,13 @@ func (d *Data) GetPosts(userID int) ([]*Post, error) {
 
 	return postsData, nil
 }
-func (d *Data) GetPostWithCommentsByID(userID int, postID string) (*PostWithComments, error) {
+func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, error) {
 	query := `
 		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
 		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
-		COUNT(pl.id) AS like_count,
-				EXISTS (
+		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
+		COUNT(c.id) AS comment_count,
+		EXISTS (
 			SELECT 1
 			FROM post_likes AS pl2
 			WHERE pl2.post_id = p.id
@@ -79,7 +79,7 @@ func (d *Data) GetPostWithCommentsByID(userID int, postID string) (*PostWithComm
 		) AS liked
 		FROM posts AS p
 		LEFT JOIN users AS u ON p.user_id = u.id
-		LEFT JOIN post_likes AS pl ON p.id = pl.post_id
+		LEFT JOIN comments AS c ON p.id = c.post_id
 		WHERE p.id = ?
 		GROUP BY p.id`
 
@@ -122,7 +122,7 @@ func (d *Data) CreatePost(userID int, image, description string) error {
 	return nil
 }
 
-func (d *Data) DeletePostByID(id string) error {
+func (d *Data) DeletePostByID(id int) error {
 	_, err := d.DB.Exec("DELETE FROM posts WHERE id = ?", id)
 	if err != nil {
 		return err
@@ -131,7 +131,7 @@ func (d *Data) DeletePostByID(id string) error {
 	return nil
 }
 
-func (d *Data) UpdatePostByID(id, image, description string) error {
+func (d *Data) UpdatePostByID(id int, image, description string) error {
 	_, err := d.DB.Exec("UPDATE posts SET image = ?, description = ? WHERE id = ?", image, description, id)
 	if err != nil {
 		return err

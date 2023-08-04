@@ -38,7 +38,7 @@ func (d *Data) GetCommentByID(userID, commentID int) (*Comment, error) {
 	return createCommentFromDB(comment, userID), nil
 }
 
-func (d *Data) GetPostComments(userID int, postID string) ([]*Comment, error) {
+func (d *Data) GetPostComments(userID, postID int) ([]*Comment, error) {
 	query := `
 	SELECT c.id, c.user_id, c.post_id, c.body, c.created_at,
 	u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created

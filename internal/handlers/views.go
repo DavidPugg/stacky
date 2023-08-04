@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/davidpugg/stacky/internal/utils"
@@ -44,8 +45,13 @@ func (h *Handlers) renderRegister(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) renderPost(c *fiber.Ctx) error {
-	postID := c.Params("id")
-	if postID == "" {
+	pID := c.Params("id")
+	if pID == "" {
+		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid post ID")
+	}
+
+	postID, err := strconv.Atoi(pID)
+	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid post ID")
 	}
 
