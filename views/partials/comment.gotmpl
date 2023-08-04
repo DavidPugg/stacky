@@ -1,17 +1,19 @@
-<div class="flex items-center gap-3 p-4">
+<button class="flex items-center gap-3 p-4 {{ if .IsAuthor }} hover:bg-slate-800 {{ end }}"
+	{{ if .IsAuthor }}  hx-delete="/posts/{{ .ID }}/comment" {{ end }}
+	hx-swap="delete"
+>
 
-<div class="p-4 flex items-center gap-3">
-	<div class="avatar placeholder">
-		<div class="bg-neutral-focus text-neutral-content rounded-full w-9">
-			<span class="text-md">P</span>
+	<div class="p-4 flex items-center gap-3">
+		<div class="avatar placeholder">
+			<div class="bg-neutral-focus text-neutral-content rounded-full w-9">
+				<span class="text-md">P</span>
+			</div>
 		</div>
+		<p>{{ .User.Username  }}</p>
 	</div>
-
-	<p>{{ .User.Username  }}</p>
-</div>
 
 	<div class="flex-grow flex justify-between">
 		<div>{{ .Body }}</div>
 		<div>{{ .CreatedAt }}</div>
 	</div>
-</div>
+</button>

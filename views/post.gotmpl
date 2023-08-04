@@ -31,11 +31,9 @@
 
 		<div id="comment-list" class="overflow-y-auto flex flex-col gap-3">
 			{{ if .Post.Comments }}
-
-			{{ range .Post.Comments }}
-				{{ template "partials/comment" . }}
-			{{ end }}
-
+				{{ range .Post.Comments }}
+					{{ template "partials/comment" . }}
+				{{ end }}
 			{{ else }}
 				<div id="no-comments" class="flex justify-center items-center p-10">No comments yet...</div>
 			{{ end }}

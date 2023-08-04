@@ -24,7 +24,7 @@ func (h *Handlers) likePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	userID := c.Locals("User").(*middleware.UserTokenData).ID
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	err = h.data.CreatePostLike(userID, postID)
 	if err != nil {
@@ -45,7 +45,7 @@ func (h *Handlers) unlikePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	userID := c.Locals("User").(*middleware.UserTokenData).ID
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	err = h.data.DeletePostLike(userID, postID)
 	if err != nil {
@@ -70,7 +70,7 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	userID := c.Locals("User").(*middleware.UserTokenData).ID
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	comment, err := h.data.CreateComment(userID, postID, commentForm)
 	if err != nil {
@@ -91,9 +91,9 @@ func (h *Handlers) deleteComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	userID := c.Locals("User").(*middleware.UserTokenData).ID
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
-	comment, err := h.data.GetCommentByID(postID)
+	comment, err := h.data.GetCommentByID(userID, postID)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}

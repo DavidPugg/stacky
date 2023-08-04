@@ -16,7 +16,7 @@ func (h *Handlers) registerViewRoutes(c *fiber.App) {
 }
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
-	userID := c.Locals("User").(*middleware.UserTokenData).ID
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	posts, err := h.data.GetPosts(userID)
 	if err != nil {
@@ -49,12 +49,13 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid post ID")
 	}
 
-	userID := c.Locals("User").(*middleware.UserTokenData).ID
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	post, err := h.data.GetPostWithCommentsByID(userID, postID)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
+
 	return utils.RenderPage(c, "post", fiber.Map{"Post": post}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - %d - Stacky", post.User.Username, post.ID),
 		Description: post.Description,

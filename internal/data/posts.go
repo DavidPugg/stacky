@@ -92,7 +92,7 @@ func (d *Data) GetPostWithCommentsByID(userID int, postID string) (*PostWithComm
 	commentChan := make(chan []*Comment)
 
 	go func() {
-		comments, err := d.GetPostComments(postID)
+		comments, err := d.GetPostComments(userID, postID)
 		if err != nil {
 			commentChan <- nil
 			return

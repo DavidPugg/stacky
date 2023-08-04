@@ -226,5 +226,5 @@ func (h *Handlers) logout(c *fiber.Ctx) error {
 
 func (h *Handlers) setUser(c *fiber.Ctx) error {
 	c.Set("HX-Retarget", "#header")
-	return utils.RenderPartial(c, "navbar", c.Locals("User"))
+	return utils.RenderPartial(c, "navbar", c.Locals("AuthUser"))
 }

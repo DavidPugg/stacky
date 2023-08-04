@@ -14,7 +14,7 @@ type UserTokenData struct {
 }
 
 func ParseToken(c *fiber.Ctx) error {
-	c.Locals("User", &UserTokenData{})
+	c.Locals("AuthUser", &UserTokenData{})
 
 	var t string
 	authHeader := c.Get("Authorization")
@@ -47,13 +47,13 @@ func ParseToken(c *fiber.Ctx) error {
 		Authenticated: true,
 	}
 
-	c.Locals("User", data)
+	c.Locals("AuthUser", data)
 
 	return c.Next()
 }
 
 func Authenticate(c *fiber.Ctx) error {
-	if c.Locals("User").(*UserTokenData).ID == 0 {
+	if c.Locals("AuthUser").(*UserTokenData).ID == 0 {
 		return utils.SendAlert(c, 401, "You must be logged in to do that.")
 	}
 
