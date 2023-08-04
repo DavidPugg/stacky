@@ -32,9 +32,9 @@
 		</form>
 
 		<div id="comment-list" class="overflow-y-auto flex flex-col gap-3 border-t-[1px] border-slate-700 {{ if .Post.Comments }} visible {{ else}} hidden {{ end }}">
-				{{ range .Post.Comments }}
-					{{ template "partials/comment" . }}
-				{{ end }}
+			{{ range .Post.Comments }}
+				{{ template "partials/comment" . }}
+			{{ end }}
 		</div>
 		<div id="no-comments" class="flex justify-center items-center p-10 border-t-[1px] border-slate-700 {{ if not .Post.Comments }} visible {{ else}} hidden {{ end }}">No comments yet...</div>
 	</div>

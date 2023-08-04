@@ -32,6 +32,14 @@ func (h *Handlers) likePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
+	utils.SetTrigger(c, utils.Trigger{
+		Name: "updateLikeCount",
+		Data: &fiber.Map{
+			"postID": postID,
+			"method": "like",
+		},
+	})
+
 	return utils.RenderPartial(c, "likeButton", fiber.Map{
 		"ID":    postID,
 		"Liked": true,
@@ -51,6 +59,14 @@ func (h *Handlers) unlikePost(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
+
+	utils.SetTrigger(c, utils.Trigger{
+		Name: "updateLikeCount",
+		Data: &fiber.Map{
+			"postID": postID,
+			"method": "unlike",
+		},
+	})
 
 	return utils.RenderPartial(c, "likeButton", fiber.Map{
 		"ID":    postID,
