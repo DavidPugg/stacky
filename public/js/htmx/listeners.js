@@ -25,8 +25,23 @@ document.body.addEventListener('redirect', function (event) {
 
 document.body.addEventListener('removeNoComments', function (event) {
   const noComments = document.getElementById('no-comments');
-  if (noComments) {
-    noComments.remove();
+  const commentsList = document.getElementById('comment-list');
+  noComments.classList.remove('visible');
+  noComments.classList.add('hidden');
+  commentsList.classList.remove('hidden');
+  commentsList.classList.add('visible');
+});
+
+document.body.addEventListener('addNoComments', function (event) {
+  const commentsList = document.getElementById('comment-list');
+
+  if (commentsList.childElementCount <= 1) {
+  const noComments = document.getElementById('no-comments');
+  
+  noComments.classList.remove('hidden');
+  noComments.classList.add('visible');
+  commentsList.classList.remove('visible');
+  commentsList.classList.add('hidden');
   }
 });
 

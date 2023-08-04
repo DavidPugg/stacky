@@ -15,28 +15,27 @@
 
 		<p class="p-4 border-t-[1px] border-slate-700">{{ .Post.Description }}</p>
 
-		<form hx-reset-on-success class="relative flex items-center border-t-[1px] border-slate-700" hx-post="/posts/{{ .Post.ID }}/comment" hx-swap="afterbegin" hx-target="#comment-list" >
+		<form hx-reset-on-success
+		 class="relative flex items-center border-t-[1px] border-slate-700"
+		 hx-post="/posts/{{ .Post.ID }}/comment"
+		 hx-swap="afterbegin"
+		 hx-target="#comment-list"
+		 hx-indicator="#comment-indicator"
+		>
 			<input
 				type="text"
 				placeholder="Add comment..."
 				name="comment"
 				class="p-4 bg-base-200 focus-visible:bg-base-300 rounded-br-xl outline-none border-none !border-0 focus-visible:outline-none w-full"
 			/>
-			<!-- {#if $commentMutation.isLoading}
-				<span class="loading loading-spinner loading-md absolute right-5" />
-			{/if} -->
+			<span id="comment-indicator" class="loading loading-spinner loading-md absolute right-5 htmx-indicator"></span>
 		</form>
 
-		<!-- <div class="border-[1px] border-slate-700" /> -->
-
-		<div id="comment-list" class="overflow-y-auto flex flex-col gap-3">
-			{{ if .Post.Comments }}
+		<div id="comment-list" class="overflow-y-auto flex flex-col gap-3 border-t-[1px] border-slate-700 {{ if .Post.Comments }} visible {{ else}} hidden {{ end }}">
 				{{ range .Post.Comments }}
 					{{ template "partials/comment" . }}
 				{{ end }}
-			{{ else }}
-				<div id="no-comments" class="flex justify-center items-center p-10">No comments yet...</div>
-			{{ end }}
 		</div>
+		<div id="no-comments" class="flex justify-center items-center p-10 border-t-[1px] border-slate-700 {{ if not .Post.Comments }} visible {{ else}} hidden {{ end }}">No comments yet...</div>
 	</div>
 </div>

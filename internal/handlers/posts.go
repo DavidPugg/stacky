@@ -107,5 +107,9 @@ func (h *Handlers) deleteComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
+	utils.SetTrigger(c, utils.Trigger{
+		Name: "addNoComments",
+	})
+
 	return c.SendStatus(200)
 }
