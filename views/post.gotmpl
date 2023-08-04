@@ -15,7 +15,7 @@
 
 		<p class="p-4 border-t-[1px] border-slate-700">{{ .Post.Description }}</p>
 
-		<form class="relative flex items-center border-t-[1px] border-slate-700">
+		<form hx-reset-on-success class="relative flex items-center border-t-[1px] border-slate-700" hx-post="/posts/{{ .Post.ID }}/comment" hx-swap="afterbegin" hx-target="#comment-list" >
 			<input
 				type="text"
 				placeholder="Add comment..."
@@ -29,14 +29,16 @@
 
 		<!-- <div class="border-[1px] border-slate-700" /> -->
 
-		<!-- <div class="overflow-y-auto flex flex-col gap-3">
-			{#if post?.comments?.length}
-				{#each post?.comments as comment}
-					<Comment {comment} />
-				{/each}
-			{:else}
-				<div class="flex justify-center items-center p-10">No comments yet...</div>
-			{/if}
-		</div> -->
+		<div id="comment-list" class="overflow-y-auto flex flex-col gap-3">
+			{{ if .Post.Comments }}
+
+			{{ range .Post.Comments }}
+				{{ template "partials/comment" . }}
+			{{ end }}
+
+			{{ else }}
+				<div id="no-comments" class="flex justify-center items-center p-10">No comments yet...</div>
+			{{ end }}
+		</div>
 	</div>
 </div>

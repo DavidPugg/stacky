@@ -14,17 +14,23 @@ type Post_DB struct {
 	UserCreated  string `json:"user_created" db:"user_created"`
 	LikeCount    int    `json:"like_count" db:"like_count"`
 	Liked        bool   `json:"liked" db:"liked"`
+	CommentCount int    `json:"comment_count" db:"comment_count"`
 }
 
 type Post struct {
-	ID          int      `json:"id" db:"id"`
-	Image       string   `json:"image" db:"image"`
-	Description string   `json:"description" db:"description"`
-	CreatedAt   string   `json:"created_at" db:"created_at"`
-	User        *User_DB `json:"user" db:"user"`
-	LikeCount   int      `json:"like_count" db:"like_count"`
-	Liked       bool     `json:"liked" db:"liked"`
-	// CommentCount int      `json:"comment_count" db:"comment_count"`
+	ID           int      `json:"id" db:"id"`
+	Image        string   `json:"image" db:"image"`
+	Description  string   `json:"description" db:"description"`
+	CreatedAt    string   `json:"created_at" db:"created_at"`
+	User         *User_DB `json:"user" db:"user"`
+	LikeCount    int      `json:"like_count" db:"like_count"`
+	Liked        bool     `json:"liked" db:"liked"`
+	CommentCount int      `json:"comment_count" db:"comment_count"`
+}
+
+type PostWithComments struct {
+	Post
+	Comments []*Comment `json:"comments"`
 }
 
 func (d *Data) GetPosts(userID int) ([]*Post, error) {
@@ -32,6 +38,7 @@ func (d *Data) GetPosts(userID int) ([]*Post, error) {
 		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
 		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
 		COUNT(pl.id) AS like_count,
+		COUNT(c.id) AS comment_count,
 		EXISTS (
 			SELECT 1
 			FROM post_likes AS pl2
@@ -41,6 +48,7 @@ func (d *Data) GetPosts(userID int) ([]*Post, error) {
 		FROM posts AS p
 		LEFT JOIN users AS u ON p.user_id = u.id
 		LEFT JOIN post_likes AS pl ON p.id = pl.post_id
+		LEFT JOIN comments AS c ON p.id = c.post_id
 		GROUP BY p.id
 		ORDER BY created_at`
 
@@ -58,8 +66,7 @@ func (d *Data) GetPosts(userID int) ([]*Post, error) {
 
 	return postsData, nil
 }
-
-func (d *Data) GetPostByID(userID int, postID string) (*Post, error) {
+func (d *Data) GetPostWithCommentsByID(userID int, postID string) (*PostWithComments, error) {
 	query := `
 		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
 		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
@@ -82,9 +89,28 @@ func (d *Data) GetPostByID(userID int, postID string) (*Post, error) {
 		return nil, err
 	}
 
+	commentChan := make(chan []*Comment)
+
+	go func() {
+		comments, err := d.GetPostComments(postID)
+		if err != nil {
+			commentChan <- nil
+			return
+		}
+
+		commentChan <- comments
+	}()
+
 	p := createPostFromDB(post)
 
-	return p, nil
+	comments := <-commentChan
+	if comments == nil {
+		return nil, err
+	}
+
+	pwc := createPostWithComments(p, comments)
+
+	return pwc, nil
 }
 
 func (d *Data) CreatePost(userID int, image, description string) error {
@@ -127,8 +153,15 @@ func createPostFromDB(post *Post_DB) *Post {
 			Email:     post.UserEmail,
 			CreatedAt: post.UserCreated,
 		},
-		LikeCount: post.LikeCount,
-		Liked:     post.Liked,
-		// CommentCount: post.CommentCount,
+		LikeCount:    post.LikeCount,
+		Liked:        post.Liked,
+		CommentCount: post.CommentCount,
+	}
+}
+
+func createPostWithComments(post *Post, comments []*Comment) *PostWithComments {
+	return &PostWithComments{
+		Post:     *post,
+		Comments: comments,
 	}
 }

@@ -1,0 +1,17 @@
+<div class="flex items-center gap-3 p-4">
+
+<div class="p-4 flex items-center gap-3">
+	<div class="avatar placeholder">
+		<div class="bg-neutral-focus text-neutral-content rounded-full w-9">
+			<span class="text-md">P</span>
+		</div>
+	</div>
+
+	<p>{{ .User.Username  }}</p>
+</div>
+
+	<div class="flex-grow flex justify-between">
+		<div>{{ .Body }}</div>
+		<div>{{ .CreatedAt }}</div>
+	</div>
+</div>

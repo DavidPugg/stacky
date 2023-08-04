@@ -1,0 +1,4 @@
+ALTER TABLE comments DROP FOREIGN KEY FK_CommentPost;
+ALTER TABLE comments DROP FOREIGN KEY FK_CommentUser;
+
+DROP TABLE comments;

@@ -22,3 +22,11 @@ document.body.addEventListener('setLoggedInUser', function () {
 document.body.addEventListener('redirect', function (event) {
   htmx.ajax('GET', event.detail.value);
 });
+
+document.body.addEventListener('removeNoComments', function (event) {
+  const noComments = document.getElementById('no-comments');
+  if (noComments) {
+    noComments.remove();
+  }
+});
+

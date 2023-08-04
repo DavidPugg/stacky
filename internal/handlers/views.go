@@ -51,7 +51,7 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 
 	userID := c.Locals("User").(*middleware.UserTokenData).ID
 
-	post, err := h.data.GetPostByID(userID, postID)
+	post, err := h.data.GetPostWithCommentsByID(userID, postID)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
