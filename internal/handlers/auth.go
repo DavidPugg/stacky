@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -17,7 +18,6 @@ func (h *Handlers) registerAuthRoutes(c *fiber.App) {
 	r.Post("/login", h.login)
 	r.Post("/register", h.register)
 	r.Post("/logout", h.logout)
-	r.Post("/set_user", h.setUser)
 }
 
 func (h *Handlers) validateEmail(c *fiber.Ctx) error {
@@ -148,15 +148,22 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 
 	c.Cookie(&cookie)
 
-	utils.SetTrigger(c, utils.Trigger{
-		Name: "setLoggedInUser",
-	})
+	data := middleware.NewUserTokenData(
+		user.ID,
+		user.Username,
+		user.Email,
+	)
 
 	err = utils.SetRedirect(c, "/")
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error redirecting")
 	}
-	return utils.SendAlert(c, fiber.StatusOK, "Successfully logged in")
+
+	utils.SetAlert(c, fiber.StatusOK, "Successfully logged in")
+
+	c.Set("HX-Retarget", "#navbar")
+	c.Set("HX-Reswap", "outerHTML")
+	return utils.RenderPartial(c, "navbar", data)
 }
 
 func (h *Handlers) register(c *fiber.Ctx) error {
@@ -212,19 +219,16 @@ func (h *Handlers) logout(c *fiber.Ctx) error {
 
 	c.Cookie(&cookie)
 
-	utils.SetTrigger(c, utils.Trigger{
-		Name: "setLoggedInUser",
-	})
+	c.Locals("AuthUser", nil)
 
 	err := utils.SetRedirect(c, "/")
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error redirecting")
 	}
 
-	return utils.SendAlert(c, fiber.StatusOK, "Successfully logged out")
-}
+	utils.SetAlert(c, fiber.StatusOK, "Successfully logged out")
 
-func (h *Handlers) setUser(c *fiber.Ctx) error {
-	c.Set("HX-Retarget", "#header")
+	c.Set("HX-Retarget", "#navbar")
+	c.Set("HX-Reswap", "outerHTML")
 	return utils.RenderPartial(c, "navbar", c.Locals("AuthUser"))
 }

@@ -13,6 +13,15 @@ type UserTokenData struct {
 	Authenticated bool   `json:"authenticated"`
 }
 
+func NewUserTokenData(id int, username, email string) *UserTokenData {
+	return &UserTokenData{
+		ID:            id,
+		Username:      username,
+		Email:         email,
+		Authenticated: true,
+	}
+}
+
 func ParseToken(c *fiber.Ctx) error {
 	c.Locals("AuthUser", &UserTokenData{})
 
@@ -40,12 +49,11 @@ func ParseToken(c *fiber.Ctx) error {
 		return c.Next()
 	}
 
-	data := &UserTokenData{
-		ID:            int(claims["id"].(float64)),
-		Username:      claims["username"].(string),
-		Email:         claims["email"].(string),
-		Authenticated: true,
-	}
+	data := NewUserTokenData(
+		int(claims["id"].(float64)),
+		claims["username"].(string),
+		claims["email"].(string),
+	)
 
 	c.Locals("AuthUser", data)
 

@@ -15,10 +15,6 @@ document.body.addEventListener('updatePageDetails', function (event) {
     event.detail.description;
 });
 
-document.body.addEventListener('setLoggedInUser', function () {
-  htmx.ajax('POST', `/auth/set_user`);
-});
-
 document.body.addEventListener('redirect', function (event) {
   htmx.ajax('GET', event.detail.value);
 });
