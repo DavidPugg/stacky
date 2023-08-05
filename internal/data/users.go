@@ -13,6 +13,7 @@ type User_DB struct {
 	Password  string `json:"-" db:"password"`
 	CreatedAt string `json:"created_at" db:"created_at"`
 	UpdatedAt string `json:"-" db:"updated_at"`
+	Followed  bool   `json:"followed" db:"followed"`
 }
 
 func (d *Data) CreateUser(avatar, username, email, password string) (int, error) {

@@ -1,0 +1,7 @@
+<button
+ hx-swap="outerHTML"
+ {{ if .Followed  }} hx-delete="/users/{{ .ID }}/follow" {{ else }} hx-post="/users/{{ .ID }}/follow" {{ end }}
+ class="{{ if .Followed }} hover:text-red-500 {{ else }} hover:text-primary {{ end }}"
+>
+    {{ if .Followed  }} Unfollow {{ else }} Follow {{ end }}
+</button>

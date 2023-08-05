@@ -10,7 +10,10 @@
                 </div>
             
                 <p>{{ .Post.User.Username }}</p>
+
+				
 				{{ template "partials/likeButton" .Post }}
+				{{ template "partials/followButton" .Post.User }}
             </div>
 
 		<p class="p-4 border-t-[1px] border-slate-700">{{ .Post.Description }}</p>

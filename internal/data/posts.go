@@ -15,6 +15,7 @@ type Post_DB struct {
 	LikeCount    int    `json:"like_count" db:"like_count"`
 	Liked        bool   `json:"liked" db:"liked"`
 	CommentCount int    `json:"comment_count" db:"comment_count"`
+	Followed     bool   `json:"followed" db:"followed"`
 }
 
 type Post struct {
@@ -44,7 +45,13 @@ func (d *Data) GetPosts(userID int) ([]*Post, error) {
 			FROM post_likes AS pl2
 			WHERE pl2.post_id = p.id
 			AND pl2.user_id = ?
-		) AS liked
+		) AS liked,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = p.user_id
+			AND f.follower_id = ?
+		) AS followed
 		FROM posts AS p
 		LEFT JOIN users AS u ON p.user_id = u.id
 		LEFT JOIN comments AS c ON p.id = c.post_id
@@ -52,7 +59,7 @@ func (d *Data) GetPosts(userID int) ([]*Post, error) {
 		ORDER BY created_at`
 
 	posts := []*Post_DB{}
-	err := d.DB.Select(&posts, query, userID)
+	err := d.DB.Select(&posts, query, userID, userID)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -76,7 +83,13 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 			FROM post_likes AS pl2
 			WHERE pl2.post_id = p.id
 			AND pl2.user_id = ?
-		) AS liked
+		) AS liked,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = p.user_id
+			AND f.follower_id = ?
+		) AS followed
 		FROM posts AS p
 		LEFT JOIN users AS u ON p.user_id = u.id
 		LEFT JOIN comments AS c ON p.id = c.post_id
@@ -84,7 +97,7 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 		GROUP BY p.id`
 
 	post := &Post_DB{}
-	err := d.DB.Get(post, query, userID, postID)
+	err := d.DB.Get(post, query, userID, userID, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -152,6 +165,7 @@ func createPostFromDB(post *Post_DB) *Post {
 			Username:  post.UserUsername,
 			Email:     post.UserEmail,
 			CreatedAt: post.UserCreated,
+			Followed:  post.Followed,
 		},
 		LikeCount:    post.LikeCount,
 		Liked:        post.Liked,
