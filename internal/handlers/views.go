@@ -14,12 +14,27 @@ func (h *Handlers) registerViewRoutes(c *fiber.App) {
 	c.Get("/login", h.renderLogin)
 	c.Get("/register", h.renderRegister)
 	c.Get("/post/:id", h.renderPost)
+	c.Get("/discover", h.renderDiscover)
 }
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
 	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
-	posts, err := h.data.GetPosts(userID)
+	posts, err := h.data.GetFollowedPosts(userID)
+	if err != nil {
+		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
+	}
+
+	return utils.RenderPage(c, "index", fiber.Map{"Posts": posts}, &utils.PageDetails{
+		Title:       "Stacky",
+		Description: "Stacky is a simple social media platform",
+	})
+}
+
+func (h *Handlers) renderDiscover(c *fiber.Ctx) error {
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
+
+	posts, err := h.data.GetAllPosts(userID)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}

@@ -34,7 +34,48 @@ type PostWithComments struct {
 	Comments []*Comment `json:"comments"`
 }
 
-func (d *Data) GetPosts(userID int) ([]*Post, error) {
+func (d *Data) GetFollowedPosts(userID int) ([]*Post, error) {
+	query := `
+		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
+		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
+		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
+		COUNT(c.id) AS comment_count,
+		EXISTS (
+			SELECT 1
+			FROM post_likes AS pl2
+			WHERE pl2.post_id = p.id
+			AND pl2.user_id = ?
+		) AS liked,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = p.user_id
+			AND f.follower_id = ?
+		) AS followed
+		FROM posts AS p
+		LEFT JOIN users AS u ON p.user_id = u.id
+		LEFT JOIN comments AS c ON p.id = c.post_id
+		LEFT JOIN follows AS f ON p.user_id = f.followee_id
+		WHERE f.follower_id = ?
+		GROUP BY p.id
+		ORDER BY created_at`
+
+	posts := []*Post_DB{}
+	err := d.DB.Select(&posts, query, userID, userID, userID)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	postsData := []*Post{}
+	for _, p := range posts {
+		postsData = append(postsData, createPostFromDB(p))
+	}
+
+	return postsData, nil
+}
+
+func (d *Data) GetAllPosts(userID int) ([]*Post, error) {
 	query := `
 		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
 		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
@@ -72,6 +113,7 @@ func (d *Data) GetPosts(userID int) ([]*Post, error) {
 
 	return postsData, nil
 }
+
 func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, error) {
 	query := `
 		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
