@@ -154,11 +154,7 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 		user.Email,
 	)
 
-	err = utils.SetRedirect(c, "/")
-	if err != nil {
-		return utils.RenderError(c, fiber.StatusInternalServerError, "Error redirecting")
-	}
-
+	utils.SetRedirect(c, "/")
 	utils.SetAlert(c, fiber.StatusOK, "Successfully logged in")
 
 	c.Set("HX-Retarget", "#navbar")
@@ -201,10 +197,7 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusBadRequest, "Error creating user")
 	}
 
-	err = utils.SetRedirect(c, "/login")
-	if err != nil {
-		return utils.RenderError(c, fiber.StatusInternalServerError, "Error redirecting")
-	}
+	utils.SetRedirect(c, "/login")
 
 	return utils.SendAlert(c, fiber.StatusOK, "User created")
 }
@@ -221,11 +214,7 @@ func (h *Handlers) logout(c *fiber.Ctx) error {
 
 	c.Locals("AuthUser", nil)
 
-	err := utils.SetRedirect(c, "/")
-	if err != nil {
-		return utils.RenderError(c, fiber.StatusInternalServerError, "Error redirecting")
-	}
-
+	utils.SetRedirect(c, "/")
 	utils.SetAlert(c, fiber.StatusOK, "Successfully logged out")
 
 	c.Set("HX-Retarget", "#navbar")

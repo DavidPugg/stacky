@@ -1,8 +1,11 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
+	"text/template"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,8 +20,45 @@ type PageDetails struct {
 	Description string `json:"description"`
 }
 
+func SetPartial(c *fiber.Ctx, view string, data interface{}) error {
+	content, err := readTemplateFile(generatePartialsURL(view))
+	if err != nil {
+		return err
+	}
+
+	tmpl, err := parseTemplate(content, data)
+	if err != nil {
+		return err
+	}
+
+	if c.Locals("Partials") == nil {
+		c.Locals("Partials", tmpl+"\n")
+	} else {
+		c.Locals("Partials", c.Locals("Partials").(string)+tmpl+"\n")
+	}
+
+	return nil
+}
+
 func RenderPartial(c *fiber.Ctx, view string, data interface{}) error {
-	return c.Render(fmt.Sprintf("partials/%s", view), data, "layouts/empty")
+	content, err := readTemplateFile(generatePartialsURL(view))
+	if err != nil {
+		return err
+	}
+
+	tmpl, err := parseTemplate(content, data)
+	if err != nil {
+		return err
+	}
+
+	var l string
+	if c.Locals("Partials") == nil {
+		l = tmpl
+	} else {
+		l = c.Locals("Partials").(string) + tmpl
+	}
+
+	return c.SendString(l)
 }
 
 func RenderPage(c *fiber.Ctx, view string, data interface{}, pd *PageDetails, layout ...string) error {
@@ -121,19 +161,12 @@ func SetAlert(c *fiber.Ctx, status int, message string) error {
 	}
 
 	value := fiber.Map{
-		"type":    t,
-		"message": message,
+		"Type":    t,
+		"Message": message,
 	}
 
 	c.Status(status)
-	if err := SetTrigger(c, Trigger{
-		Name: "showAlert",
-		Data: value,
-	}); err != nil {
-		return err
-	}
-
-	return nil
+	return SetPartial(c, "alert", value)
 }
 
 func SendAlert(c *fiber.Ctx, status int, message string) error {
@@ -142,19 +175,43 @@ func SendAlert(c *fiber.Ctx, status int, message string) error {
 	}
 
 	c.Set("HX-Reswap", "none")
-	return c.SendStatus(status)
+	return c.SendString(c.Locals("Partials").(string))
 }
 
-func SetRedirect(c *fiber.Ctx, url string) error {
-	r, err := json.Marshal(fiber.Map{
+func SetRedirect(c *fiber.Ctx, url string) {
+	r, _ := json.Marshal(fiber.Map{
 		"redirect": url,
 	})
 
+	c.Set("HX-Trigger-After-Settle", string(r))
+}
+
+func readTemplateFile(filePath string) (string, error) {
+	content, err := os.ReadFile(filePath)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	c.Set("HX-Trigger-After-Settle", string(r))
+	templateContent := string(content)
 
-	return nil
+	return templateContent, nil
+}
+
+func parseTemplate(templateContent string, data interface{}) (string, error) {
+	tmpl, err := template.New("template").Parse(templateContent)
+	if err != nil {
+		return "", err
+	}
+
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, data)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+}
+
+func generatePartialsURL(name string) string {
+	return fmt.Sprintf("views/partials/%s.gotmpl", name)
 }
