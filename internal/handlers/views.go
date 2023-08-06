@@ -10,8 +10,8 @@ import (
 )
 
 func (h *Handlers) registerViewRoutes(c *fiber.App) {
-	c.Get("/", h.renderMain)
-	c.Get("/login", h.renderLogin)
+	c.Get("/", middleware.MainAuthGuard, h.renderMain)
+	c.Get("/login", middleware.LoginAuthGuard, h.renderLogin)
 	c.Get("/register", h.renderRegister)
 	c.Get("/post/:id", h.renderPost)
 	c.Get("/discover", h.renderDiscover)
