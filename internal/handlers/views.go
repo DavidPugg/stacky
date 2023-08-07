@@ -15,6 +15,7 @@ func (h *Handlers) registerViewRoutes(c *fiber.App) {
 	c.Get("/register", h.renderRegister)
 	c.Get("/post/:id", h.renderPost)
 	c.Get("/discover", h.renderDiscover)
+	c.Get("/u/:username", h.renderUser)
 }
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
@@ -80,5 +81,22 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 	return utils.RenderPage(c, "post", fiber.Map{"Post": post}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - %d - Stacky", post.User.Username, post.ID),
 		Description: post.Description,
+	})
+}
+
+func (h *Handlers) renderUser(c *fiber.Ctx) error {
+	username := c.Params("username")
+	if username == "" {
+		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid username")
+	}
+
+	user, err := h.data.GetUserByUsername(username)
+	if err != nil {
+		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching user")
+	}
+
+	return utils.RenderPage(c, "user", fiber.Map{"User": user}, &utils.PageDetails{
+		Title:       fmt.Sprintf("%s - Stacky", user.Username),
+		Description: fmt.Sprintf("%s's stacky profile", user.Username),
 	})
 }
