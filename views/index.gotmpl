@@ -1,11 +1,7 @@
-<div class="mx-auto max-w-[700px] h-screen gap-20 flex flex-col">
-  <div>
-    {{ if .Posts }}
-      <div class="flex flex-col gap-20 items-center pb-24" id="posts-list">
-        {{ template "partials/postList" .Posts }}
-      </div>
-     {{ else }}
-      <p class="text-center">No posts found!</p>
-    {{ end }}
+{{ if .Posts }}
+  <div class="flex flex-col gap-20 items-center pb-24" id="posts-list">
+    {{ template "partials/postList" .Posts }}
   </div>
-</div>
+{{ else }}
+  <p class="text-center">No posts found!</p>
+{{ end }}

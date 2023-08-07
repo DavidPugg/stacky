@@ -1,0 +1,19 @@
+<a href="/u/{{ .Username }}" hx-boost="true" class="flex gap-3 items-center">
+    {{if .Avatar}}
+        <div class="avatar">
+            <div class="w-9 rounded-full">
+            <img src="{{ .Avatar }}" />
+            </div>
+        </div>
+    {{else}}
+        <div class="avatar placeholder">
+            <div class="bg-neutral-focus text-neutral-content rounded-full w-9">
+                <span class="text-md">{{ slice .Username 0 1 }}</span>
+            </div>
+        </div>
+    {{end}}
+      
+
+
+    <p>{{ .Username }}</p>
+</a>

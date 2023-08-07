@@ -1,18 +1,10 @@
-<a
+<div
 	class="card card-bordered w-96 bg-base-200 shadow-xl hover:shadow-2xl transition-all !outline-none overflow-hidden"
-	href="/post/{{ .ID }}"
-    hx-boost="true"
 >
-	<img src="{{ .Image }}" alt="Shoes" class="w-full aspect-square" />
+	<img hx-get="/post/{{ .ID }}" src="{{ .Image }}" alt="Shoes" class="w-full aspect-square cursor-pointer" />
 
     <div class="p-4 flex items-center gap-3">
-        <div class="avatar placeholder">
-            <div class="bg-neutral-focus text-neutral-content rounded-full w-9">
-                <span class="text-md">D</span>
-            </div>
-        </div>
-    
-        <p>{{ .User.Username }}</p>
+        {{ template "partials/avatar" .User }}
         {{ template "partials/likeButton" . }}
     </div>
     
@@ -27,4 +19,4 @@
 			<p>{{ .CommentCount }} Comments</p>
 		</div>
 	</div>
-</a>
+</div>
