@@ -40,7 +40,9 @@ func (h *Handlers) validateEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Error validating email")
 	}
 
-	user, err := h.data.GetUserByEmail(form.Email)
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
+
+	user, err := h.data.GetUserByEmail(userID, form.Email)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("")
 	}
@@ -72,7 +74,9 @@ func (h *Handlers) validateUsername(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Error validating username")
 	}
 
-	user, err := h.data.GetUserByUsername(form.Username)
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
+
+	user, err := h.data.GetUserByUsername(userID, form.Username)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("")
 	}
@@ -121,7 +125,9 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid username or password")
 	}
 
-	user, err := h.data.GetUserByUsername(form.Username)
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
+
+	user, err := h.data.GetUserByUsername(userID, form.Username)
 	if err != nil {
 		return utils.SendAlert(c, fiber.StatusInternalServerError, "Invalid username or password")
 	}

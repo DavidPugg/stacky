@@ -38,9 +38,20 @@ func (d *Data) CreateUser(avatar, username, email, password string) (int, error)
 	return int(id), nil
 }
 
-func (d *Data) GetUserByEmail(email string) (*User_DB, error) {
+func (d *Data) GetUserByEmail(userID int, email string) (*User_DB, error) {
+	query := `
+	SELECT *,
+	EXISTS (
+		SELECT 1
+		FROM follows AS f
+		WHERE f.followee_id = users.id
+		AND f.follower_id = ?
+	) AS followed
+	FROM users
+	WHERE email = ?`
+
 	user := &User_DB{}
-	err := d.DB.Get(user, "SELECT * FROM users WHERE email = ?", email)
+	err := d.DB.Get(user, query, userID, email)
 	if err != nil {
 		return nil, err
 	}
@@ -48,9 +59,20 @@ func (d *Data) GetUserByEmail(email string) (*User_DB, error) {
 	return user, nil
 }
 
-func (d *Data) GetUserByUsername(username string) (*User_DB, error) {
+func (d *Data) GetUserByUsername(userID int, username string) (*User_DB, error) {
+	query := `
+	SELECT *,
+	EXISTS (
+		SELECT 1
+		FROM follows AS f
+		WHERE f.followee_id = users.id
+		AND f.follower_id = ?
+	) AS followed
+	FROM users
+	WHERE username = ?`
+
 	user := &User_DB{}
-	err := d.DB.Get(user, "SELECT * FROM users WHERE username = ?", username)
+	err := d.DB.Get(user, query, userID, username)
 	if err != nil {
 		return nil, err
 	}

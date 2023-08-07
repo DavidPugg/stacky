@@ -90,7 +90,9 @@ func (h *Handlers) renderUser(c *fiber.Ctx) error {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid username")
 	}
 
-	user, err := h.data.GetUserByUsername(username)
+	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
+
+	user, err := h.data.GetUserByUsername(userID, username)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching user")
 	}
