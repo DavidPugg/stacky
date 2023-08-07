@@ -92,7 +92,7 @@ func (h *Handlers) renderUser(c *fiber.Ctx) error {
 
 	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
-	user, err := h.data.GetUserByUsername(userID, username)
+	user, err := h.data.GetUserWithPostsByUsername(userID, username)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching user")
 	}

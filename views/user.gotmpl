@@ -1,5 +1,5 @@
 <div class="max-w-[700px] mx-auto">
-    <div class="flex justify-between mx-6 [&>button]:font-bold [&>button]:text-xl">
+    <div class="flex justify-between mx-6 [&>button]:font-bold [&>button]:text-xl mb-10">
         <div class="flex gap-3 items-center">
             {{if .User.Avatar}}
                 <div class="avatar">
@@ -19,5 +19,9 @@
         </div>
     
         {{ template "partials/followButton" .User}}
+    </div>
+
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-3">
+        {{template "partials/smallPostList" .User.Posts}}
     </div>
 </div>

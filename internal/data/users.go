@@ -16,6 +16,11 @@ type User_DB struct {
 	Followed  bool   `json:"followed" db:"followed"`
 }
 
+type UserWithPosts struct {
+	User_DB
+	Posts []*Post `json:"posts"`
+}
+
 func (d *Data) CreateUser(avatar, username, email, password string) (int, error) {
 	result, err := d.DB.Exec("INSERT INTO users (avatar, username, email, password) VALUES (?, ?, ?, ?)", avatar, username, email, password)
 	if err != nil {
@@ -78,4 +83,45 @@ func (d *Data) GetUserByUsername(userID int, username string) (*User_DB, error) 
 	}
 
 	return user, nil
+}
+
+func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWithPosts, error) {
+	query := `
+	SELECT *,
+	EXISTS (
+		SELECT 1
+		FROM follows AS f
+		WHERE f.followee_id = users.id
+		AND f.follower_id = ?
+	) AS followed
+	FROM users
+	WHERE username = ?`
+
+	user := &User_DB{}
+	err := d.DB.Get(user, query, userID, username)
+	if err != nil {
+		return nil, err
+	}
+
+	postsChan := make(chan []*Post)
+
+	go func() {
+		posts, err := d.GetPostsOfUserByUsername(userID, username)
+		if err != nil {
+			postsChan <- nil
+			return
+		}
+
+		postsChan <- posts
+	}()
+
+	posts := <-postsChan
+	if posts == nil {
+		return nil, err
+	}
+
+	return &UserWithPosts{
+		User_DB: *user,
+		Posts:   posts,
+	}, nil
 }
