@@ -170,7 +170,7 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 
 func (h *Handlers) register(c *fiber.Ctx) error {
 	var form struct {
-		Avatar   string `validate:"required"`
+		Avatar   string
 		Username string `validate:"required,min=3,max=32"`
 		Email    string `validate:"required,email"`
 		Password string `validate:"required,min=8,max=32"`
@@ -179,7 +179,7 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 	form.Username = c.FormValue("username")
 	form.Email = c.FormValue("email")
 	form.Password = c.FormValue("password")
-	form.Avatar = "hello.com" //TODO: replace with avatar url
+	form.Avatar = ""
 
 	validate := validator.New()
 	if err := validate.Struct(form); err != nil {
