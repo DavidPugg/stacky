@@ -1,0 +1,37 @@
+<form
+  id="create-post-form"
+  hx-post="/posts/create"
+  hx-reset-on-success
+  hx-indicator="#create-post-indicator"
+  hx-swap="none"
+  hx-encoding='multipart/form-data'
+  class="absolute top-96 left-1/2 -translate-x-[50%] gap-3 p-10 card card-bordered shadow-xl w-full max-w-[500px]">
+<div>
+      <input
+        id="image"
+        type="file"
+        accept="image/*"
+        name="image"
+        class="file-input-primary input-primary w-full" />
+    </div>
+  <div class="flex flex-col gap-2">
+    <label for="password">Description</label>
+    <div>
+      <input
+        id="description"
+        type="text"
+        name="description"
+        placeholder="My first post..."
+        class="input input-bordered input-primary w-full" />
+    </div>
+  </div>
+
+  <button class="btn btn-primary mt-3">
+    <span class="relative flex items-center">
+      Create
+      <span
+        id="create-post-indicator"
+        class="absolute -right-8 htmx-indicator loading loading-spinner loading-md"
+    /></span>
+  </button>
+</form>

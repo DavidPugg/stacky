@@ -16,6 +16,7 @@ func (h *Handlers) registerViewRoutes(c *fiber.App) {
 	c.Get("/post/:id", h.renderPost)
 	c.Get("/discover", h.renderDiscover)
 	c.Get("/u/:username", h.renderUser)
+	c.Get("/create", middleware.MainAuthGuard, h.renderCreatePost)
 }
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
@@ -100,5 +101,12 @@ func (h *Handlers) renderUser(c *fiber.Ctx) error {
 	return utils.RenderPage(c, "user", fiber.Map{"User": user}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - Stacky", user.Username),
 		Description: fmt.Sprintf("%s's stacky profile", user.Username),
+	})
+}
+
+func (h *Handlers) renderCreatePost(c *fiber.Ctx) error {
+	return utils.RenderPage(c, "create", fiber.Map{}, &utils.PageDetails{
+		Title:       "Create Post",
+		Description: "Create a post on Stacky",
 	})
 }

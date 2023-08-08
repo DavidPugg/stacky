@@ -15,6 +15,7 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 	r.Delete("/:id/like", middleware.Authenticate, h.unlikePost)
 	r.Post("/:id/comment", middleware.Authenticate, h.createComment)
 	r.Delete("/:id/comment", middleware.Authenticate, h.deleteComment)
+	r.Post("create", middleware.Authenticate, h.createPost)
 }
 
 func (h *Handlers) likePost(c *fiber.Ctx) error {
@@ -128,4 +129,29 @@ func (h *Handlers) deleteComment(c *fiber.Ctx) error {
 	})
 
 	return c.SendStatus(200)
+}
+
+func (h *Handlers) createPost(c *fiber.Ctx) error {
+	description := c.FormValue("description")
+
+	image, err := c.FormFile("image")
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid image")
+	}
+
+	path, err := h.data.CreateMediaLocally(c, image)
+	if err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	user := c.Locals("AuthUser").(*middleware.UserTokenData)
+
+	err = h.data.CreatePost(user.ID, path, description)
+	if err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	utils.SetRedirect(c, fmt.Sprintf("/u/%s", user.Username))
+
+	return utils.SendAlert(c, 200, "Post created")
 }
