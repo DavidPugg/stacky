@@ -6,3 +6,5 @@ node_modules/
 web
 public/assets/app.css
 db/
+public/assets/images/*
+!public/assets/images/*.txt
