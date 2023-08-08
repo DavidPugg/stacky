@@ -5,7 +5,7 @@ CREATE TABLE follows (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    CONSTRAINT FK_FollowFollower FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT FK_FollowFollowee FOREIGN KEY (followee_id) REFERENCES users(id) ON DELETE CASCADE,
+    KEY follower_id_idx (follower_id),
+    KEY followee_id_idx (followee_id),
     UNIQUE KEY unique_follower_followee (follower_id, followee_id)
 );
