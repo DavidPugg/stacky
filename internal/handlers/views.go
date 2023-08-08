@@ -79,7 +79,7 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
 
-	return utils.RenderPage(c, "post", fiber.Map{"Post": post}, &utils.PageDetails{
+	return utils.RenderPage(c, "post", fiber.Map{"Post": post, "ShowFollowButton": userID != post.User.ID}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - %d - Stacky", post.User.Username, post.ID),
 		Description: post.Description,
 	})
@@ -98,7 +98,7 @@ func (h *Handlers) renderUser(c *fiber.Ctx) error {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching user")
 	}
 
-	return utils.RenderPage(c, "user", fiber.Map{"User": user}, &utils.PageDetails{
+	return utils.RenderPage(c, "user", fiber.Map{"User": user, "ShowFollowButton": userID != user.ID}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - Stacky", user.Username),
 		Description: fmt.Sprintf("%s's stacky profile", user.Username),
 	})
