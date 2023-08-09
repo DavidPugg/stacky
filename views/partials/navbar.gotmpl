@@ -28,9 +28,9 @@
           </div>
           {{ end }}
         </label>
-        <ul tabindex="0" class="mt-4 z-[1] p-2 shadow menu menu-md dropdown-content [&>li>a]:px-4 rounded-box w-max">
-          <li><a class="link-neutral cursor-pointer" href="/u/{{ .Username }}" hx-boost="true" >Profile</a></li>
-          <li><a class="link-neutral cursor-pointer" hx-post="/auth/logout" hx-swap="none">Logout</a></li>
+        <ul tabindex="0" class="mt-4 z-[1] p-2 shadow menu menu-md dropdown-content gap-1 [&>li>a]:px-4 rounded-box w-max">
+          <li><a onmouseup="closeMenu()" class="link-neutral cursor-pointer" href="/u/{{ .Username }}" hx-boost="true" >Profile</a></li>
+          <li><a onmouseup="closeMenu()" class="link-neutral cursor-pointer" hx-post="/auth/logout" hx-swap="none">Logout</a></li>
         </ul>
       </div>
       {{ else }}
@@ -56,6 +56,10 @@
       const location = window.location.pathname.split('/')[1];
       const tab = tabs.querySelector(`#${location}-tab`);
       tab?.classList?.add?.("tab-active")
+    }
+
+    function closeMenu() {
+      document.activeElement.blur()
     }
   }
 </script>
