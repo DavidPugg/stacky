@@ -126,7 +126,7 @@ func SetTrigger(c *fiber.Ctx, triggers ...Trigger) error {
 		return RenderError(c, fiber.StatusInternalServerError, "Error setting trigger")
 	}
 
-	if hxTrigger := c.GetRespHeader("HX-Trigger"); hxTrigger != "" {
+	if hxTrigger := c.GetRespHeader("HX-Trigger-After-Settle"); hxTrigger != "" {
 		var hxTriggerMap map[string]interface{}
 		if err := json.Unmarshal([]byte(hxTrigger), &hxTriggerMap); err != nil {
 			return RenderError(c, fiber.StatusInternalServerError, "Error setting trigger")
@@ -142,7 +142,7 @@ func SetTrigger(c *fiber.Ctx, triggers ...Trigger) error {
 		}
 	}
 
-	c.Set("HX-Trigger", string(alert))
+	c.Set("HX-Trigger-After-Settle", string(alert))
 
 	return nil
 }

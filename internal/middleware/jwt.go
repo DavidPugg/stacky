@@ -8,14 +8,16 @@ import (
 
 type UserTokenData struct {
 	ID            int    `json:"id"`
+	Avatar        string `json:"avatar"`
 	Username      string `json:"username"`
 	Email         string `json:"email"`
 	Authenticated bool   `json:"authenticated"`
 }
 
-func NewUserTokenData(id int, username, email string) *UserTokenData {
+func NewUserTokenData(id int, avatar, username, email string) *UserTokenData {
 	return &UserTokenData{
 		ID:            id,
+		Avatar:        avatar,
 		Username:      username,
 		Email:         email,
 		Authenticated: true,
@@ -51,6 +53,7 @@ func ParseToken(c *fiber.Ctx) error {
 
 	data := NewUserTokenData(
 		int(claims["id"].(float64)),
+		claims["avatar"].(string),
 		claims["username"].(string),
 		claims["email"].(string),
 	)

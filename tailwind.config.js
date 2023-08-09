@@ -1,8 +1,27 @@
 /** @type {import('tailwindcss').Config} */
+
+const colors = {
+  "primary": "#3abff8",
+  "secondary": "#828df8",         
+  "accent": "#f471b5",
+  "neutral": "#FDFDFD",
+  "base-100": "#17181C",
+  "base-200": "#1E1F24",
+  "base-300": "#27292F",
+  "base-400": "#33353D",
+  "info": "#0ca6e9",
+  "success": "#2bd4bd",
+  "warning": "#f4c152",
+  "error": "#fb6f84"
+}
+
 module.exports = {
   content: ['./views/**/*.{gotmpl,html}'],
   theme: {
     extend: {
+      colors :{
+        ...colors
+      },
       animation: {
         'show-alert': 'show 5s ease-in-out',
       },
@@ -18,4 +37,14 @@ module.exports = {
   },
 
   plugins: [require('daisyui')],
+
+  daisyui: {
+    themes: [
+      {
+      mytheme: {
+        ...colors
+      },
+    },
+  ],
+  },
 };

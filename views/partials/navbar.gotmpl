@@ -1,22 +1,61 @@
 <div
   id="navbar"
-  class="flex fixed top-0 gap-4 bg-base-300 w-full py-4 items-center justify-between z-10 px-32">
-  <a class="link-primary" href="/" hx-boost="true">HOME</a>
+  class="navbar justify-center fixed top-0 bg-base-200 border-base-300 border-b-2 z-10">
+  <div class="flex w-full justify-between px-4 max-w-[1400px]">
+    <a class="link-neutral font-bold text-2xl" href="/" hx-boost="true">Stacky</a>
 
-  <div class="flex gap-5">
-    <a class="link-primary" href="/discover" hx-boost="true">Discover</a>
-    {{ if .Authenticated}}
-      <a class="link-primary" href="/create" hx-boost="true">Create post</a>
-    {{ end }}
-  </div>
+    <div class="flex gap-5">
+      <div id="tabs" class="tabs tabs-boxed">
+        <a id="-tab" class="tab link-neutral {{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 {{ end }}" href="/" hx-boost="true">Follows</a> 
+        <a id="discover-tab" class="tab link-neutral" href="/discover" hx-boost="true">Discover</a> 
+        <a id="create-tab" class="tab link-neutral {{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 {{ end }}" {{ if .Authenticated}} href="/create" {{ end }} hx-boost="true">Create</a> 
+      </div>
+    </div>
 
-  <div class="flex gap-3">
-    {{ if .Authenticated}}
-      <a class="link-primary cursor-pointer" hx-post="/auth/logout" hx-swap="none">Logout</a>
-      <a class="link-primary cursor-pointer" href="/u/{{ .Username }}" hx-boost="true" >Profile</a>
-    {{ else }}
-      <a class="link-primary" href="/login" hx-boost="true">Login</a>
-      <a class="link-primary" href="/register" hx-boost="true">Register</a>
-    {{ end }}
+    <div class="flex gap-3">
+      {{ if .Authenticated}}
+      <div class="dropdown dropdown-end">
+        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+          {{ if .Avatar }}
+          <div class="w-10 rounded-full">
+            <img src="{{ .Avatar }}" />
+          </div>
+          {{ else }}
+          <div class="avatar placeholder">
+            <div class="bg-neutral-focus text-neutral-content rounded-full w-9">
+                <span class="text-md">{{ slice .Username 0 1 }}</span>
+            </div>
+          </div>
+          {{ end }}
+        </label>
+        <ul tabindex="0" class="mt-4 z-[1] p-2 shadow menu menu-md dropdown-content [&>li>a]:px-4 rounded-box w-max">
+          <li><a class="link-neutral cursor-pointer" href="/u/{{ .Username }}" hx-boost="true" >Profile</a></li>
+          <li><a class="link-neutral cursor-pointer" hx-post="/auth/logout" hx-swap="none">Logout</a></li>
+        </ul>
+      </div>
+      {{ else }}
+        <a class="btn" href="/login" hx-boost="true">Sign in</a>
+      {{ end }}
+    </div>
   </div>
 </div>
+
+<script>
+  {
+    window.addEventListener('load', function (event) {
+      updateTabs();
+    });
+
+    document.body.addEventListener('updatePageDetails', function (event) {
+      updateTabs();
+    });
+
+    function updateTabs() {
+      const tabs = document.getElementById('tabs');
+      tabs.querySelector(".tab-active")?.classList?.remove?.("tab-active")
+      const location = window.location.pathname.split('/')[1];
+      const tab = tabs.querySelector(`#${location}-tab`);
+      tab?.classList?.add?.("tab-active")
+    }
+  }
+</script>

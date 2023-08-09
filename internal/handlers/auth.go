@@ -156,6 +156,7 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 
 	data := middleware.NewUserTokenData(
 		user.ID,
+		user.Avatar,
 		user.Username,
 		user.Email,
 	)
