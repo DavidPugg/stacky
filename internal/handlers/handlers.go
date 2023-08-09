@@ -15,7 +15,6 @@ func New(data *data.Data) *Handlers {
 
 func (h *Handlers) RegisterRoutes(c *fiber.App) {
 	h.registerViewRoutes(c)
-	h.registerUtilRoutes(c)
 	h.registerAuthRoutes(c)
 	h.registerPostRoutes(c)
 	h.registerUserRoutes(c)
