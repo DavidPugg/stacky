@@ -70,7 +70,7 @@ func RenderPage(c *fiber.Ctx, view string, data interface{}, pd *PageDetails, la
 		l = "layouts/empty"
 
 		c.Set("HX-Push-Url", c.Path())
-		c.Set("HX-Reswap", "innerHTML show:no-scroll")
+		c.Set("HX-Reswap", "innerHTML scroll:top")
 		c.Set("HX-Retarget", "#content")
 	}
 

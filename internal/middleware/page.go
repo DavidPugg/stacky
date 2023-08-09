@@ -10,7 +10,7 @@ func SamePage(c *fiber.Ctx) error {
 	if c.Get("HX-Boosted") == "true" {
 		r := "/" + strings.Split(c.Get("Referer"), "/")[3]
 		if r == c.Path() {
-			c.Set("HX-Reswap", "none show:no-scroll")
+			c.Set("HX-Reswap", "none show:top")
 			return c.SendString("Already on page")
 		}
 	}
