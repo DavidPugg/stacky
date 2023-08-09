@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/davidpugg/stacky/internal/data"
 	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/gofiber/fiber/v2"
@@ -76,8 +77,8 @@ func (h *Handlers) unlikePost(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) createComment(c *fiber.Ctx) error {
-	commentForm := c.FormValue("comment")
-	if len(commentForm) == 0 {
+	body := c.FormValue("comment")
+	if len(body) == 0 {
 		return utils.SendAlert(c, 400, "Invalid comment")
 	}
 
@@ -87,11 +88,24 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	user := c.Locals("AuthUser").(*middleware.UserTokenData)
 
-	comment, err := h.data.CreateComment(userID, postID, commentForm)
+	commentID, err := h.data.CreateComment(user.ID, postID, body)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	comment := data.Comment{
+		ID: int(commentID),
+		User: &data.User_DB{
+			ID:       user.ID,
+			Username: user.Username,
+			Avatar:   user.Avatar,
+			Email:    user.Email,
+		},
+		Body:      body,
+		CreatedAt: "Now",
+		IsAuthor:  true,
 	}
 
 	utils.SetTrigger(c, utils.Trigger{

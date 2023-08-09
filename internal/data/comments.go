@@ -57,23 +57,18 @@ func (d *Data) GetPostComments(userID, postID int) ([]*Comment, error) {
 	return commentsToReturn, nil
 }
 
-func (d *Data) CreateComment(userID, postID int, body string) (*Comment, error) {
+func (d *Data) CreateComment(userID, postID int, body string) (int64, error) {
 	t, err := d.DB.Exec("INSERT INTO comments(user_id, post_id, body) VALUES(?, ?, ?)", userID, postID, body)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	commentID, err := t.LastInsertId()
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	c, err := d.GetCommentByID(userID, int(commentID))
-	if err != nil {
-		return nil, err
-	}
-
-	return c, nil
+	return commentID, nil
 }
 
 func (d *Data) DeleteComment(commentID int) error {

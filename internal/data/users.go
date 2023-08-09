@@ -54,6 +54,18 @@ func (d *Data) CreateUser(avatar, username, email, password string) (int, error)
 	return int(id), nil
 }
 
+func (d *Data) GetUserByID(authUserID, userID int) (*User_DB, error) {
+	query := baseUsersQuery + `WHERE id = ?`
+
+	user := &User_DB{}
+	err := d.DB.Get(user, query, authUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (d *Data) GetUserByEmail(userID int, email string) (*User_DB, error) {
 	query := baseUsersQuery + `WHERE email = ?`
 

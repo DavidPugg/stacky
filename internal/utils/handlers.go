@@ -41,24 +41,21 @@ func SetPartial(c *fiber.Ctx, view string, data interface{}) error {
 }
 
 func RenderPartial(c *fiber.Ctx, view string, data interface{}) error {
-	content, err := readTemplateFile(generatePartialsURL(view))
+	err := c.Render(fmt.Sprintf("partials/%s", view), data, "layouts/empty")
 	if err != nil {
 		return err
 	}
 
-	tmpl, err := parseTemplate(content, data)
-	if err != nil {
-		return err
-	}
-
-	var l string
 	if c.Locals("Partials") == nil {
-		l = tmpl
-	} else {
-		l = c.Locals("Partials").(string) + tmpl
+		return nil
 	}
 
-	return c.SendString(l)
+	_, err = c.WriteString(c.Locals("Partials").(string))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func RenderPage(c *fiber.Ctx, view string, data interface{}, pd *PageDetails, layout ...string) error {
@@ -85,7 +82,7 @@ func RenderPage(c *fiber.Ctx, view string, data interface{}, pd *PageDetails, la
 		return RenderError(c, fiber.StatusInternalServerError, "Error setting page details")
 	}
 
-	return c.Render(fmt.Sprintf("%s", view), data, l)
+	return c.Render(view, data, l)
 }
 
 func RenderError(c *fiber.Ctx, status int, details string) error {
@@ -198,7 +195,7 @@ func readTemplateFile(filePath string) (string, error) {
 }
 
 func parseTemplate(templateContent string, data interface{}) (string, error) {
-	tmpl, err := template.New("template").Parse(templateContent)
+	tmpl, err := template.New("").Parse(templateContent)
 	if err != nil {
 		return "", err
 	}
