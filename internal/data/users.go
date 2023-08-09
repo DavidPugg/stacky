@@ -21,6 +21,17 @@ type UserWithPosts struct {
 	Posts []*Post `json:"posts"`
 }
 
+const baseUsersQuery = `
+	SELECT *,
+	EXISTS (
+		SELECT 1
+		FROM follows AS f
+		WHERE f.followee_id = users.id
+		AND f.follower_id = ?
+	) AS followed
+	FROM users
+`
+
 func (d *Data) CreateUser(avatar, username, email, password string) (int, error) {
 	result, err := d.DB.Exec("INSERT INTO users (avatar, username, email, password) VALUES (?, ?, ?, ?)", avatar, username, email, password)
 	if err != nil {
@@ -44,16 +55,7 @@ func (d *Data) CreateUser(avatar, username, email, password string) (int, error)
 }
 
 func (d *Data) GetUserByEmail(userID int, email string) (*User_DB, error) {
-	query := `
-	SELECT *,
-	EXISTS (
-		SELECT 1
-		FROM follows AS f
-		WHERE f.followee_id = users.id
-		AND f.follower_id = ?
-	) AS followed
-	FROM users
-	WHERE email = ?`
+	query := baseUsersQuery + `WHERE email = ?`
 
 	user := &User_DB{}
 	err := d.DB.Get(user, query, userID, email)
@@ -65,16 +67,7 @@ func (d *Data) GetUserByEmail(userID int, email string) (*User_DB, error) {
 }
 
 func (d *Data) GetUserByUsername(userID int, username string) (*User_DB, error) {
-	query := `
-	SELECT *,
-	EXISTS (
-		SELECT 1
-		FROM follows AS f
-		WHERE f.followee_id = users.id
-		AND f.follower_id = ?
-	) AS followed
-	FROM users
-	WHERE username = ?`
+	query := baseUsersQuery + `WHERE username = ?`
 
 	user := &User_DB{}
 	err := d.DB.Get(user, query, userID, username)
@@ -86,16 +79,7 @@ func (d *Data) GetUserByUsername(userID int, username string) (*User_DB, error) 
 }
 
 func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWithPosts, error) {
-	query := `
-	SELECT *,
-	EXISTS (
-		SELECT 1
-		FROM follows AS f
-		WHERE f.followee_id = users.id
-		AND f.follower_id = ?
-	) AS followed
-	FROM users
-	WHERE username = ?`
+	query := baseUsersQuery + `WHERE username = ?`
 
 	user := &User_DB{}
 	err := d.DB.Get(user, query, userID, username)

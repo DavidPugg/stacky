@@ -21,13 +21,15 @@ type Comment struct {
 	IsAuthor  bool     `json:"is_author"`
 }
 
-func (d *Data) GetCommentByID(userID, commentID int) (*Comment, error) {
-	query := `
+const baseCommentsQuery = `
 	SELECT c.id, c.user_id, c.post_id, c.body, c.created_at,
 	u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created
 	FROM comments AS c
 	LEFT JOIN users AS u ON u.id = c.user_id
-	WHERE c.id = ?`
+`
+
+func (d *Data) GetCommentByID(userID, commentID int) (*Comment, error) {
+	query := baseCommentsQuery + `WHERE c.id = ?`
 
 	comment := &Comment_DB{}
 	err := d.DB.Get(comment, query, commentID)
@@ -39,12 +41,7 @@ func (d *Data) GetCommentByID(userID, commentID int) (*Comment, error) {
 }
 
 func (d *Data) GetPostComments(userID, postID int) ([]*Comment, error) {
-	query := `
-	SELECT c.id, c.user_id, c.post_id, c.body, c.created_at,
-	u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created
-	FROM comments AS c
-	LEFT JOIN users AS u ON u.id = c.user_id
-	WHERE c.post_id = ?`
+	query := baseCommentsQuery + `WHERE c.post_id = ?`
 
 	comments := []*Comment_DB{}
 	err := d.DB.Select(&comments, query, postID)
