@@ -46,6 +46,7 @@ func main() {
 	}))
 
 	app.Use(middleware.ParseToken)
+	app.Use(middleware.SamePage)
 
 	//Data
 	db := data.DBconnect()
