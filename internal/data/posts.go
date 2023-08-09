@@ -124,17 +124,6 @@ func (d *Data) GetAllPosts(userID int) ([]*Post, error) {
 }
 
 func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, error) {
-	query := basePostsQuery + `
-		WHERE p.id = ?
-		GROUP BY p.id
-	`
-
-	post := &Post_DB{}
-	err := d.DB.Get(post, query, userID, userID, postID)
-	if err != nil {
-		return nil, err
-	}
-
 	commentChan := make(chan []*Comment)
 
 	go func() {
@@ -146,6 +135,17 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 
 		commentChan <- comments
 	}()
+
+	query := basePostsQuery + `
+		WHERE p.id = ?
+		GROUP BY p.id
+	`
+
+	post := &Post_DB{}
+	err := d.DB.Get(post, query, userID, userID, postID)
+	if err != nil {
+		return nil, err
+	}
 
 	p := createPostFromDB(post)
 

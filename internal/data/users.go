@@ -79,14 +79,6 @@ func (d *Data) GetUserByUsername(userID int, username string) (*User_DB, error) 
 }
 
 func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWithPosts, error) {
-	query := baseUsersQuery + `WHERE username = ?`
-
-	user := &User_DB{}
-	err := d.DB.Get(user, query, userID, username)
-	if err != nil {
-		return nil, err
-	}
-
 	postsChan := make(chan []*Post)
 
 	go func() {
@@ -98,6 +90,14 @@ func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWit
 
 		postsChan <- posts
 	}()
+
+	query := baseUsersQuery + `WHERE username = ?`
+
+	user := &User_DB{}
+	err := d.DB.Get(user, query, userID, username)
+	if err != nil {
+		return nil, err
+	}
 
 	posts := <-postsChan
 	if posts == nil {
