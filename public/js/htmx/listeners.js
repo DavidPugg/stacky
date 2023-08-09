@@ -24,7 +24,7 @@ document.body.addEventListener('removeNoComments', function (event) {
 document.body.addEventListener('addNoComments', function (event) {
   const commentsList = document.getElementById('comment-list');
 
-  if (commentsList.childElementCount <= 1) {
+  if (commentsList.childElementCount == 0) {
   const noComments = document.getElementById('no-comments');
   
   noComments.classList.remove('hidden');

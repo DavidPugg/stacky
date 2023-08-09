@@ -6,9 +6,9 @@
 
     <div class="flex gap-5">
       <div id="tabs" class="tabs tabs-boxed">
-        <a id="-tab" class="tab link-neutral {{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 {{ end }}" href="/" hx-boost="true">Follows</a> 
+        <a id="-tab" class="tab link-neutral {{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 cursor-default {{ end }}" href="/" hx-boost="true">Follows</a> 
         <a id="discover-tab" class="tab link-neutral" href="/discover" hx-boost="true">Discover</a> 
-        <a id="create-tab" class="tab link-neutral {{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 {{ end }}" {{ if .Authenticated}} href="/create" {{ end }} hx-boost="true">Create</a> 
+        <a id="create-tab" class="tab link-neutral {{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 cursor-default {{ end }}" {{ if .Authenticated}} href="/create" {{ end }} hx-boost="true">Create</a> 
       </div>
     </div>
 
