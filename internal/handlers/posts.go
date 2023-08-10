@@ -20,6 +20,12 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 }
 
 func (h *Handlers) likePost(c *fiber.Ctx) error {
+	count := c.Query("count")
+	likeCount, err := strconv.Atoi(count)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid count")
+	}
+
 	pID := c.Params("id")
 	postID, err := strconv.Atoi(pID)
 	if err != nil {
@@ -34,21 +40,20 @@ func (h *Handlers) likePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	utils.SetTrigger(c, utils.Trigger{
-		Name: "updateLikeCount",
-		Data: &fiber.Map{
-			"postID": postID,
-			"method": "like",
-		},
-	})
-
 	return utils.RenderPartial(c, "likeButton", fiber.Map{
-		"ID":    postID,
-		"Liked": true,
+		"ID":        postID,
+		"Liked":     true,
+		"LikeCount": likeCount + 1,
 	})
 }
 
 func (h *Handlers) unlikePost(c *fiber.Ctx) error {
+	count := c.Query("count")
+	likeCount, err := strconv.Atoi(count)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid count")
+	}
+
 	pID := c.Params("id")
 	postID, err := strconv.Atoi(pID)
 	if err != nil {
@@ -62,17 +67,10 @@ func (h *Handlers) unlikePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	utils.SetTrigger(c, utils.Trigger{
-		Name: "updateLikeCount",
-		Data: &fiber.Map{
-			"postID": postID,
-			"method": "unlike",
-		},
-	})
-
 	return utils.RenderPartial(c, "likeButton", fiber.Map{
-		"ID":    postID,
-		"Liked": false,
+		"ID":        postID,
+		"Liked":     false,
+		"LikeCount": likeCount - 1,
 	})
 }
 

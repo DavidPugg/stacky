@@ -9,6 +9,7 @@ const colors = {
   "base-200": "#1E1F24",
   "base-300": "#27292F",
   "base-400": "#33353D",
+  "base-500": "#454853",
   "info": "#0ca6e9",
   "success": "#2bd4bd",
   "warning": "#f4c152",

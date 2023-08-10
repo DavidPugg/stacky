@@ -33,12 +33,3 @@ document.body.addEventListener('addNoComments', function (event) {
   commentsList.classList.add('hidden');
   }
 });
-
-
-document.body.addEventListener('updateLikeCount', function (event) {
-  const likeCountEl = document.getElementById(`like-count-${event.detail.postID}`);
-  if (!likeCountEl) return;
-  
-  likeCountEl.innerText = event.detail.method === "like" ? +likeCountEl.innerText + 1 : +likeCountEl.innerText - 1;
-});
-
