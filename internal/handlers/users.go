@@ -37,6 +37,7 @@ func (h *Handlers) followUser(c *fiber.Ctx) error {
 		Data: &fiber.Map{
 			"followeeID": followeeID,
 			"method":     "follow",
+			"buttonText": "Following",
 		},
 	})
 
@@ -69,6 +70,7 @@ func (h *Handlers) unfollowUser(c *fiber.Ctx) error {
 		Data: &fiber.Map{
 			"followeeID": followeeID,
 			"method":     "unfollow",
+			"buttonText": "Follow",
 		},
 	})
 
