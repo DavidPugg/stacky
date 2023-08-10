@@ -17,3 +17,7 @@
 .menu {
     @apply bg-base-200 border border-base-400
 }
+
+.card {
+    @apply bg-base-200 border border-base-400 rounded-xl
+}

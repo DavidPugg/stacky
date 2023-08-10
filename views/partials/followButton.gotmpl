@@ -1,7 +1,7 @@
 <button
  hx-swap="outerHTML"
  {{ if .Followed  }} hx-delete="/users/{{ .ID }}/follow" {{ else }} hx-post="/users/{{ .ID }}/follow" {{ end }}
- class="{{ if .Followed }} hover:text-red-500 {{ else }} hover:text-primary {{ end }}"
+ class="btn font-semibold text-xs min-h-0 h-9"
 >
-    {{ if .Followed  }} Unfollow {{ else }} Follow {{ end }}
+    {{ if .Followed  }} Following {{ else }} Follow {{ end }}
 </button>
