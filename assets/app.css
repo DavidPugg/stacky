@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    @apply text-neutral
+}
+
 .btn {
     @apply border text-neutral
 }
