@@ -1,20 +1,19 @@
-<div class="flex max-w-[800px] mt-20 mx-auto card rounded-lg overflow-hidden">
-	<img src="{{ .Post.Image }}" alt="post" class="aspect-square" />
+<div class="grid container card rounded-lg overflow-hidden grid-cols-[70%_30%] border">
+	<img src="{{ .Post.Image }}" alt="post" class="aspect-square w-full" />
 
-	<div class="bg-base-200 flex-grow flex flex-col">
-            <div class="p-4 flex items-center gap-3">
+	<div class="bg-base-200 flex flex-col">
+            <div class="p-4 flex items-center justify-between">
 				{{ template "partials/avatar" .Post.User }}
-				{{ template "partials/likeButton" .Post }}
-				
+
 				{{if .ShowFollowButton}}
 					{{ template "partials/followButton" .Post.User }}
 				{{ end }}
             </div>
 
-		<p class="p-4 border-t-[1px] border-slate-700">{{ .Post.Description }}</p>
+		<p class="p-4 border-t">{{ .Post.Description }}</p>
 
 		<form hx-reset-on-success
-		 class="relative flex items-center border-t-[1px] border-slate-700"
+		 class="relative flex items-center border-t"
 		 hx-post="/posts/{{ .Post.ID }}/comment"
 		 hx-swap="afterbegin"
 		 hx-target="#comment-list"
@@ -29,11 +28,15 @@
 			<span id="comment-indicator" class="loading loading-spinner loading-md absolute right-5 htmx-indicator"></span>
 		</form>
 
-		<div id="comment-list" class="overflow-y-auto flex flex-col gap-3 border-t-[1px] border-slate-700 {{ if .Post.Comments }} visible {{ else}} hidden {{ end }}">
+		<div id="comment-list" class="flex-grow basis-0 overflow-y-auto overflow-x-hidden flex flex-col gap-3 border-t {{ if .Post.Comments }} visible {{ else}} hidden {{ end }}">
 			{{ range .Post.Comments }}
 				{{ template "partials/comment" . }}
 			{{ end }}
 		</div>
-		<div id="no-comments" class="flex justify-center items-center p-10 border-t-[1px] border-slate-700 {{ if not .Post.Comments }} visible {{ else}} hidden {{ end }}">No comments yet...</div>
+		<div id="no-comments" class="flex justify-center items-center p-10 border-t {{ if not .Post.Comments }} visible {{ else}} hidden {{ end }}">No comments yet...</div>
+	
+		<div class="p-4 border-t  mt-auto flex justify-center">
+			{{ template "partials/likeButton" .Post }}
+		</div>
 	</div>
 </div>

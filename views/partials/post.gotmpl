@@ -1,5 +1,5 @@
 <div
-	class="card card-bordered w-[450px] bg-base-200 border border-base-400 shadow-xl hover:shadow-2xl transition-all !outline-none overflow-hidden"
+	class="card card-bordered w-[450px] bg-base-200 border shadow-xl hover:shadow-2xl transition-all !outline-none overflow-hidden"
 >
 	<div class="p-4 flex justify-between items-center">
 		{{ template "partials/avatar" .User }}
@@ -8,7 +8,7 @@
 
 	<img hx-get="/post/{{ .ID }}" src="{{ .Image }}" alt="Shoes" class="w-full aspect-square cursor-pointer" />
 
-	<p class="p-4 border-b border-base-400">{{ .Description }}</p>
+	<p class="p-4 border-b">{{ .Description }}</p>
 
     <div class="p-4 flex items-center justify-between">
 		<a class="flex items-center gap-2" href="/post/{{ .ID }}" hx-boost="true">

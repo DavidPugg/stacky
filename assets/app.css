@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 .btn {
-    @apply border border-base-400 text-neutral
+    @apply border text-neutral
 }
 
 .tabs-boxed {
-    @apply border border-base-400 bg-base-300
+    @apply border bg-base-300
 }
 
 .tab-active {
@@ -15,9 +15,33 @@
 }
 
 .menu {
-    @apply bg-base-200 border border-base-400
+    @apply bg-base-200 border
 }
 
 .card {
-    @apply bg-base-200 border border-base-400 rounded-xl
+    @apply bg-base-200 border rounded-xl
+}
+
+.container {
+    @apply mx-auto max-w-[1200px]
+}
+
+.border, .border-t, .border-r, .border-b, .border-l {
+    @apply border-base-400
+}
+
+::-webkit-scrollbar {
+     width: 10px;
+}
+  
+::-webkit-scrollbar-track {
+    background: #b3b3b3; 
+}
+
+::-webkit-scrollbar-thumb {
+    background: #666666; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555; 
 }
