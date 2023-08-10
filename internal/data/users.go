@@ -24,7 +24,7 @@ type UserWithPosts struct {
 }
 
 const baseUsersQuery = `
-	SELECT users.id, users.avatar, users.username, users.email, users.created_at, users.updated_at,
+	SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
 	EXISTS (
 		SELECT 1
 		FROM follows AS f
