@@ -43,7 +43,7 @@
     </div>
 
     {{ if .User.Posts }}
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-3">
+        <div class="grid grid-cols-[repeat(4,minmax(12rem,1fr))] gap-3">
             {{template "partials/smallPostList" .User.Posts}}
         </div>
     {{ else }}
