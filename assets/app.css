@@ -15,11 +15,11 @@
 }
 
 .tab {
-    @apply hover:bg-base-400
+    @apply hover:bg-base-400 font-semibold
 }
 
 .tab-active {
-    @apply !bg-base-400 !text-neutral border !border-primary
+    @apply  !text-neutral border !bg-primary !border-primary
 }
 
 .menu {
