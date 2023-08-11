@@ -60,7 +60,7 @@ func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, e
 	query := basePostsQuery + `
 		WHERE u.username = $3
 		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
-		ORDER BY created_at
+		ORDER BY created_at DESC
 	`
 
 	posts := []*Post_DB{}
@@ -83,7 +83,7 @@ func (d *Data) GetFollowedPosts(userID int) ([]*Post, error) {
 		LEFT JOIN follows AS f ON p.user_id = f.followee_id
 		WHERE f.follower_id = $3
 		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
-		ORDER BY created_at
+		ORDER BY created_at DESC
 	`
 
 	posts := []*Post_DB{}
@@ -105,7 +105,7 @@ func (d *Data) GetAllPosts(userID int) ([]*Post, error) {
 	query := basePostsQuery + `
 		WHERE p.user_id != $3
 		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
-		ORDER BY created_at
+		ORDER BY created_at DESC
 	`
 
 	posts := []*Post_DB{}
