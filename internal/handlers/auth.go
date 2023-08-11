@@ -56,7 +56,7 @@ func (h *Handlers) validateEmail(c *fiber.Ctx) error {
 
 func (h *Handlers) validateUsername(c *fiber.Ctx) error {
 	var form struct {
-		Username string `validate:"required,min=3,max=32"`
+		Username string `validate:"required,min=3,max=14"`
 	}
 
 	form.Username = c.FormValue("username")
