@@ -3,7 +3,7 @@
   hx-post="/auth/register"
   hx-reset-on-success
   hx-indicator="#register-indicator"
-  class="absolute top-96 left-1/2 -translate-x-[50%] gap-3 p-10 card card-bordered shadow-xl w-full max-w-[500px]">
+  class="absolute top-96 left-1/2 -translate-x-[50%] gap-3 p-10 card card-bordered !border-primary shadow-xl w-full max-w-[500px]">
   <div class="flex flex-col gap-2">
     <label for="username">Username</label>
     <div>
@@ -12,7 +12,7 @@
         type="text"
         name="username"
         placeholder="Bine..."
-        class="input input-bordered input-primary w-full"
+        class="input input-bordered w-full focus:input-primary"
         hx-post="/auth/validate_username"
         hx-trigger="keyup changed delay:500ms"
         hx-target="#username-error"
@@ -34,7 +34,7 @@
         type="text"
         name="email"
         placeholder="Bine@gmail.com..."
-        class="input input-bordered input-primary w-full"
+        class="input input-bordered w-full focus:input-primary"
         hx-post="/auth/validate_email"
         hx-trigger="keyup changed delay:500ms"
         hx-target="#email-error"
@@ -56,7 +56,7 @@
         type="text"
         name="password"
         placeholder="12345678..."
-        class="input input-bordered input-primary w-full"
+        class="input input-bordered w-full focus:input-primary"
         hx-post="/auth/validate_password"
         hx-trigger="keyup changed delay:500ms"
         hx-target="#password-error"
@@ -71,7 +71,7 @@
     <span id="password-error" class="text-xs text-red-500"></span>
   </div>
 
-  <button class="btn btn-primary mt-3">
+  <button class="btn btn-primary btn-ghost mt-3">
     <span class="relative flex items-center">
       Register
       <span

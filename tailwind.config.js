@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 
 const colors = {
-  "primary": "#3abff8",
-  "secondary": "#828df8",         
+  "primary": "#EA9010",
+  "secondary": "#90BE6D",         
   "accent": "#f471b5",
   "neutral": "#FDFDFD",
   "base-100": "#17181C",

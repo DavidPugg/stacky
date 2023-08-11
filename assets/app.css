@@ -14,8 +14,12 @@
     @apply border bg-base-300
 }
 
+.tab {
+    @apply hover:bg-base-400
+}
+
 .tab-active {
-    @apply !bg-base-400 !text-neutral
+    @apply !bg-base-400 !text-neutral border !border-primary
 }
 
 .menu {
@@ -32,6 +36,22 @@
 
 .border, .border-t, .border-r, .border-b, .border-l {
     @apply border-base-400
+}
+
+.btn.btn-primary.btn-ghost {
+    @apply border-primary hover:bg-primary
+}
+
+.btn.btn-secondary.btn-ghost {
+    @apply border-secondary hover:bg-secondary
+}
+
+.btn.btn-accent.btn-ghost {
+    @apply border-accent hover:bg-accent
+}
+
+.centered {
+    @apply fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] 
 }
 
 ::-webkit-scrollbar {
