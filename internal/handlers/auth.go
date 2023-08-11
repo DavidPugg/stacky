@@ -140,7 +140,7 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid username or password")
 	}
 
-	token, err := utils.GenerateToken(user)
+	token, err := utils.GenerateToken(user.ID, user.Username, user.Email, user.Avatar)
 	if err != nil {
 		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error generating token")
 	}

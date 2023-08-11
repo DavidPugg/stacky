@@ -1,6 +1,10 @@
 package data
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/davidpugg/stacky/internal/utils"
+)
 
 type Comment_DB struct {
 	ID           int    `json:"id" db:"id"`
@@ -94,7 +98,7 @@ func createCommentFromDB(commentDB *Comment_DB, userID int) *Comment {
 			Email:     commentDB.UserEmail,
 			CreatedAt: commentDB.UserCreated,
 		},
-		CreatedAt: commentDB.CreatedAt,
+		CreatedAt: utils.FormatCreateTime(commentDB.CreatedAt),
 		IsAuthor:  commentDB.UserID == userID,
 	}
 }

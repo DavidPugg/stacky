@@ -3,7 +3,6 @@ package utils
 import (
 	"time"
 
-	"github.com/davidpugg/stacky/internal/data"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
@@ -19,13 +18,13 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
-func GenerateToken(user *data.User_DB) (string, error) {
+func GenerateToken(userID int, username, email, avatar string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
-	claims["id"] = user.ID
-	claims["username"] = user.Username
-	claims["email"] = user.Email
-	claims["avatar"] = user.Avatar
+	claims["id"] = userID
+	claims["username"] = username
+	claims["email"] = email
+	claims["avatar"] = avatar
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
