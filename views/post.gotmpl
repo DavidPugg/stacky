@@ -28,7 +28,7 @@
 			<span id="comment-indicator" class="loading loading-spinner loading-md absolute right-5 htmx-indicator"></span>
 		</form>
 
-		<div id="comment-list" class="flex-grow basis-0 overflow-y-auto overflow-x-hidden flex flex-col gap-3 border-t {{ if .Post.Comments }} visible {{ else}} hidden {{ end }}">
+		<div id="comment-list" class="flex-grow [&>*:nth-child(odd)]:bg-base-300 basis-0 overflow-y-auto overflow-x-hidden flex flex-col border-t {{ if .Post.Comments }} visible {{ else}} hidden {{ end }}">
 			{{ range .Post.Comments }}
 				{{ template "partials/comment" . }}
 			{{ end }}
