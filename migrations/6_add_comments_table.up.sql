@@ -1,11 +1,10 @@
 CREATE TABLE comments (
-    id INT NOT NULL AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     post_id INT NOT NULL,
     user_id INT NOT NULL,
     body TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    KEY post_id_idx (post_id),
-    KEY user_id_idx (user_id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT post_id_fk FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

@@ -23,18 +23,24 @@ start: build
 	./web
 
 migrate-up:
-	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_DRIVER}://${DB_URL}" up
+	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSLMODE}" up
 
 migrate-force:
-	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_DRIVER}://${DB_URL}" force 1
+	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSLMODE}" force 1
 
 migrate-down:
-	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_DRIVER}://${DB_URL}" down 1
+	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSLMODE}" down 1
 
-mysql:
-	docker run --name stacky-mysql -e MYSQL_ROOT_PASSWORD=password -p 3306:3306 -d mysql
+db:
+	docker run --name some-postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
 
-mysql-createdb:
-	docker exec -it stacky-mysql mysql -uroot -ppassword -e "CREATE DATABASE stacky;"
+db-start:
+	docker start some-postgres
 
-.PHONY: build-css start migrate-up migrate-force migrate-down watch-css dev yarn mysql mysql-createdb
+db-stop:
+	docker stop some-postgres
+
+db-create:
+	docker exec -it some-postgres psql -U postgres -c "CREATE DATABASE stacky;"
+
+.PHONY: build-css start migrate-up migrate-force migrate-down watch-css dev yarn build db db-start db-stop db-create

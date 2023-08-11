@@ -1,2 +1,2 @@
-ALTER TABLE users DROP INDEX username,
-    DROP INDEX email;
+ALTER TABLE users
+DROP CONSTRAINT user_unique;

@@ -1,11 +1,10 @@
 CREATE TABLE post_likes (
-    id INT NOT NULL AUTO_INCREMENT,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     post_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    KEY user_id_idx (user_id),
-    KEY post_id_idx (post_id),
-    UNIQUE KEY unique_user_post (user_id, post_id)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT post_id_fk FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    UNIQUE (user_id, post_id)
 );

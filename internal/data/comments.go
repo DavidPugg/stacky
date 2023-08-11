@@ -1,5 +1,7 @@
 package data
 
+import "fmt"
+
 type Comment_DB struct {
 	ID           int    `json:"id" db:"id"`
 	UserID       int    `json:"user_id" db:"user_id"`
@@ -29,11 +31,12 @@ const baseCommentsQuery = `
 `
 
 func (d *Data) GetCommentByID(userID, commentID int) (*Comment, error) {
-	query := baseCommentsQuery + `WHERE c.id = ?`
+	query := baseCommentsQuery + `WHERE c.id = $1`
 
 	comment := &Comment_DB{}
 	err := d.DB.Get(comment, query, commentID)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -41,11 +44,12 @@ func (d *Data) GetCommentByID(userID, commentID int) (*Comment, error) {
 }
 
 func (d *Data) GetPostComments(userID, postID int) ([]*Comment, error) {
-	query := baseCommentsQuery + `WHERE c.post_id = ?`
+	query := baseCommentsQuery + `WHERE c.post_id = $1`
 
 	comments := []*Comment_DB{}
 	err := d.DB.Select(&comments, query, postID)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -57,23 +61,21 @@ func (d *Data) GetPostComments(userID, postID int) ([]*Comment, error) {
 	return commentsToReturn, nil
 }
 
-func (d *Data) CreateComment(userID, postID int, body string) (int64, error) {
-	t, err := d.DB.Exec("INSERT INTO comments(user_id, post_id, body) VALUES(?, ?, ?)", userID, postID, body)
+func (d *Data) CreateComment(userID, postID int, body string) (int, error) {
+	var id int
+	err := d.DB.QueryRow("INSERT INTO comments(user_id, post_id, body) VALUES($1, $2, $3) RETURNING id", userID, postID, body).Scan(&id)
 	if err != nil {
+		fmt.Println(err)
 		return 0, err
 	}
 
-	commentID, err := t.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return commentID, nil
+	return id, nil
 }
 
 func (d *Data) DeleteComment(commentID int) error {
-	_, err := d.DB.Exec("DELETE FROM comments WHERE id = ?", commentID)
+	_, err := d.DB.Exec("DELETE FROM comments WHERE id = $1", commentID)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

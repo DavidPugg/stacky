@@ -172,7 +172,7 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 func (h *Handlers) register(c *fiber.Ctx) error {
 	var form struct {
 		Avatar   string
-		Username string `validate:"required,min=3,max=32"`
+		Username string `validate:"required,min=3,max=14"`
 		Email    string `validate:"required,email"`
 		Password string `validate:"required,min=8,max=32"`
 	}
@@ -193,11 +193,11 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 	}
 
 	if _, err := h.data.CreateUser(form.Avatar, form.Username, form.Email, hashedPassword); err != nil {
-		if err.Error() == "users.username" {
+		if err.Error() == "username_unique" {
 			return utils.SendAlert(c, fiber.StatusBadRequest, "Username already exists")
 		}
 
-		if err.Error() == "users.email" {
+		if err.Error() == "email_unique" {
 			return utils.SendAlert(c, fiber.StatusBadRequest, "Email already exists")
 		}
 

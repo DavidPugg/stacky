@@ -29,37 +29,35 @@ const baseUsersQuery = `
 		SELECT 1
 		FROM follows AS f
 		WHERE f.followee_id = users.id
-		AND f.follower_id = ?
+		AND f.follower_id = $1
 	) AS followed `
 
 func (d *Data) CreateUser(avatar, username, email, password string) (int, error) {
-	result, err := d.DB.Exec("INSERT INTO users (avatar, username, email, password) VALUES (?, ?, ?, ?)", avatar, username, email, password)
+	var id int
+	err := d.DB.QueryRow("INSERT INTO users (avatar, username, email, password) VALUES ($1, $2, $3, $4) RETURNING id", avatar, username, email, password).Scan(&id)
 	if err != nil {
-		if strings.Contains(err.Error(), "users.email") {
-			return 0, fmt.Errorf("users.email")
+		fmt.Println(err)
+		if strings.Contains(err.Error(), "email_unique") {
+			return 0, fmt.Errorf("email_unique")
 		}
 
-		if strings.Contains(err.Error(), "users.username") {
-			return 0, fmt.Errorf("users.username")
+		if strings.Contains(err.Error(), "username_unique") {
+			return 0, fmt.Errorf("username_unique")
 		}
 
 		return 0, err
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return int(id), nil
+	return id, nil
 }
 
 func (d *Data) GetUserByID(authUserID, userID int) (*User_DB, error) {
-	query := baseUsersQuery + `FROM users WHERE id = ?`
+	query := baseUsersQuery + `FROM users WHERE id = $2`
 
 	user := &User_DB{}
 	err := d.DB.Get(user, query, authUserID, userID)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -67,11 +65,12 @@ func (d *Data) GetUserByID(authUserID, userID int) (*User_DB, error) {
 }
 
 func (d *Data) GetUserByEmail(userID int, email string) (*User_DB, error) {
-	query := baseUsersQuery + `FROM users WHERE email = ?`
+	query := baseUsersQuery + `FROM users WHERE email = $2`
 
 	user := &User_DB{}
 	err := d.DB.Get(user, query, userID, email)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -79,11 +78,12 @@ func (d *Data) GetUserByEmail(userID int, email string) (*User_DB, error) {
 }
 
 func (d *Data) GetUserByUsername(userID int, username string) (*User_DB, error) {
-	query := baseUsersQuery + `FROM users WHERE username = ?`
+	query := baseUsersQuery + `FROM users WHERE username = $2`
 
 	user := &User_DB{}
 	err := d.DB.Get(user, query, userID, username)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -109,7 +109,7 @@ func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWit
 	FROM users
 	LEFT JOIN follows AS f ON f.followee_id = users.id
 	LEFT JOIN follows AS f2 ON f2.follower_id = users.id
-	WHERE username = ?
+	WHERE username = $2
 	GROUP BY users.id
 	`
 
@@ -122,6 +122,7 @@ func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWit
 
 	posts := <-postsChan
 	if posts == nil {
+		fmt.Println(err)
 		return nil, err
 	}
 

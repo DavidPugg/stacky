@@ -1,13 +1,18 @@
 package data
 
 import (
-	_ "github.com/go-sql-driver/mysql"
+	"fmt"
+
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 )
 
 func DBconnect() *sqlx.DB {
-	db, err := sqlx.Connect(viper.GetString("DB_DRIVER"), viper.GetString("DB_URL"))
+	fmt.Println(viper.GetString("DB_URL"))
+	db, err := sqlx.Connect(viper.GetString("DB_DRIVER"),
+		fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+			viper.GetString("DB_HOST"), viper.GetString("DB_PORT"), viper.GetString("DB_USER"), viper.GetString("DB_PASSWORD"), viper.GetString("DB_NAME"), viper.GetString("DB_SSLMODE")))
 	if err != nil {
 		panic(err)
 	}

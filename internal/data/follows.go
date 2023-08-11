@@ -1,5 +1,7 @@
 package data
 
+import "fmt"
+
 type Follow_DB struct {
 	ID         int `json:"id" db:"id"`
 	FollowerID int `json:"follower_id" db:"follower_id"`
@@ -7,8 +9,9 @@ type Follow_DB struct {
 }
 
 func (d *Data) CreateFollow(followerID, followeeID int) error {
-	_, err := d.DB.Exec("INSERT INTO follows (follower_id, followee_id) VALUES (?, ?)", followerID, followeeID)
+	_, err := d.DB.Exec("INSERT INTO follows (follower_id, followee_id) VALUES ($1, $2)", followerID, followeeID)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -16,8 +19,9 @@ func (d *Data) CreateFollow(followerID, followeeID int) error {
 }
 
 func (d *Data) DeleteFollow(followerID, followeeID int) error {
-	_, err := d.DB.Exec("DELETE FROM follows WHERE follower_id = ? AND followee_id = ?", followerID, followeeID)
+	_, err := d.DB.Exec("DELETE FROM follows WHERE follower_id = $1 AND followee_id = $2", followerID, followeeID)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

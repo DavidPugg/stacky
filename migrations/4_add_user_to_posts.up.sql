@@ -1,5 +1,5 @@
 ALTER TABLE posts
-ADD COLUMN user_id INT NOT NULL DEFAULT 0 AFTER id;
+ADD COLUMN user_id INT NOT NULL DEFAULT 0;
 
 ALTER TABLE posts
-ADD KEY user_id_idx (user_id);
+ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

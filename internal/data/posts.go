@@ -43,13 +43,13 @@ const basePostsQuery = `
 		SELECT 1
 		FROM post_likes AS pl2
 		WHERE pl2.post_id = p.id
-		AND pl2.user_id = ?
+		AND pl2.user_id = $1
 	) AS liked,
 	EXISTS (
 		SELECT 1
 		FROM follows AS f
 		WHERE f.followee_id = p.user_id
-		AND f.follower_id = ?
+		AND f.follower_id = $2
 	) AS followed
 	FROM posts AS p
 	LEFT JOIN users AS u ON p.user_id = u.id
@@ -58,8 +58,8 @@ const basePostsQuery = `
 
 func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, error) {
 	query := basePostsQuery + `
-		WHERE u.username = ?
-		GROUP BY p.id
+		WHERE u.username = $3
+		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
 		ORDER BY created_at
 	`
 
@@ -81,8 +81,8 @@ func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, e
 func (d *Data) GetFollowedPosts(userID int) ([]*Post, error) {
 	query := basePostsQuery + `
 		LEFT JOIN follows AS f ON p.user_id = f.followee_id
-		WHERE f.follower_id = ?
-		GROUP BY p.id
+		WHERE f.follower_id = $3
+		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
 		ORDER BY created_at
 	`
 
@@ -103,8 +103,8 @@ func (d *Data) GetFollowedPosts(userID int) ([]*Post, error) {
 
 func (d *Data) GetAllPosts(userID int) ([]*Post, error) {
 	query := basePostsQuery + `
-		WHERE p.user_id != ?
-		GROUP BY p.id
+		WHERE p.user_id != $3
+		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
 		ORDER BY created_at
 	`
 
@@ -137,8 +137,8 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 	}()
 
 	query := basePostsQuery + `
-		WHERE p.id = ?
-		GROUP BY p.id
+		WHERE p.id = $3
+		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
 	`
 
 	post := &Post_DB{}
@@ -151,6 +151,7 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 
 	comments := <-commentChan
 	if comments == nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -160,8 +161,9 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 }
 
 func (d *Data) CreatePost(userID int, image, description string) error {
-	_, err := d.DB.Exec("INSERT INTO posts (user_id, image, description) VALUES (?, ?, ?)", userID, image, description)
+	_, err := d.DB.Exec("INSERT INTO posts (user_id, image, description) VALUES ($1, $2, $3)", userID, image, description)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -169,8 +171,9 @@ func (d *Data) CreatePost(userID int, image, description string) error {
 }
 
 func (d *Data) DeletePostByID(id int) error {
-	_, err := d.DB.Exec("DELETE FROM posts WHERE id = ?", id)
+	_, err := d.DB.Exec("DELETE FROM posts WHERE id = $1", id)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -178,8 +181,9 @@ func (d *Data) DeletePostByID(id int) error {
 }
 
 func (d *Data) UpdatePostByID(id int, image, description string) error {
-	_, err := d.DB.Exec("UPDATE posts SET image = ?, description = ? WHERE id = ?", image, description, id)
+	_, err := d.DB.Exec("UPDATE posts SET image = $1, description = $2 WHERE id = $3", image, description, id)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

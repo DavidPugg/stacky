@@ -1,2 +1,2 @@
 ALTER TABLE posts
-DROP KEY user_id_idx;
+DROP COLUMN user_id;

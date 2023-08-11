@@ -1,4 +1,5 @@
 ALTER TABLE users
-ADD UNIQUE (username);
+ADD CONSTRAINT username_unique UNIQUE (username);
+
 ALTER TABLE users
-ADD UNIQUE (email);
+ADD CONSTRAINT email_unique UNIQUE (email);
