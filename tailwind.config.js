@@ -20,6 +20,9 @@ module.exports = {
   content: ['./views/**/*.{gotmpl,html}'],
   theme: {
     extend: {
+      screens: {
+        'xs': '450px',
+      },
       colors :{
         ...colors
       },
