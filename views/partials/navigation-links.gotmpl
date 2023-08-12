@@ -1,0 +1,3 @@
+<a id="-tab" class="{{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 cursor-default {{ end }}" href="/" hx-boost="true">Follows</a> 
+<a id="discover-tab"  href="/discover" hx-boost="true">Discover</a> 
+<a id="create-tab" class="{{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 cursor-default {{ end }}" {{ if .Authenticated}} href="/create" {{ end }} hx-boost="true">Create</a> 

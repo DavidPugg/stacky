@@ -3,13 +3,11 @@
   class="navbar justify-center fixed top-0 bg-base-200  border-b z-10
          before:content-normal before:absolute before:w-full before:h-6 before:bg-gradient-to-b from-base-100 from-40%  before:top-[calc(100%+1px)]"
   >
-  <div class="flex w-full justify-between container">
+  <div class="flex w-full justify-between container gap-3 px-3 lg:px-0">
     <a class="link-primary font-bold text-2xl" href="/" hx-boost="true">Stacky</a>
 
-    <div id="tabs" class="tabs tabs-boxed gap-1 !border-primary">
-      <a id="-tab" class="tab link-neutral {{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 cursor-default {{ end }}" href="/" hx-boost="true">Follows</a> 
-      <a id="discover-tab" class="tab link-neutral" href="/discover" hx-boost="true">Discover</a> 
-      <a id="create-tab" class="tab link-neutral {{ if not  .Authenticated}} text-slate-500 hover:text-slate-500 cursor-default {{ end }}" {{ if .Authenticated}} href="/create" {{ end }} hx-boost="true">Create</a> 
+    <div id="navigation-links" class="tabs tabs-boxed hidden md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md ">
+      {{ template "partials/navigation-links" . }}
     </div>
 
     <div class="flex gap-3">
@@ -40,6 +38,10 @@
   </div>
 </div>
 
+<div id="navigation-links" class="fixed  bottom-0 w-full z-10 flex md:hidden bg-base-200 [&_a]:flex-grow [&_a]:text-center border-t [&_a]:py-3 [&_a]:font-semibold">
+  {{ template "partials/navigation-links" . }}
+</div>
+
 <script>
   {
     window.addEventListener('load', function (event) {
@@ -51,11 +53,12 @@
     });
 
     function updateTabs() {
-      const tabs = document.getElementById('tabs');
-      tabs.querySelector(".tab-active")?.classList?.remove?.("tab-active")
-      const location = window.location.pathname.split('/')[1];
-      const tab = tabs.querySelector(`#${location}-tab`);
-      tab?.classList?.add?.("tab-active")
+      const containers = document.body.querySelectorAll('#navigation-links');
+      for(let i = 0; i < containers.length; i++) {
+        containers[i].querySelector(".tab-active")?.classList?.remove?.("tab-active")
+        const tab = containers[i].querySelector(`#${window.location.pathname.split('/')[1]}-tab`);
+        tab?.classList?.add?.("tab-active")
+      }
     }
 
     function closeMenu() {
