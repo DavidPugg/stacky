@@ -46,16 +46,7 @@ func RenderPartial(c *fiber.Ctx, view string, data interface{}) error {
 		return err
 	}
 
-	if c.Locals("Partials") == nil {
-		return nil
-	}
-
-	_, err = c.WriteString(c.Locals("Partials").(string))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return renderPartials(c)
 }
 
 func RenderPage(c *fiber.Ctx, view string, data interface{}, pd *PageDetails, layout ...string) error {
@@ -75,14 +66,23 @@ func RenderPage(c *fiber.Ctx, view string, data interface{}, pd *PageDetails, la
 	}
 
 	c.Locals("PageDetails", pd)
-	if err := SetTrigger(c, Trigger{
+	if err := SetTrigger(c, "default", Trigger{
 		Name: "updatePageDetails",
 		Data: pd,
 	}); err != nil {
 		return RenderError(c, fiber.StatusInternalServerError, "Error setting page details")
 	}
 
-	return c.Render(view, data, l)
+	if err := SetTrigger(c, "settle", Trigger{Name: "updateNavigationLinks"}); err != nil {
+		return RenderError(c, fiber.StatusInternalServerError, "Error setting page details")
+	}
+
+	err := c.Render(view, data, l)
+	if err != nil {
+		return RenderError(c, fiber.StatusInternalServerError, "Error rendering page")
+	}
+
+	return renderPartials(c)
 }
 
 func RenderError(c *fiber.Ctx, status int, details string) error {
@@ -108,9 +108,17 @@ func RenderError(c *fiber.Ctx, status int, details string) error {
 	})
 }
 
-func SetTrigger(c *fiber.Ctx, triggers ...Trigger) error {
+func SetTrigger(c *fiber.Ctx, t string, triggers ...Trigger) error {
 	if len(triggers) == 0 {
 		return nil
+	}
+
+	if t == "settle" {
+		t = "HX-Trigger-After-Settle"
+	} else if t == "swap" {
+		t = "HX-Trigger-After-Swap"
+	} else if t == "default" {
+		t = "HX-Trigger"
 	}
 
 	alertMap := make(map[string]interface{})
@@ -123,7 +131,7 @@ func SetTrigger(c *fiber.Ctx, triggers ...Trigger) error {
 		return RenderError(c, fiber.StatusInternalServerError, "Error setting trigger")
 	}
 
-	if hxTrigger := c.GetRespHeader("HX-Trigger-After-Settle"); hxTrigger != "" {
+	if hxTrigger := c.GetRespHeader(t); hxTrigger != "" {
 		var hxTriggerMap map[string]interface{}
 		if err := json.Unmarshal([]byte(hxTrigger), &hxTriggerMap); err != nil {
 			return RenderError(c, fiber.StatusInternalServerError, "Error setting trigger")
@@ -139,7 +147,7 @@ func SetTrigger(c *fiber.Ctx, triggers ...Trigger) error {
 		}
 	}
 
-	c.Set("HX-Trigger-After-Settle", string(alert))
+	c.Set(t, string(alert))
 
 	return nil
 }
@@ -211,4 +219,17 @@ func parseTemplate(templateContent string, data interface{}) (string, error) {
 
 func generatePartialsURL(name string) string {
 	return fmt.Sprintf("views/partials/%s.gotmpl", name)
+}
+
+func renderPartials(c *fiber.Ctx) error {
+	if c.Locals("Partials") == nil {
+		return nil
+	}
+
+	_, err := c.WriteString(c.Locals("Partials").(string))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

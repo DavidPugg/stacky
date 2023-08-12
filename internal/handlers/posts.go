@@ -106,7 +106,7 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 		IsAuthor:  true,
 	}
 
-	utils.SetTrigger(c, utils.Trigger{
+	utils.SetTrigger(c, "swap", utils.Trigger{
 		Name: "removeNoComments",
 	})
 
@@ -136,7 +136,7 @@ func (h *Handlers) deleteComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	utils.SetTrigger(c, utils.Trigger{
+	utils.SetTrigger(c, "swap", utils.Trigger{
 		Name: "addNoComments",
 	})
 

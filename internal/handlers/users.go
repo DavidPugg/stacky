@@ -32,7 +32,7 @@ func (h *Handlers) followUser(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	utils.SetTrigger(c, utils.Trigger{
+	utils.SetTrigger(c, "swap", utils.Trigger{
 		Name: "updateFollowCount",
 		Data: &fiber.Map{
 			"followeeID": followeeID,
@@ -65,7 +65,7 @@ func (h *Handlers) unfollowUser(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	utils.SetTrigger(c, utils.Trigger{
+	utils.SetTrigger(c, "swap", utils.Trigger{
 		Name: "updateFollowCount",
 		Data: &fiber.Map{
 			"followeeID": followeeID,
