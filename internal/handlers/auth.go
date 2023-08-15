@@ -164,8 +164,6 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 	utils.SetRedirect(c, "/")
 	utils.SetAlert(c, fiber.StatusOK, "Successfully logged in")
 
-	c.Set("HX-Retarget", "#navbar")
-	c.Set("HX-Reswap", "outerHTML")
 	return utils.RenderPartial(c, "navbar", data)
 }
 
@@ -219,12 +217,8 @@ func (h *Handlers) logout(c *fiber.Ctx) error {
 
 	c.Cookie(&cookie)
 
-	c.Locals("AuthUser", nil)
-
 	utils.SetRedirect(c, "/")
 	utils.SetAlert(c, fiber.StatusOK, "Successfully logged out")
 
-	c.Set("HX-Retarget", "#navbar")
-	c.Set("HX-Reswap", "outerHTML")
-	return utils.RenderPartial(c, "navbar", c.Locals("AuthUser"))
+	return utils.RenderPartial(c, "navbar", middleware.UserTokenData{})
 }

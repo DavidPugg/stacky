@@ -1,5 +1,6 @@
 <div
   id="navbar"
+  hx-swap-oob="true"
   class="navbar justify-center fixed top-0 bg-base-200  border-b z-10
          before:content-normal before:absolute before:w-full before:h-6 before:bg-gradient-to-b from-base-100 from-40%  before:top-[calc(100%+1px)]"
   >
@@ -36,19 +37,22 @@
       {{ end }}
     </div>
   </div>
-</div>
 
-<div id="navigation-links" class="fixed  bottom-0 w-full z-10 flex md:hidden bg-base-200 [&_a]:flex-grow [&_a]:text-center border-t [&_a]:py-3 [&_a]:font-semibold">
-  {{ template "partials/navigation-links" . }}
+  
+  <div id="navigation-links" class="fixed  bottom-0 w-full z-10 flex md:hidden bg-base-200 [&_a]:flex-grow [&_a]:text-center border-t [&_a]:py-3 [&_a]:font-semibold">
+    {{ template "partials/navigation-links" . }}
+  </div>
 </div>
 
 <script>
   {
     window.addEventListener('load', function (event) {
+      console.log('page is fully loaded');
       updateTabs();
     });
 
     document.body.addEventListener('updateNavigationLinks', function (event) {
+      console.log('updateNavigationLinks');
       updateTabs();
     });
 
@@ -56,8 +60,10 @@
       const containers = document.body.querySelectorAll('#navigation-links');
       for(let i = 0; i < containers.length; i++) {
         containers[i].querySelector(".tab-active")?.classList?.remove?.("tab-active")
-        const tab = containers[i].querySelector(`#${window.location.pathname.split('/')[1]}-tab`);
-        tab?.classList?.add?.("tab-active")
+        const tabs = containers[i].querySelectorAll(`#${window.location.pathname.split('/')[1]}-tab`);
+        tabs.forEach((tab) => {
+          tab.classList.add("tab-active")
+        })
       }
     }
 
