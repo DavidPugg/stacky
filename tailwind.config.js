@@ -16,12 +16,25 @@ const colors = {
   "error": "#fb6f84"
 }
 
+const sizes = {
+  'xs': '500px',
+}
+
 module.exports = {
   content: ['./views/**/*.{gotmpl,html}'],
   theme: {
     extend: {
       screens: {
-        'xs': '450px',
+        ...sizes
+      },
+      width: {
+        ...sizes
+      },
+      maxWidth: {
+        ...sizes
+      },
+      minWidth: {
+        ...sizes
       },
       colors :{
         ...colors
