@@ -58,6 +58,10 @@
     @apply !text-slate-500 hover:text-slate-500 !cursor-default
 }
 
+.centered-page {
+    @apply relative md:fixed md:top-[50%] md:-translate-y-[50%] md:left-[50%] md:-translate-x-[50%] 
+}
+
 ::-webkit-scrollbar {
      width: 10px;
 }
