@@ -16,6 +16,7 @@ type Post_DB struct {
 	Liked        bool   `json:"liked" db:"liked"`
 	CommentCount int    `json:"comment_count" db:"comment_count"`
 	Followed     bool   `json:"followed" db:"followed"`
+	TotalCount   int    `json:"total_count" db:"total_count"`
 }
 
 type Post struct {
@@ -29,16 +30,26 @@ type Post struct {
 	CommentCount int      `json:"comment_count" db:"comment_count"`
 }
 
+type LastPost struct {
+	Post
+	IsLast   bool `json:"is_last"`
+	Page     int  `json:"page"`
+	LastPage bool `json:"last_page"`
+}
+
 type PostWithComments struct {
 	Post
 	Comments []*Comment `json:"comments"`
 }
+
+const pageLimit = 5
 
 const basePostsQuery = `
 	SELECT p.id, p.user_id, p.image, p.description, p.created_at,
 	u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
 	(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
 	COUNT(c.id) AS comment_count,
+	COUNT(*) OVER() AS total_count,
 	EXISTS (
 		SELECT 1
 		FROM post_likes AS pl2
@@ -78,46 +89,48 @@ func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, e
 	return postsData, nil
 }
 
-func (d *Data) GetFollowedPosts(userID int) ([]*Post, error) {
+func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
 	query := basePostsQuery + `
 		LEFT JOIN follows AS f ON p.user_id = f.followee_id
 		WHERE f.follower_id = $3
 		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
 		ORDER BY created_at DESC
+		LIMIT $4 OFFSET $5
 	`
 
 	posts := []*Post_DB{}
-	err := d.DB.Select(&posts, query, userID, userID, userID)
+	err := d.DB.Select(&posts, query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	postsData := []*Post{}
-	for _, p := range posts {
-		postsData = append(postsData, createPostFromDB(p))
+	postsData := []*LastPost{}
+	for i, p := range posts {
+		postsData = append(postsData, createLastPost(createPostFromDB(p), i == len(posts)-1, page+1, p.TotalCount <= pageLimit*page))
 	}
 
 	return postsData, nil
 }
 
-func (d *Data) GetAllPosts(userID int) ([]*Post, error) {
+func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
 	query := basePostsQuery + `
 		WHERE p.user_id != $3
 		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
 		ORDER BY created_at DESC
+		LIMIT $4 OFFSET $5
 	`
 
 	posts := []*Post_DB{}
-	err := d.DB.Select(&posts, query, userID, userID, userID)
+	err := d.DB.Select(&posts, query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	postsData := []*Post{}
-	for _, p := range posts {
-		postsData = append(postsData, createPostFromDB(p))
+	postsData := []*LastPost{}
+	for i, p := range posts {
+		postsData = append(postsData, createLastPost(createPostFromDB(p), i == len(posts)-1, page+1, p.TotalCount <= pageLimit*page))
 	}
 
 	return postsData, nil
@@ -214,5 +227,14 @@ func createPostWithComments(post *Post, comments []*Comment) *PostWithComments {
 	return &PostWithComments{
 		Post:     *post,
 		Comments: comments,
+	}
+}
+
+func createLastPost(post *Post, isLast bool, page int, lastPage bool) *LastPost {
+	return &LastPost{
+		Post:     *post,
+		IsLast:   isLast,
+		Page:     page,
+		LastPage: lastPage,
 	}
 }

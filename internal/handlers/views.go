@@ -22,7 +22,7 @@ func (h *Handlers) registerViewRoutes(c *fiber.App) {
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
 	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
-	posts, err := h.data.GetFollowedPosts(userID)
+	posts, err := h.data.GetFollowedPosts(userID, 1)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
@@ -36,7 +36,7 @@ func (h *Handlers) renderMain(c *fiber.Ctx) error {
 func (h *Handlers) renderDiscover(c *fiber.Ctx) error {
 	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
-	posts, err := h.data.GetAllPosts(userID)
+	posts, err := h.data.GetAllPosts(userID, 1)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}

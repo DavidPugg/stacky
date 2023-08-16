@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/davidpugg/stacky/internal/data"
 	"github.com/davidpugg/stacky/internal/middleware"
@@ -17,6 +18,7 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 	r.Post("/:id/comment", middleware.Authenticate, h.createComment)
 	r.Delete("/:id/comment", middleware.Authenticate, h.deleteComment)
 	r.Post("create", middleware.Authenticate, h.createPost)
+	r.Get("/", middleware.Authenticate, h.getPosts)
 }
 
 func (h *Handlers) likePost(c *fiber.Ctx) error {
@@ -166,4 +168,29 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 	utils.SetRedirect(c, fmt.Sprintf("/u/%s", user.Username))
 
 	return utils.SendAlert(c, 200, "Post created")
+}
+
+func (h *Handlers) getPosts(c *fiber.Ctx) error {
+	user := c.Locals("AuthUser").(*middleware.UserTokenData)
+
+	page, err := strconv.Atoi(c.Query("page"))
+	if err != nil {
+		page = 1
+	}
+
+	location := strings.Split(c.Get("Referer"), "/")[3]
+
+	var posts []*data.LastPost
+	if location == "discover" {
+		posts, err = h.data.GetAllPosts(user.ID, page)
+	} else if location == "" {
+		posts, err = h.data.GetFollowedPosts(user.ID, page)
+	}
+
+	if err != nil {
+		utils.SendAlert(c, 500, "Internal Server Error")
+		return err
+	}
+
+	return utils.RenderPartial(c, "postList", posts)
 }

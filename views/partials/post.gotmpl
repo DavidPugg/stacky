@@ -1,4 +1,5 @@
 <div
+	{{ if and .IsLast (not .LastPage) }} hx-get="/posts?page={{ .Page }}" hx-trigger="revealed" hx-swap="afterend" {{ end }}
 	class="card w-full xs:w-xs max-w-xs !rounded-none xs:!rounded-lg bg-base-200 !border-0 !border-y xs:!border shadow-xl hover:shadow-2xl transition-all !outline-none overflow-hidden"
 >
 	<div class="p-4 flex justify-between items-center">
