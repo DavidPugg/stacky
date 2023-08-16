@@ -3,6 +3,7 @@ document.body.addEventListener('htmx:beforeSwap', function (event) {
 });
 
 document.body.addEventListener('updatePageDetails', function (event) {
+  window.scrollTo(0, 0);
   document.title = event.detail.title;
   document.querySelector('meta[name="description"]').content =
     event.detail.description;
