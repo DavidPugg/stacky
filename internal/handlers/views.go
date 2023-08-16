@@ -11,16 +11,18 @@ import (
 
 func (h *Handlers) registerViewRoutes(c *fiber.App) {
 	c.Get("/", middleware.MainAuthGuard, h.renderMain)
-	c.Get("/login", middleware.LoginAuthGuard, h.renderLogin)
-	c.Get("/register", h.renderRegister)
-	c.Get("/post/:id", h.renderPost)
 	c.Get("/discover", h.renderDiscover)
+	c.Get("/register", h.renderRegister)
+	c.Get("/login", middleware.LoginAuthGuard, h.renderLogin)
+	c.Get("/post/:id", h.renderPost)
 	c.Get("/u/:username", h.renderUser)
 	c.Get("/create", middleware.MainAuthGuard, h.renderCreatePost)
 }
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	var (
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
 
 	posts, err := h.data.GetFollowedPosts(userID, 1)
 	if err != nil {
@@ -34,7 +36,9 @@ func (h *Handlers) renderMain(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) renderDiscover(c *fiber.Ctx) error {
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	var (
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
 
 	posts, err := h.data.GetAllPosts(userID, 1)
 	if err != nil {
@@ -62,7 +66,11 @@ func (h *Handlers) renderRegister(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) renderPost(c *fiber.Ctx) error {
-	pID := c.Params("id")
+	var (
+		pID    = c.Params("id")
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
 	if pID == "" {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid post ID")
 	}
@@ -71,8 +79,6 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid post ID")
 	}
-
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	post, err := h.data.GetPostWithCommentsByID(userID, postID)
 	if err != nil {
@@ -86,12 +92,14 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) renderUser(c *fiber.Ctx) error {
-	username := c.Params("username")
+	var (
+		username = c.Params("username")
+		userID   = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
 	if username == "" {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid username")
 	}
-
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	user, err := h.data.GetUserWithPostsByUsername(userID, username)
 	if err != nil {

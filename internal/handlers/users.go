@@ -10,24 +10,27 @@ import (
 
 func (h *Handlers) registerUserRoutes(c *fiber.App) {
 	r := c.Group("/users")
+
 	r.Post("/:id/follow", middleware.Authenticate, h.followUser)
 	r.Delete("/:id/follow", middleware.Authenticate, h.unfollowUser)
 }
 
 func (h *Handlers) followUser(c *fiber.Ctx) error {
-	fID := c.Params("id")
-	followeeID, err := strconv.Atoi(fID)
+	var (
+		userID     = c.Params("id")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
+	followeeID, err := strconv.Atoi(userID)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid user ID")
 	}
 
-	followerID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
-
-	if followerID == followeeID {
+	if authUserID == followeeID {
 		return utils.SendAlert(c, 400, "You cannot follow yourself")
 	}
 
-	err = h.data.CreateFollow(followerID, followeeID)
+	err = h.data.CreateFollow(authUserID, followeeID)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
@@ -48,19 +51,21 @@ func (h *Handlers) followUser(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) unfollowUser(c *fiber.Ctx) error {
-	fID := c.Params("id")
-	followeeID, err := strconv.Atoi(fID)
+	var (
+		userID     = c.Params("id")
+		authUserId = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
+	followeeID, err := strconv.Atoi(userID)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid user ID")
 	}
 
-	followerID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
-
-	if followeeID == followerID {
+	if followeeID == authUserId {
 		return utils.SendAlert(c, 400, "You can't unfollow yourself")
 	}
 
-	err = h.data.DeleteFollow(followerID, followeeID)
+	err = h.data.DeleteFollow(authUserId, followeeID)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}

@@ -12,35 +12,36 @@ import (
 
 func (h *Handlers) registerAuthRoutes(c *fiber.App) {
 	r := c.Group("/auth")
+
+	r.Post("/login", h.login)
+	r.Post("/logout", h.logout)
+	r.Post("/register", h.register)
+
 	r.Post("/validate_email", h.validateEmail)
 	r.Post("/validate_username", h.validateUsername)
 	r.Post("/validate_password", h.validatePassword)
-	r.Post("/login", h.login)
-	r.Post("/register", h.register)
-	r.Post("/logout", h.logout)
+}
+
+type Form struct {
+	Username string `validate:"required,min=3,max=14"`
+	Email    string `validate:"required,email"`
+	Password string `validate:"required,min=8,max=32"`
 }
 
 func (h *Handlers) validateEmail(c *fiber.Ctx) error {
-	var form struct {
-		Email string `validate:"required,email"`
-	}
-
-	form.Email = c.FormValue("email")
+	var (
+		form   = Form{Email: c.FormValue("email")}
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
 
 	validate := validator.New()
-	if err := validate.Struct(form); err != nil {
-		if strings.Contains(err.Error(), "email") {
-			return c.Status(fiber.StatusBadRequest).SendString("Please enter a valid email")
-		}
-
+	if err := validate.StructPartial(form, "Email"); err != nil {
 		if strings.Contains(err.Error(), "required") {
 			return c.Status(fiber.StatusBadRequest).SendString("Please enter an email")
 		}
 
-		return c.Status(fiber.StatusBadRequest).SendString("Error validating email")
+		return c.Status(fiber.StatusBadRequest).SendString("Please enter a valid email")
 	}
-
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	user, err := h.data.GetUserByEmail(userID, form.Email)
 	if err != nil {
@@ -55,14 +56,13 @@ func (h *Handlers) validateEmail(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) validateUsername(c *fiber.Ctx) error {
-	var form struct {
-		Username string `validate:"required,min=3,max=14"`
-	}
-
-	form.Username = c.FormValue("username")
+	var (
+		form   = Form{Username: c.FormValue("username")}
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
 
 	validate := validator.New()
-	if err := validate.Struct(form); err != nil {
+	if err := validate.StructPartial(form, "Username"); err != nil {
 		if strings.Contains(err.Error(), "min") || strings.Contains(err.Error(), "max") {
 			return c.Status(fiber.StatusBadRequest).SendString("Username must be between 3 and 32 characters")
 		}
@@ -73,8 +73,6 @@ func (h *Handlers) validateUsername(c *fiber.Ctx) error {
 
 		return c.Status(fiber.StatusBadRequest).SendString("Error validating username")
 	}
-
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	user, err := h.data.GetUserByUsername(userID, form.Username)
 	if err != nil {
@@ -89,43 +87,35 @@ func (h *Handlers) validateUsername(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) validatePassword(c *fiber.Ctx) error {
-	var form struct {
-		Password string `validate:"required,min=8,max=32"`
-	}
-
-	form.Password = c.FormValue("password")
+	var (
+		form = Form{Password: c.FormValue("password")}
+	)
 
 	validate := validator.New()
-	if err := validate.Struct(form); err != nil {
+	if err := validate.StructPartial(form, "Password"); err != nil {
 		if strings.Contains(err.Error(), "min") || strings.Contains(err.Error(), "max") {
 			return c.Status(fiber.StatusBadRequest).SendString("Password must be between 8 and 32 characters")
 		}
 
-		if strings.Contains(err.Error(), "required") {
-			return c.Status(fiber.StatusBadRequest).SendString("Please enter a password")
-		}
-
-		return c.Status(fiber.StatusBadRequest).SendString("Error validating password")
+		return c.Status(fiber.StatusBadRequest).SendString("Please enter a valid password")
 	}
 
 	return c.Status(fiber.StatusOK).SendString("")
 }
 
 func (h *Handlers) login(c *fiber.Ctx) error {
-	var form struct {
-		Username string `validate:"required,min=3,max=32"`
-		Password string `validate:"required,min=8,max=32"`
-	}
-
-	form.Username = c.FormValue("username")
-	form.Password = c.FormValue("password")
+	var (
+		form = Form{
+			Username: c.FormValue("username"),
+			Password: c.FormValue("password"),
+		}
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
 
 	validate := validator.New()
-	if err := validate.Struct(form); err != nil {
+	if err := validate.StructPartial(form, "Username", "Password"); err != nil {
 		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid username or password")
 	}
-
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	user, err := h.data.GetUserByUsername(userID, form.Username)
 	if err != nil {
@@ -168,17 +158,13 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) register(c *fiber.Ctx) error {
-	var form struct {
-		Avatar   string
-		Username string `validate:"required,min=3,max=14"`
-		Email    string `validate:"required,email"`
-		Password string `validate:"required,min=8,max=32"`
-	}
-
-	form.Username = c.FormValue("username")
-	form.Email = c.FormValue("email")
-	form.Password = c.FormValue("password")
-	form.Avatar = ""
+	var (
+		form = Form{
+			Username: c.FormValue("username"),
+			Email:    c.FormValue("email"),
+			Password: c.FormValue("password"),
+		}
+	)
 
 	validate := validator.New()
 	if err := validate.Struct(form); err != nil {
@@ -190,7 +176,7 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error hashing password")
 	}
 
-	if _, err := h.data.CreateUser(form.Avatar, form.Username, form.Email, hashedPassword); err != nil {
+	if _, err := h.data.CreateUser("", form.Username, form.Email, hashedPassword); err != nil {
 		if err.Error() == "username_unique" {
 			return utils.SendAlert(c, fiber.StatusBadRequest, "Username already exists")
 		}

@@ -13,28 +13,33 @@ import (
 
 func (h *Handlers) registerPostRoutes(c *fiber.App) {
 	r := c.Group("/posts")
+
+	r.Get("/", h.getPosts)
+	r.Post("/create", middleware.Authenticate, h.createPost)
+
 	r.Post("/:id/like", middleware.Authenticate, h.likePost)
 	r.Delete("/:id/like", middleware.Authenticate, h.unlikePost)
+
 	r.Post("/:id/comment", middleware.Authenticate, h.createComment)
 	r.Delete("/:id/comment", middleware.Authenticate, h.deleteComment)
-	r.Post("create", middleware.Authenticate, h.createPost)
-	r.Get("/", h.getPosts)
 }
 
 func (h *Handlers) likePost(c *fiber.Ctx) error {
-	count := c.Query("count")
+	var (
+		pID    = c.Params("id")
+		count  = c.Query("count")
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
 	likeCount, err := strconv.Atoi(count)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid count")
 	}
 
-	pID := c.Params("id")
 	postID, err := strconv.Atoi(pID)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
-
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	err = h.data.CreatePostLike(userID, postID)
 	if err != nil {
@@ -50,19 +55,21 @@ func (h *Handlers) likePost(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) unlikePost(c *fiber.Ctx) error {
-	count := c.Query("count")
+	var (
+		pID    = c.Params("id")
+		count  = c.Query("count")
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
 	likeCount, err := strconv.Atoi(count)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid count")
 	}
 
-	pID := c.Params("id")
 	postID, err := strconv.Atoi(pID)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
-
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	err = h.data.DeletePostLike(userID, postID)
 	if err != nil {
@@ -77,18 +84,20 @@ func (h *Handlers) unlikePost(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) createComment(c *fiber.Ctx) error {
-	body := c.FormValue("comment")
+	var (
+		pID  = c.Params("id")
+		body = c.FormValue("comment")
+		user = c.Locals("AuthUser").(*middleware.UserTokenData)
+	)
+
 	if len(body) == 0 {
 		return utils.SendAlert(c, 400, "Invalid comment")
 	}
 
-	pID := c.Params("id")
 	postID, err := strconv.Atoi(pID)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
-
-	user := c.Locals("AuthUser").(*middleware.UserTokenData)
 
 	commentID, err := h.data.CreateComment(user.ID, postID, body)
 	if err != nil {
@@ -116,13 +125,15 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) deleteComment(c *fiber.Ctx) error {
-	pID := c.Params("id")
+	var (
+		pID    = c.Params("id")
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
 	postID, err := strconv.Atoi(pID)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
-
-	userID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
 
 	comment, err := h.data.GetCommentByID(userID, postID)
 	if err != nil {
@@ -146,9 +157,12 @@ func (h *Handlers) deleteComment(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) createPost(c *fiber.Ctx) error {
-	description := c.FormValue("description")
+	var (
+		description = c.FormValue("description")
+		user        = c.Locals("AuthUser").(*middleware.UserTokenData)
+		image, err  = c.FormFile("image")
+	)
 
-	image, err := c.FormFile("image")
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid image")
 	}
@@ -157,8 +171,6 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
-
-	user := c.Locals("AuthUser").(*middleware.UserTokenData)
 
 	err = h.data.CreatePost(user.ID, path, description)
 	if err != nil {
@@ -171,16 +183,18 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) getPosts(c *fiber.Ctx) error {
-	user := c.Locals("AuthUser").(*middleware.UserTokenData)
+	var (
+		location = strings.Split(c.Get("Referer"), "/")[3]
+		user     = c.Locals("AuthUser").(*middleware.UserTokenData)
+	)
 
 	page, err := strconv.Atoi(c.Query("page"))
 	if err != nil {
 		page = 1
 	}
 
-	location := strings.Split(c.Get("Referer"), "/")[3]
-
 	var posts []*data.LastPost
+
 	if location == "discover" {
 		posts, err = h.data.GetAllPosts(user.ID, page)
 	} else if location == "" {
