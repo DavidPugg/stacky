@@ -18,7 +18,7 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 	r.Post("/:id/comment", middleware.Authenticate, h.createComment)
 	r.Delete("/:id/comment", middleware.Authenticate, h.deleteComment)
 	r.Post("create", middleware.Authenticate, h.createPost)
-	r.Get("/", middleware.Authenticate, h.getPosts)
+	r.Get("/", h.getPosts)
 }
 
 func (h *Handlers) likePost(c *fiber.Ctx) error {
