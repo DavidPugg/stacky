@@ -4,7 +4,7 @@
     {{ template "partials/postList" .Posts }}
   </div>
 {{ else }}
-  <p class="text-center">No posts found!</p>
+  {{ template "partials/noPosts" . }}
 {{ end }}
 
 </div>
