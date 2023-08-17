@@ -44,6 +44,8 @@ WORKDIR /root/
 
 COPY --from=node_builder /app/public ./public
 
+COPY --from=node_builder /app/node_modules ./node_modules
+
 COPY --from=builder /app/web .
 
 COPY --from=builder /app/views ./views
