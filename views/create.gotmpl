@@ -1,86 +1,81 @@
-<form
-  id="create-post-form"
-  hx-post="/posts/create"
-  hx-reset-on-success
-  hx-indicator="#create-post-indicator"
-  hx-swap="none"
-  hx-encoding='multipart/form-data'
-  class="centered-page">
-  <div>
-      <input
-        id="image-upload"
-        type="file"
-        accept="image/*"
-        name="image"
-        class="file-input file-input-primary w-full" />
-  </div>
-  <div class="flex flex-col gap-2">
-    <label for="password">Description</label>
-    <div>
-      <input
-        id="description"
-        type="text"
-        name="description"
-        placeholder="My first post..."
-        class="input input-bordered focus:input-primary w-full" />
-    </div>
-  </div>
+<div 
+  x-data="{
+    cropper : null,
+    handleDoneClick() {
+      $refs.cropdata.value = JSON.stringify(this.cropper.getData());
+      $refs.cropmodal.close();
+      $refs.cropperimage.src = '';
+    },
+    handleImageChange(event) {
+      const image = $refs.cropperimage;
 
-  <input id="crop-data" name="crop-data" type="text" class="hidden">
-
-  <button class="btn btn-primary mt-3">
-    <span class="relative flex items-center">
-      Create
-      <span
-        id="create-post-indicator"
-        class="absolute -right-8 htmx-indicator loading loading-spinner loading-md"
-    /></span>
-  </button>
-</form>
-
-
-
-<dialog id="crop-modal" class="modal">
-    <form method="dialog" class="modal-box p-4  max-w-[700px] overflow-hidden">
-      <div class="max-w-full max-h-full">
-        <img id="cropper-image" alt="uploaded" class="w-full block">
-      </div>
-      <div class="modal-action mt-4">
-        <button id="cropping-done-button" type="button" class="btn btn-ghost btn-primary">Done</button>
-      </div>
-    </form>
-</dialog>
-
-<script>
-  if (!window.cropperInitialized) {
-    window.cropperInitialized = true
-
-    var cropper;
-    const image = document.getElementById("cropper-image");
-    const modal = document.getElementById("crop-modal");
-    
-    
-    document.getElementById("image-upload")?.addEventListener("change", function (event) {
-      if (cropper) {
-        cropper.destroy();
+      if (this.cropper) {
+        this.cropper.destroy();
       };
       
       image.src = URL.createObjectURL(event.target.files[0]);
-      modal.showModal();
+      $refs.cropmodal.showModal();
           
-      cropper = new Cropper(image, {
+      this.cropper = new Cropper(image, {
           aspectRatio: 1,
           rotatable: false,
           zoomable: false,
           scalable: false,
           viewMode: 1,
       })
-    });
-    
-    document.getElementById("cropping-done-button")?.addEventListener("click", async function () {
-        document.getElementById("crop-data").value =  JSON.stringify(cropper.getData());
-        modal.close();
-        image.src = "";
-    });
-  }
-</script>
+    },
+  }"
+>
+  <form
+    id="create-post-form"
+    hx-post="/posts/create"
+    hx-reset-on-success
+    hx-indicator="#create-post-indicator"
+    hx-swap="none"
+    hx-encoding='multipart/form-data'
+    class="centered-page"
+  >
+    <div>
+        <input
+          @change="handleImageChange($event)"
+          id="image-upload"
+          type="file"
+          accept="image/*"
+          name="image"
+          class="file-input file-input-primary w-full" />
+    </div>
+    <div class="flex flex-col gap-2">
+      <label for="password">Description</label>
+      <div>
+        <input
+          id="description"
+          type="text"
+          name="description"
+          placeholder="My first post..."
+          class="input input-bordered focus:input-primary w-full" />
+      </div>
+    </div>
+
+    <input x-ref="cropdata" name="crop-data" type="text" class="hidden">
+
+    <button class="btn btn-primary mt-3">
+      <span class="relative flex items-center">
+        Create
+        <span
+          id="create-post-indicator"
+          class="absolute -right-8 htmx-indicator loading loading-spinner loading-md"
+      /></span>
+    </button>
+  </form>
+
+  <dialog x-ref="cropmodal" class="modal">
+    <form method="dialog" class="modal-box p-4  max-w-[700px] overflow-hidden">
+      <div class="max-w-full max-h-full">
+        <img x-ref="cropperimage" alt="uploaded" class="w-full block">
+      </div>
+      <div class="modal-action mt-4">
+        <button @click="handleDoneClick()" id="cropping-done-button" type="button" class="btn btn-ghost btn-primary">Done</button>
+      </div>
+    </form>
+  </dialog>
+</div>
