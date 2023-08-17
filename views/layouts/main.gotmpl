@@ -12,14 +12,15 @@
     <script defer src="https://unpkg.com/htmx.org@1.9.4"></script>
     <script type="module" defer src="/public/js/htmx/htmx.js"></script>
     <script src="/cropperjs/cropper.min.js"></script>
+    <script src="/alpinejs/cdn.min.js"></script>
   </head>
   <body>
     <div id="alert"></div>
-
+    
     <header id="header">
       {{ template "partials/navbar" .AuthUser }}
     </header>
-
+    
     <main id="content" hx-ext="reset-on-success">
       {{ embed }}
     </main>
