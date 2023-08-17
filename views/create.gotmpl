@@ -8,7 +8,7 @@
   class="centered-page">
   <div>
       <input
-        id="image"
+        id="image-upload"
         type="file"
         accept="image/*"
         name="image"
@@ -26,6 +26,8 @@
     </div>
   </div>
 
+  <input id="crop-data" name="crop-data" type="text" class="hidden">
+
   <button class="btn btn-primary mt-3">
     <span class="relative flex items-center">
       Create
@@ -35,3 +37,46 @@
     /></span>
   </button>
 </form>
+
+
+<dialog id="crop-modal" class="modal">
+    <form method="dialog" class="modal-box p-4  max-w-[700px] overflow-hidden">
+      <div class="max-w-full max-h-full">
+        <img id="cropper-image" alt="uploaded" class="w-full block">
+      </div>
+      <div class="modal-action mt-4">
+        <button onclick="handleCloseModal()" type="button" class="btn btn-ghost btn-primary">Done</button>
+      </div>
+    </form>
+</dialog>
+
+<script>
+{  
+  let cropper;
+  const image = document.getElementById("cropper-image");
+  const modal = document.getElementById("crop-modal");
+  const upload = document.getElementById("image-upload");
+
+  upload.addEventListener("change", function (event) {
+    image.src = URL.createObjectURL(event.target.files[0]);
+    modal.showModal();
+
+    cropper = new Cropper(image, {
+    aspectRatio: 1,
+    rotatable: false,
+    zoomable: false,
+    scalable: false,
+    viewMode: 1,
+    })
+  });
+
+  let croppingData;
+  
+  function handleCloseModal() {
+    document.getElementById("crop-data").value = JSON.stringify(cropper.getData());
+    cropper.destroy();
+    modal.close();
+    image.src = "";
+  }
+  }
+</script>

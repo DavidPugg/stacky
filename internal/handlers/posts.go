@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -161,10 +162,24 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 		description = c.FormValue("description")
 		user        = c.Locals("AuthUser").(*middleware.UserTokenData)
 		image, err  = c.FormFile("image")
+		cropData    = c.FormValue("crop-data")
 	)
 
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid image")
+	}
+
+	var data struct {
+		X      float32 `json:"x"`
+		Y      float32 `json:"y"`
+		Width  float32 `json:"width"`
+		Height float32 `json:"height"`
+	}
+
+	err = json.Unmarshal([]byte(cropData), &data)
+	if err != nil {
+		fmt.Println(err)
+		return utils.SendAlert(c, 400, "Invalid crop data")
 	}
 
 	path, err := h.data.CreateMediaLocally(c, image)
