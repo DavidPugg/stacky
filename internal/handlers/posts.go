@@ -3,6 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"image"
+	"image/png"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -10,6 +13,7 @@ import (
 	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/oliamb/cutter"
 )
 
 func (h *Handlers) registerPostRoutes(c *fiber.App) {
@@ -161,7 +165,7 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 	var (
 		description = c.FormValue("description")
 		user        = c.Locals("AuthUser").(*middleware.UserTokenData)
-		image, err  = c.FormFile("image")
+		img, err    = c.FormFile("image")
 		cropData    = c.FormValue("crop-data")
 	)
 
@@ -182,12 +186,46 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid crop data")
 	}
 
-	path, err := h.data.CreateMediaLocally(c, image)
+	file, err := img.Open()
+	if err != nil {
+		fmt.Println(err)
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	defer file.Close()
+
+	//get file extension
+	ext := filepath.Ext(img.Filename)
+	var i image.Image
+	if ext == ".png" {
+		i, err = png.Decode(file)
+	} else {
+		i, _, err = image.Decode(file)
+	}
+
+	if err != nil {
+		fmt.Println(err)
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	cimg, err := cutter.Crop(i, cutter.Config{
+		Width:  int(data.Width),
+		Height: int(data.Height),
+		Anchor: image.Point{int(data.X), int(data.Y)},
+		Mode:   cutter.TopLeft,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	path, err := h.data.CreateMediaLocally(cimg, img)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	err = h.data.CreatePost(user.ID, path, description)
+	err = h.data.CreatePost(user.ID, fmt.Sprintf("%s/%s", c.BaseURL(), path), description)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}

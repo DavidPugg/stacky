@@ -45,38 +45,41 @@
         <img id="cropper-image" alt="uploaded" class="w-full block">
       </div>
       <div class="modal-action mt-4">
-        <button onclick="handleCloseModal()" type="button" class="btn btn-ghost btn-primary">Done</button>
+        <button id="cropping-done-button" type="button" class="btn btn-ghost btn-primary">Done</button>
       </div>
     </form>
 </dialog>
 
 <script>
-{  
-  let cropper;
-  const image = document.getElementById("cropper-image");
-  const modal = document.getElementById("crop-modal");
-  const upload = document.getElementById("image-upload");
+  if (!window.cropperInitialized) {
+    window.cropperInitialized = true
 
-  upload.addEventListener("change", function (event) {
-    image.src = URL.createObjectURL(event.target.files[0]);
-    modal.showModal();
-
-    cropper = new Cropper(image, {
-    aspectRatio: 1,
-    rotatable: false,
-    zoomable: false,
-    scalable: false,
-    viewMode: 1,
-    })
-  });
-
-  let croppingData;
-  
-  function handleCloseModal() {
-    document.getElementById("crop-data").value = JSON.stringify(cropper.getData());
-    cropper.destroy();
-    modal.close();
-    image.src = "";
-  }
+    var cropper;
+    const image = document.getElementById("cropper-image");
+    const modal = document.getElementById("crop-modal");
+    
+    
+    document.getElementById("image-upload")?.addEventListener("change", function (event) {
+      if (cropper) {
+        cropper.destroy();
+      };
+      
+      image.src = URL.createObjectURL(event.target.files[0]);
+      modal.showModal();
+          
+      cropper = new Cropper(image, {
+          aspectRatio: 1,
+          rotatable: false,
+          zoomable: false,
+          scalable: false,
+          viewMode: 1,
+      })
+    });
+    
+    document.getElementById("cropping-done-button")?.addEventListener("click", async function () {
+        document.getElementById("crop-data").value =  JSON.stringify(cropper.getData());
+        modal.close();
+        image.src = "";
+    });
   }
 </script>
