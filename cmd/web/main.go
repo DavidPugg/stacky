@@ -33,6 +33,7 @@ func main() {
 	})
 
 	app.Static("/public", "./public")
+	app.Static("/cropperjs", "./node_modules/cropperjs/dist")
 
 	//Middleware
 
