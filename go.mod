@@ -31,6 +31,7 @@ require (
 	github.com/spf13/viper v1.16.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
+	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -39,6 +40,7 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
+	github.com/disintegration/imaging v1.6.2
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/gofiber/template/html/v2 v2.0.5
 	github.com/golang-jwt/jwt v3.2.2+incompatible

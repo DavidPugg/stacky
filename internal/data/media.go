@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"image"
 	"image/jpeg"
-	"image/png"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 
+	"github.com/disintegration/imaging"
 	"github.com/google/uuid"
 	"github.com/oliamb/cutter"
 )
@@ -20,7 +20,7 @@ type CropData struct {
 	Height float32 `json:"height"`
 }
 
-func (d *Data) CreateMediaLocally(img *multipart.FileHeader, cropData CropData) (string, error) {
+func (d *Data) SaveMediaLocally(img *multipart.FileHeader, cropData CropData) (string, error) {
 	var (
 		ext       = filepath.Ext(img.Filename)
 		randID    = uuid.New().String()
@@ -36,12 +36,7 @@ func (d *Data) CreateMediaLocally(img *multipart.FileHeader, cropData CropData) 
 
 	defer file.Close()
 
-	if ext == ".png" {
-		i, err = png.Decode(file)
-	} else {
-		i, _, err = image.Decode(file)
-	}
-
+	i, err = imaging.Decode(file, imaging.AutoOrientation(true))
 	if err != nil {
 		fmt.Println(err)
 		return "", fmt.Errorf("Error saving image")

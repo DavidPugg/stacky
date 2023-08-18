@@ -176,7 +176,7 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid crop data")
 	}
 
-	path, err := h.data.CreateMediaLocally(img, data)
+	path, err := h.data.SaveMediaLocally(img, data)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
