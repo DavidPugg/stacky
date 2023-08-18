@@ -1,43 +1,43 @@
 /** @type {import('tailwindcss').Config} */
 
 const colors = {
-  "primary": "#EA9010",
-  "secondary": "#90BE6D",         
-  "accent": "#f471b5",
-  "neutral": "#FDFDFD",
-  "base-100": "#17181C",
-  "base-200": "#1E1F24",
-  "base-300": "#27292F",
-  "base-400": "#33353D",
-  "base-500": "#454853",
-  "info": "#0ca6e9",
-  "success": "#2bd4bd",
-  "warning": "#f4c152",
-  "error": "#fb6f84"
-}
+  primary: '#EA9010',
+  secondary: '#90BE6D',
+  accent: '#f471b5',
+  neutral: '#FDFDFD',
+  'base-100': '#17181C',
+  'base-200': '#1E1F24',
+  'base-300': '#27292F',
+  'base-400': '#33353D',
+  'base-500': '#454853',
+  info: '#0ca6e9',
+  success: '#2bd4bd',
+  warning: '#f4c152',
+  error: '#fb6f84',
+};
 
 const sizes = {
-  'xs': '500px',
-}
+  xs: '500px',
+};
 
 module.exports = {
-  content: ['./views/**/*.{gotmpl,html}'],
+  content: ['./views/**/*.html'],
   theme: {
     extend: {
       screens: {
-        ...sizes
+        ...sizes,
       },
       width: {
-        ...sizes
+        ...sizes,
       },
       maxWidth: {
-        ...sizes
+        ...sizes,
       },
       minWidth: {
-        ...sizes
+        ...sizes,
       },
-      colors :{
-        ...colors
+      colors: {
+        ...colors,
       },
       animation: {
         'show-alert': 'show 5s ease-in-out',
@@ -58,10 +58,10 @@ module.exports = {
   daisyui: {
     themes: [
       {
-      mytheme: {
-        ...colors
+        mytheme: {
+          ...colors,
+        },
       },
-    },
-  ],
+    ],
   },
 };

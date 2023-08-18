@@ -218,7 +218,7 @@ func parseTemplate(templateContent string, data interface{}) (string, error) {
 }
 
 func generatePartialsURL(name string) string {
-	return fmt.Sprintf("views/partials/%s.gotmpl", name)
+	return fmt.Sprintf("views/partials/%s.html", name)
 }
 
 func renderPartials(c *fiber.Ctx) error {

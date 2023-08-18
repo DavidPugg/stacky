@@ -24,7 +24,7 @@ func main() {
 	}
 
 	//Fiber
-	engine := html.New("./views", ".gotmpl")
+	engine := html.New("./views", ".html")
 
 	app := fiber.New(fiber.Config{
 		Views:             engine,
