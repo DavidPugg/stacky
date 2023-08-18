@@ -30,6 +30,7 @@ func main() {
 		Views:             engine,
 		ViewsLayout:       "layouts/main",
 		PassLocalsToViews: true,
+		BodyLimit:         20 * 1024 * 1024,
 	})
 
 	app.Static("/public", "./public")
