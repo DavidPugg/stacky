@@ -4,7 +4,8 @@
   hx-reset-on-success
   hx-indicator="#login-indicator"
   hx-swap="none"
-  class="centered-page">
+  class="centered-page"
+>
   <div class="flex flex-col gap-2">
     <label for="username">Username</label>
     <div>
@@ -13,7 +14,8 @@
         type="text"
         name="username"
         placeholder="Bine..."
-        class="input input-bordered w-full focus:input-primary" />
+        class="input input-bordered w-full focus:input-primary"
+      />
     </div>
   </div>
 
@@ -25,7 +27,8 @@
         type="text"
         name="password"
         placeholder="12345678..."
-        class="input input-bordered w-full focus:input-primary" />
+        class="input input-bordered w-full focus:input-primary"
+      />
     </div>
   </div>
 
@@ -37,7 +40,7 @@
         class="absolute -right-8 htmx-indicator loading loading-spinner loading-md"
     /></span>
   </button>
-  
+
   <p class="mx-auto">
     Dont have an account yet?
     <a class="link-primary" href="/register" hx-boost="true">Sign up</a>

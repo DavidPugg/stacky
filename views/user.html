@@ -1,52 +1,67 @@
 <div class="container page">
-    <div class="relative flex flex-wrap items-center justify-between w-full gap-5 mb-10 border-b pb-10">
-        <div class="flex gap-5 items-center">
-            {{if .User.Avatar}}
-                <div class="avatar">
-                    <div class="w-24 rounded-full">
-                    <img src="{{ .User.Avatar }}" />
-                    </div>
-                </div>
-            {{else}}
-            <div class="avatar placeholder">
-                <div class="bg-neutral-focus text-neutral-content rounded-full w-24">
-                  <span class="text-5xl font-extrabold uppercase">{{ slice .User.Username 0 1 }}</span>
-                </div>
-              </div> 
-            {{end}}
-    
-            <h1 class="font-semibold text-4xl">{{ .User.Username }}</h1>
-
-            {{if .ShowFollowButton}}
-                <span class="[&>button]:font-bold [&>button]:text-base [&>button]:h-10 [&>button]:px-4">
-                    {{ template "partials/followButton" .User }}
-                </span>
-            {{end}}
+  <div
+    class="relative flex flex-wrap items-center justify-between w-full gap-5 mb-10 border-b pb-10"
+  >
+    <div class="flex gap-5 items-center">
+      {{ if .User.Avatar }}
+        <div class="avatar">
+          <div class="w-24 rounded-full">
+            <img src="{{ .User.Avatar }}" />
+          </div>
         </div>
-
-        <div class="text-xs md:text-base stats text-center flex-grow">
-            <div class="stat place-items-center">
-                <div class="stat-value">{{ len .User.Posts }}</div>
-                <div class="stat-title">Posts</div>
-            </div>
-            
-            <div class="stat place-items-center">
-                <div id="followers-count" class="stat-value ">{{ .User.FollowersCount }}</div>
-                <div class="stat-title">Followers</div>
-            </div>
-            
-            <div class="stat place-items-center">
-                <div class="stat-value">{{ .User.FollowingCount }}</div>
-                <div class="stat-title">Following</div>
-            </div>
+      {{ else }}
+        <div class="avatar placeholder">
+          <div class="bg-neutral-focus text-neutral-content rounded-full w-24">
+            <span class="text-5xl font-extrabold uppercase"
+              >{{ slice .User.Username 0 1 }}</span
+            >
+          </div>
         </div>
+      {{ end }}
+
+
+      <h1 class="font-semibold text-4xl">{{ .User.Username }}</h1>
+
+      {{ if .ShowFollowButton }}
+        <span
+          class="[&>button]:font-bold [&>button]:text-base [&>button]:h-10 [&>button]:px-4"
+        >
+          {{ template "partials/followButton" .User }}
+        </span>
+      {{ end }}
     </div>
 
-    {{ if .User.Posts }}
-        <div class="grid {{if eq ( len .User.Posts) 1}} place-content-center grid-cols-[30rem] {{ else }}  grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] {{ end }} gap-3">
-            {{template "partials/smallPostList" .User.Posts}}
+    <div class="text-xs md:text-base stats text-center flex-grow">
+      <div class="stat place-items-center">
+        <div class="stat-value">{{ len .User.Posts }}</div>
+        <div class="stat-title">Posts</div>
+      </div>
+
+      <div class="stat place-items-center">
+        <div id="followers-count" class="stat-value">
+          {{ .User.FollowersCount }}
         </div>
-    {{ else }}
-        {{ template "partials/noPosts" . }}
-    {{ end }}
+        <div class="stat-title">Followers</div>
+      </div>
+
+      <div class="stat place-items-center">
+        <div class="stat-value">{{ .User.FollowingCount }}</div>
+        <div class="stat-title">Following</div>
+      </div>
+    </div>
+  </div>
+
+  {{ if .User.Posts }}
+    <div
+      class="grid {{ if eq ( len .User.Posts) 1 }}
+        place-content-center grid-cols-[30rem]
+      {{ else }}
+        grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]
+      {{ end }} gap-3"
+    >
+      {{ template "partials/smallPostList" .User.Posts }}
+    </div>
+  {{ else }}
+    {{ template "partials/noPosts" . }}
+  {{ end }}
 </div>

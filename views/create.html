@@ -24,7 +24,8 @@
           viewMode: 1,
       })
     },
-  }">
+  }"
+>
   <form
     id="create-post-form"
     hx-post="/posts/create"
@@ -32,7 +33,8 @@
     hx-indicator="#create-post-indicator"
     hx-swap="none"
     hx-encoding="multipart/form-data"
-    class="centered-page">
+    class="centered-page"
+  >
     <div>
       <input
         @change="handleImageChange($event)"
@@ -40,7 +42,8 @@
         type="file"
         accept="image/*"
         name="image"
-        class="file-input file-input-primary w-full" />
+        class="file-input file-input-primary w-full"
+      />
     </div>
     <div class="flex flex-col gap-2">
       <label for="password">Description</label>
@@ -50,7 +53,8 @@
           type="text"
           name="description"
           placeholder="My first post..."
-          class="input input-bordered focus:input-primary w-full" />
+          class="input input-bordered focus:input-primary w-full"
+        />
       </div>
     </div>
 
@@ -76,7 +80,8 @@
           @click="handleDoneClick()"
           id="cropping-done-button"
           type="button"
-          class="btn btn-ghost btn-primary">
+          class="btn btn-ghost btn-primary"
+        >
           Done
         </button>
       </div>

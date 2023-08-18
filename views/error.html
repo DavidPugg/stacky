@@ -3,14 +3,14 @@
   <h2 id="message" class="text-5xl">{{ .Message }}</h2>
 
   {{ if .Details }}
-  <div id="details-container" class="collapse">
-    <input type="checkbox" class="[&+.collapse-title]:hover:text-primary" />
-    <div class="collapse-title text-xl font-medium px-5 transition-all">
-      Details
+    <div id="details-container" class="collapse">
+      <input type="checkbox" class="[&+.collapse-title]:hover:text-primary" />
+      <div class="collapse-title text-xl font-medium px-5 transition-all">
+        Details
+      </div>
+      <div class="collapse-content">
+        <p id="details">{{ .Details }}</p>
+      </div>
     </div>
-    <div class="collapse-content">
-      <p id="details">{{ .Details }}</p>
-    </div>
-  </div>
   {{ end }}
 </div>

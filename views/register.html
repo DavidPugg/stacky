@@ -3,7 +3,8 @@
   hx-post="/auth/register"
   hx-reset-on-success
   hx-indicator="#register-indicator"
-  class="centered-page">
+  class="centered-page"
+>
   <div class="flex flex-col gap-2">
     <label for="username">Username</label>
     <div>
@@ -17,10 +18,12 @@
         hx-trigger="keyup changed delay:500ms"
         hx-target="#username-error"
         hx-swap="innerHTML"
-        hx-indicator="#username-indicator" />
+        hx-indicator="#username-indicator"
+      />
       <span
         id="username-indicator"
-        class="absolute right-12 htmx-indicator loading loading-spinner loading-md" />
+        class="absolute right-12 htmx-indicator loading loading-spinner loading-md"
+      />
     </div>
 
     <span id="username-error" class="text-xs text-red-500"></span>
@@ -39,10 +42,12 @@
         hx-trigger="keyup changed delay:500ms"
         hx-target="#email-error"
         hx-swap="innerHTML"
-        hx-indicator="#email-indicator" />
+        hx-indicator="#email-indicator"
+      />
       <span
         id="email-indicator"
-        class="absolute right-12 htmx-indicator loading loading-spinner loading-md" />
+        class="absolute right-12 htmx-indicator loading loading-spinner loading-md"
+      />
     </div>
 
     <span id="email-error" class="text-xs text-red-500"></span>
@@ -61,11 +66,13 @@
         hx-trigger="keyup changed delay:500ms"
         hx-target="#password-error"
         hx-swap="innerHTML"
-        hx-indicator="#password-indicator" />
+        hx-indicator="#password-indicator"
+      />
 
       <span
         id="password-indicator"
-        class="absolute right-12 htmx-indicator loading loading-spinner loading-md" />
+        class="absolute right-12 htmx-indicator loading loading-spinner loading-md"
+      />
     </div>
 
     <span id="password-error" class="text-xs text-red-500"></span>

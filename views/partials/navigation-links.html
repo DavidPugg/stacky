@@ -1,3 +1,13 @@
-<a id="-tab" class="{{ if not  .Authenticated}} disabled-link {{ end }}" {{ if .Authenticated}} href="/" hx-boost="true" {{ end }}>Follows</a> 
-<a id="discover-tab"  href="/discover" hx-boost="true">Discover</a> 
-<a id="create-tab" class="{{ if not  .Authenticated}} disabled-link {{ end }}" {{ if .Authenticated}} href="/create" hx-boost="true" {{ end }}>Create</a> 
+<a
+  id="-tab"
+  class="{{ if not  .Authenticated }}disabled-link{{ end }}"
+  {{ if .Authenticated }}href="/" hx-boost="true"{{ end }}
+  >Follows</a
+>
+<a id="discover-tab" href="/discover" hx-boost="true">Discover</a>
+<a
+  id="create-tab"
+  class="{{ if not  .Authenticated }}disabled-link{{ end }}"
+  {{ if .Authenticated }}href="/create" hx-boost="true"{{ end }}
+  >Create</a
+>

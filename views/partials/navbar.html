@@ -3,42 +3,75 @@
   hx-swap-oob="true"
   class="navbar justify-center fixed top-0 bg-base-200  border-b z-10
          before:content-normal before:absolute before:w-full before:h-6 before:bg-gradient-to-b from-base-100 from-40%  before:top-[calc(100%+1px)]"
+>
+  <div
+    id="navigation-links"
+    class="fixed  bottom-0 w-full z-10 flex md:hidden bg-base-200 [&_a]:flex-grow [&_a]:text-center border-t [&_a]:py-3 [&_a]:font-semibold"
   >
-  <div id="navigation-links" class="fixed  bottom-0 w-full z-10 flex md:hidden bg-base-200 [&_a]:flex-grow [&_a]:text-center border-t [&_a]:py-3 [&_a]:font-semibold">
     {{ template "partials/navigation-links" . }}
   </div>
 
-
   <div class="flex w-full justify-between container gap-3 px-3 lg:px-0">
-    <a class="link-primary font-bold text-2xl" href="/" hx-boost="true">Stacky</a>
+    <a class="link-primary font-bold text-2xl" href="/" hx-boost="true"
+      >Stacky</a
+    >
 
-    <div id="navigation-links" class="tabs tabs-boxed hidden md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md ">
+    <div
+      id="navigation-links"
+      class="tabs tabs-boxed hidden md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
+    >
       {{ template "partials/navigation-links" . }}
     </div>
 
     <div class="flex gap-3">
-      {{ if .Authenticated}}
-      <div class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-primary btn-circle avatar">
-          {{ if .Avatar }}
-          <div class="w-10 rounded-full">
-            <img src="{{ .Avatar }}" />
-          </div>
-          {{ else }}
-          <div class="avatar placeholder">
-            <div class="bg-neutral-focus text-neutral-content rounded-full w-9">
-                <span class="text-md">{{ slice .Username 0 1 }}</span>
-            </div>
-          </div>
-          {{ end }}
-        </label>
-        <ul tabindex="0" class="mt-4 z-[1] p-2 shadow menu menu-md dropdown-content gap-1 [&>li>a]:px-4 rounded-box w-max">
-          <li><a onmouseup="document.activeElement.blur()" class="link-neutral cursor-pointer" href="/u/{{ .Username }}" hx-boost="true" >Profile</a></li>
-          <li><a onmouseup="document.activeElement.blur()" class="link-neutral cursor-pointer" hx-post="/auth/logout" hx-swap="none">Logout</a></li>
-        </ul>
-      </div>
+      {{ if .Authenticated }}
+        <div class="dropdown dropdown-end">
+          <label
+            tabindex="0"
+            class="btn btn-ghost btn-primary btn-circle avatar"
+          >
+            {{ if .Avatar }}
+              <div class="w-10 rounded-full">
+                <img src="{{ .Avatar }}" />
+              </div>
+            {{ else }}
+              <div class="avatar placeholder">
+                <div
+                  class="bg-neutral-focus text-neutral-content rounded-full w-9"
+                >
+                  <span class="text-md">{{ slice .Username 0 1 }}</span>
+                </div>
+              </div>
+            {{ end }}
+          </label>
+          <ul
+            tabindex="0"
+            class="mt-4 z-[1] p-2 shadow menu menu-md dropdown-content gap-1 [&>li>a]:px-4 rounded-box w-max"
+          >
+            <li>
+              <a
+                onmouseup="document.activeElement.blur()"
+                class="link-neutral cursor-pointer"
+                href="/u/{{ .Username }}"
+                hx-boost="true"
+                >Profile</a
+              >
+            </li>
+            <li>
+              <a
+                onmouseup="document.activeElement.blur()"
+                class="link-neutral cursor-pointer"
+                hx-post="/auth/logout"
+                hx-swap="none"
+                >Logout</a
+              >
+            </li>
+          </ul>
+        </div>
       {{ else }}
-        <a class="btn btn-primary btn-ghost" href="/login" hx-boost="true">Sign in</a>
+        <a class="btn btn-primary btn-ghost" href="/login" hx-boost="true"
+          >Sign in</a
+        >
       {{ end }}
     </div>
   </div>
@@ -46,22 +79,26 @@
 
 <script>
   {
-    window.addEventListener('load', function (event) {
+    window.addEventListener("load", function (event) {
       updateTabs();
     });
 
-    document.body.addEventListener('updateNavigationLinks', function (event) {
+    document.body.addEventListener("updateNavigationLinks", function (event) {
       updateTabs();
     });
 
     function updateTabs() {
-      const containers = document.body.querySelectorAll('#navigation-links');
-      for(let i = 0; i < containers.length; i++) {
-        containers[i].querySelector(".tab-active")?.classList?.remove?.("tab-active")
-        const tabs = containers[i].querySelectorAll(`#${window.location.pathname.split('/')[1]}-tab`);
+      const containers = document.body.querySelectorAll("#navigation-links");
+      for (let i = 0; i < containers.length; i++) {
+        containers[i]
+          .querySelector(".tab-active")
+          ?.classList?.remove?.("tab-active");
+        const tabs = containers[i].querySelectorAll(
+          `#${window.location.pathname.split("/")[1]}-tab`,
+        );
         tabs.forEach((tab) => {
-          tab.classList.add("tab-active")
-        })
+          tab.classList.add("tab-active");
+        });
       }
     }
   }
