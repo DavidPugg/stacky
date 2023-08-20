@@ -1,6 +1,8 @@
-<div class="!relative md:!fixed md-centered page container">
+<div
+  class="!relative w-full md:!fixed md-centered page md:!min-h-0 md:py-0 md:max-w-[1200px] bg-base-200 md:bg-base-100 md:px-4"
+>
   <div
-    class="grid grid-cols-1 md:grid-cols-[70%_30%] card rounded-lg overflow-hidden border"
+    class="grid grid-cols-1 md:grid-cols-[70%_30%] !rounded-none card md:!rounded-lg overflow-hidden !border-0 md:!border"
   >
     <img src="{{ .Post.Image }}" alt="post" class="aspect-square w-full" />
 
@@ -12,7 +14,10 @@
         {{ end }}
       </div>
 
-      <p class="p-4 border-t">{{ .Post.Description }}</p>
+      {{ if .Post.Description }}
+        <p class="p-4 border-t">{{ .Post.Description }}</p>
+      {{ end }}
+
 
       <form
         hx-reset-on-success

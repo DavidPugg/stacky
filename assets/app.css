@@ -3,85 +3,89 @@
 @tailwind utilities;
 
 :root {
-    @apply text-neutral
+  @apply text-neutral;
 }
 
 .btn {
-    @apply border text-neutral
+  @apply border text-neutral;
 }
 
 .tabs-boxed {
-    @apply border bg-base-300
+  @apply border bg-base-300;
 }
 
 .tab {
-    @apply hover:bg-base-400 font-semibold
+  @apply hover:bg-base-400 font-semibold;
 }
 
 .tab-active {
-    @apply  !text-neutral border !bg-primary !border-primary
+  @apply !text-neutral border !bg-primary !border-primary;
 }
 
 .menu {
-    @apply bg-base-200 border
+  @apply bg-base-200 border;
 }
 
 .card {
-    @apply bg-base-200 border rounded-xl
+  @apply bg-base-200 border rounded-xl;
 }
 
 .container {
-    @apply mx-auto max-w-[1200px] px-4
+  @apply mx-auto max-w-[1200px] px-4;
 }
 
-.border, .border-t, .border-r, .border-b, .border-l {
-    @apply border-base-400
+.border,
+.border-t,
+.border-r,
+.border-b,
+.border-l {
+  @apply border-base-400;
 }
 
 .btn.btn-primary.btn-ghost {
-    @apply border-primary hover:bg-primary
+  @apply border-primary hover:bg-primary;
 }
 
 .btn.btn-secondary.btn-ghost {
-    @apply border-secondary hover:bg-secondary
+  @apply border-secondary hover:bg-secondary;
 }
 
 .btn.btn-accent.btn-ghost {
-    @apply border-accent hover:bg-accent
+  @apply border-accent hover:bg-accent;
 }
 
 .centered {
-    @apply fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%] 
+  @apply fixed top-[50%] -translate-y-[50%] left-[50%] -translate-x-[50%];
 }
 
 .md-centered {
-    @apply md:fixed md:top-[50%] md:-translate-y-[50%] md:left-[50%] md:-translate-x-[50%] 
+  @apply md:!fixed md:!top-[50%] md:!-translate-y-[50%] md:!left-[50%] md:!-translate-x-[50%];
 }
 
 .disabled-link {
-    @apply !text-slate-500 hover:text-slate-500 !cursor-default
+  @apply !text-slate-500 hover:text-slate-500 !cursor-default;
 }
 
 .page {
-    @apply py-32 min-h-screen
+  @apply py-32 min-h-screen;
 }
 
 .centered-page {
-    @apply relative md:fixed md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 px-10 py-32  w-full gap-3 md:p-10 !border-none card md:!border-solid bg-base-200 md:bg-base-100 min-h-screen md:!card-bordered md:!border-primary shadow-xl md:!min-h-0 md:h-auto md:max-w-xs
+  @apply relative md:fixed md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 px-10 py-32  w-full gap-3 md:p-10 !border-none card md:!border-solid bg-base-200 md:bg-base-100 min-h-screen md:!card-bordered md:!border-primary shadow-xl md:!min-h-0 md:h-auto md:max-w-xs;
 }
 
 ::-webkit-scrollbar {
-     width: 10px;
+  width: 10px;
 }
-  
+
 ::-webkit-scrollbar-track {
-    background: #b3b3b3; 
+  background: #b3b3b3;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #666666; 
+  background: #666666;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555; 
+  background: #555;
 }

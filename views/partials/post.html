@@ -16,7 +16,10 @@
     class="w-full aspect-square cursor-pointer"
   />
 
-  <p class="p-4 border-b">{{ .Description }}</p>
+  {{ if .Description }}
+    <p class="p-4 border-t">{{ .Description }}</p>
+  {{ end }}
+
 
   <div class="p-4 flex items-center justify-between">
     <a class="flex items-center gap-2" href="/post/{{ .ID }}" hx-boost="true">
