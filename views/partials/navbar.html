@@ -8,7 +8,7 @@
     id="navigation-links"
     class="fixed  bottom-0 w-full z-10 flex md:hidden bg-base-200 [&_a]:flex-grow [&_a]:text-center border-t [&_a]:py-3 [&_a]:font-semibold"
   >
-    {{ template "partials/navigation-links" . }}
+    {{ template "nav-links" . }}
   </div>
 
   <div class="flex w-full justify-between container gap-3 px-3 lg:px-0">
@@ -20,7 +20,7 @@
       id="navigation-links"
       class="tabs tabs-boxed hidden md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
     >
-      {{ template "partials/navigation-links" . }}
+      {{ template "nav-links" . }}
     </div>
 
     <div class="flex gap-3">
@@ -76,6 +76,23 @@
     </div>
   </div>
 </div>
+
+{{ block "nav-links" . }}
+  <a
+    id="-tab"
+    class="{{ if not  .Authenticated }}disabled-link{{ end }}"
+    {{ if .Authenticated }}href="/" hx-boost="true"{{ end }}
+    >Follows</a
+  >
+  <a id="discover-tab" href="/discover" hx-boost="true">Discover</a>
+  <a
+    id="create-tab"
+    class="{{ if not  .Authenticated }}disabled-link{{ end }}"
+    {{ if .Authenticated }}href="/create" hx-boost="true"{{ end }}
+    >Create</a
+  >
+{{ end }}
+
 
 <script>
   {
