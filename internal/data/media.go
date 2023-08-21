@@ -3,14 +3,12 @@ package data
 import (
 	"fmt"
 	"image"
-	"image/jpeg"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 
 	"github.com/disintegration/imaging"
 	"github.com/google/uuid"
-	"github.com/oliamb/cutter"
 )
 
 type CropData struct {
@@ -22,9 +20,8 @@ type CropData struct {
 
 func (d *Data) SaveMediaLocally(img *multipart.FileHeader, cropData CropData) (string, error) {
 	var (
-		ext       = filepath.Ext(img.Filename)
-		randID    = uuid.New().String()
-		imagePath = fmt.Sprintf("public/assets/images/%s%s", randID, ext)
+		id        = fmt.Sprintf("%s%s", uuid.New().String(), filepath.Ext(img.Filename))
+		imagePath = fmt.Sprintf("uploads/%s", id)
 		i         image.Image
 	)
 
@@ -42,29 +39,19 @@ func (d *Data) SaveMediaLocally(img *multipart.FileHeader, cropData CropData) (s
 		return "", fmt.Errorf("Error saving image")
 	}
 
-	cimg, err := cutter.Crop(i, cutter.Config{
-		Width:  int(cropData.Width),
-		Height: int(cropData.Height),
-		Anchor: image.Point{int(cropData.X), int(cropData.Y)},
-		Mode:   cutter.TopLeft,
-	})
+	cimg := imaging.Crop(i, image.Rect(
+		int(cropData.X),
+		int(cropData.Y), int(cropData.Width)+int(cropData.X), int(cropData.Height)+int(cropData.Y)),
+	)
 
-	if err != nil {
+	if _, err := os.Stat("uploads"); os.IsNotExist(err) {
+		os.Mkdir("uploads", 0755)
+	}
+
+	if err = imaging.Save(cimg, imagePath); err != nil {
 		fmt.Println(err)
-		return "", fmt.Errorf("Error sa ving image")
+		return "", fmt.Errorf("Error saving image")
 	}
 
-	newFile, err := os.Create(imagePath)
-	if err != nil {
-		return "", err
-	}
-
-	defer file.Close()
-
-	err = jpeg.Encode(newFile, cimg, nil)
-	if err != nil {
-		return "", err
-	}
-
-	return imagePath, nil
+	return id, nil
 }
