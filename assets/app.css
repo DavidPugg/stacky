@@ -38,7 +38,9 @@
 .border-t,
 .border-r,
 .border-b,
-.border-l {
+.border-l,
+.border-x,
+.border-y {
   @apply border-base-400;
 }
 
