@@ -2,7 +2,7 @@ package data
 
 import "fmt"
 
-type Post_DB struct {
+type DBPost struct {
 	ID           int    `json:"id" db:"id"`
 	UserID       int    `json:"user_id" db:"user_id"`
 	Image        string `json:"image" db:"image"`
@@ -20,14 +20,14 @@ type Post_DB struct {
 }
 
 type Post struct {
-	ID           int      `json:"id" db:"id"`
-	Image        string   `json:"image" db:"image"`
-	Description  string   `json:"description" db:"description"`
-	CreatedAt    string   `json:"created_at" db:"created_at"`
-	User         *User_DB `json:"user" db:"user"`
-	LikeCount    int      `json:"like_count" db:"like_count"`
-	Liked        bool     `json:"liked" db:"liked"`
-	CommentCount int      `json:"comment_count" db:"comment_count"`
+	ID           int     `json:"id" db:"id"`
+	Image        string  `json:"image" db:"image"`
+	Description  string  `json:"description" db:"description"`
+	CreatedAt    string  `json:"created_at" db:"created_at"`
+	User         *DBUser `json:"user" db:"user"`
+	LikeCount    int     `json:"like_count" db:"like_count"`
+	Liked        bool    `json:"liked" db:"liked"`
+	CommentCount int     `json:"comment_count" db:"comment_count"`
 }
 
 type LastPost struct {
@@ -44,37 +44,34 @@ type PostWithComments struct {
 
 const pageLimit = 5
 
-const basePostsQuery = `
-	SELECT p.id, p.user_id, p.image, p.description, p.created_at,
-	u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
-	(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
-	COUNT(c.id) AS comment_count,
-	COUNT(*) OVER() AS total_count,
-	EXISTS (
-		SELECT 1
-		FROM post_likes AS pl2
-		WHERE pl2.post_id = p.id
-		AND pl2.user_id = $1
-	) AS liked,
-	EXISTS (
-		SELECT 1
-		FROM follows AS f
-		WHERE f.followee_id = p.user_id
-		AND f.follower_id = $2
-	) AS followed
-	FROM posts AS p
-	LEFT JOIN users AS u ON p.user_id = u.id
-	LEFT JOIN comments AS c ON p.id = c.post_id
-`
-
 func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, error) {
-	query := basePostsQuery + `
+	query := `
+		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
+		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
+		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
+		COUNT(c.id) AS comment_count,
+		COUNT(*) OVER() AS total_count,
+		EXISTS (
+			SELECT 1
+			FROM post_likes AS pl2
+			WHERE pl2.post_id = p.id
+			AND pl2.user_id = $1
+		) AS liked,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = p.user_id
+			AND f.follower_id = $2
+		) AS followed
+		FROM posts AS p
+		LEFT JOIN users AS u ON p.user_id = u.id
+		LEFT JOIN comments AS c ON p.id = c.post_id
 		WHERE u.username = $3
 		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
 		ORDER BY created_at DESC
 	`
 
-	posts := []*Post_DB{}
+	posts := []*DBPost{}
 	err := d.DB.Select(&posts, query, userID, userID, username)
 	if err != nil {
 		fmt.Println(err)
@@ -90,7 +87,27 @@ func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, e
 }
 
 func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
-	query := basePostsQuery + `
+	query := `
+		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
+		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
+		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
+		COUNT(c.id) AS comment_count,
+		COUNT(*) OVER() AS total_count,
+		EXISTS (
+			SELECT 1
+			FROM post_likes AS pl2
+			WHERE pl2.post_id = p.id
+			AND pl2.user_id = $1
+		) AS liked,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = p.user_id
+			AND f.follower_id = $2
+		) AS followed
+		FROM posts AS p
+		LEFT JOIN users AS u ON p.user_id = u.id
+		LEFT JOIN comments AS c ON p.id = c.post_id
 		LEFT JOIN follows AS f ON p.user_id = f.followee_id
 		WHERE f.follower_id = $3
 		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
@@ -98,7 +115,7 @@ func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
 		LIMIT $4 OFFSET $5
 	`
 
-	posts := []*Post_DB{}
+	posts := []*DBPost{}
 	err := d.DB.Select(&posts, query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
 	if err != nil {
 		fmt.Println(err)
@@ -114,14 +131,34 @@ func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
 }
 
 func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
-	query := basePostsQuery + `
+	query := `
+		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
+		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
+		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
+		COUNT(c.id) AS comment_count,
+		COUNT(*) OVER() AS total_count,
+		EXISTS (
+			SELECT 1
+			FROM post_likes AS pl2
+			WHERE pl2.post_id = p.id
+			AND pl2.user_id = $1
+		) AS liked,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = p.user_id
+			AND f.follower_id = $2
+		) AS followed
+		FROM posts AS p
+		LEFT JOIN users AS u ON p.user_id = u.id
+		LEFT JOIN comments AS c ON p.id = c.post_id
 		WHERE p.user_id != $3
 		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
 		ORDER BY created_at DESC
 		LIMIT $4 OFFSET $5
 	`
 
-	posts := []*Post_DB{}
+	posts := []*DBPost{}
 	err := d.DB.Select(&posts, query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
 	if err != nil {
 		fmt.Println(err)
@@ -149,12 +186,32 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 		commentChan <- comments
 	}()
 
-	query := basePostsQuery + `
+	query := `
+		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
+		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
+		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
+		COUNT(c.id) AS comment_count,
+		COUNT(*) OVER() AS total_count,
+		EXISTS (
+			SELECT 1
+			FROM post_likes AS pl2
+			WHERE pl2.post_id = p.id
+			AND pl2.user_id = $1
+		) AS liked,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = p.user_id
+			AND f.follower_id = $2
+		) AS followed
+		FROM posts AS p
+		LEFT JOIN users AS u ON p.user_id = u.id
+		LEFT JOIN comments AS c ON p.id = c.post_id
 		WHERE p.id = $3
 		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
 	`
 
-	post := &Post_DB{}
+	post := &DBPost{}
 	err := d.DB.Get(post, query, userID, userID, postID)
 	if err != nil {
 		return nil, err
@@ -203,13 +260,13 @@ func (d *Data) UpdatePostByID(id int, image, description string) error {
 	return nil
 }
 
-func createPostFromDB(post *Post_DB) *Post {
+func createPostFromDB(post *DBPost) *Post {
 	return &Post{
 		ID:          post.ID,
 		Image:       post.Image,
 		Description: post.Description,
 		CreatedAt:   post.CreatedAt,
-		User: &User_DB{
+		User: &DBUser{
 			ID:        post.UserID,
 			Avatar:    post.UserAvatar,
 			Username:  post.UserUsername,

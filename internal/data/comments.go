@@ -6,7 +6,7 @@ import (
 	"github.com/davidpugg/stacky/internal/utils"
 )
 
-type Comment_DB struct {
+type DBComment struct {
 	ID           int    `json:"id" db:"id"`
 	UserID       int    `json:"user_id" db:"user_id"`
 	PostID       int    `json:"post_id" db:"post_id"`
@@ -19,25 +19,24 @@ type Comment_DB struct {
 }
 
 type Comment struct {
-	ID        int      `json:"id"`
-	PostID    int      `json:"post_id"`
-	Body      string   `json:"body"`
-	User      *User_DB `json:"user"`
-	CreatedAt string   `json:"created_at"`
-	IsAuthor  bool     `json:"is_author"`
+	ID        int     `json:"id"`
+	PostID    int     `json:"post_id"`
+	Body      string  `json:"body"`
+	User      *DBUser `json:"user"`
+	CreatedAt string  `json:"created_at"`
+	IsAuthor  bool    `json:"is_author"`
 }
 
-const baseCommentsQuery = `
-	SELECT c.id, c.user_id, c.post_id, c.body, c.created_at,
-	u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created
-	FROM comments AS c
-	LEFT JOIN users AS u ON u.id = c.user_id
-`
-
 func (d *Data) GetCommentByID(userID, commentID int) (*Comment, error) {
-	query := baseCommentsQuery + `WHERE c.id = $1`
+	query := `
+		SELECT c.id, c.user_id, c.post_id, c.body, c.created_at,
+		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created
+		FROM comments AS c
+		LEFT JOIN users AS u ON u.id = c.user_id
+		WHERE c.id = $1
+	`
 
-	comment := &Comment_DB{}
+	comment := &DBComment{}
 	err := d.DB.Get(comment, query, commentID)
 	if err != nil {
 		fmt.Println(err)
@@ -48,9 +47,15 @@ func (d *Data) GetCommentByID(userID, commentID int) (*Comment, error) {
 }
 
 func (d *Data) GetPostComments(userID, postID int) ([]*Comment, error) {
-	query := baseCommentsQuery + `WHERE c.post_id = $1`
+	query := `
+		SELECT c.id, c.user_id, c.post_id, c.body, c.created_at,
+		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created
+		FROM comments AS c
+		LEFT JOIN users AS u ON u.id = c.user_id
+		WHERE c.post_id = $1
+	`
 
-	comments := []*Comment_DB{}
+	comments := []*DBComment{}
 	err := d.DB.Select(&comments, query, postID)
 	if err != nil {
 		fmt.Println(err)
@@ -86,12 +91,12 @@ func (d *Data) DeleteComment(commentID int) error {
 	return nil
 }
 
-func createCommentFromDB(commentDB *Comment_DB, userID int) *Comment {
+func createCommentFromDB(commentDB *DBComment, userID int) *Comment {
 	return &Comment{
 		ID:     commentDB.ID,
 		PostID: commentDB.PostID,
 		Body:   commentDB.Body,
-		User: &User_DB{
+		User: &DBUser{
 			ID:        commentDB.UserID,
 			Avatar:    commentDB.UserAvatar,
 			Username:  commentDB.UserUsername,

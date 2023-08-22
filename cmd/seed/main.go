@@ -28,7 +28,7 @@ var descriptions = []string{
 	"lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
 }
 
-var posts = []*data.Post_DB{
+var posts = []*data.DBPost{
 	{
 		Image:       "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg",
 		Description: "This is a test post",
@@ -39,7 +39,7 @@ var posts = []*data.Post_DB{
 	},
 }
 
-var users = []*data.User_DB{
+var users = []*data.DBUser{
 	{
 		Avatar:   "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg",
 		Username: "Dejv",

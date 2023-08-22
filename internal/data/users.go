@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type User_DB struct {
+type DBUser struct {
 	ID             int    `json:"id" db:"id"`
 	Avatar         string `json:"avatar" db:"avatar"`
 	Username       string `json:"username" db:"username"`
@@ -19,18 +19,9 @@ type User_DB struct {
 }
 
 type UserWithPosts struct {
-	User_DB
+	DBUser
 	Posts []*Post `json:"posts"`
 }
-
-const baseUsersQuery = `
-	SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
-	EXISTS (
-		SELECT 1
-		FROM follows AS f
-		WHERE f.followee_id = users.id
-		AND f.follower_id = $1
-	) AS followed `
 
 func (d *Data) CreateUser(avatar, username, email, password string) (int, error) {
 	var id int
@@ -51,10 +42,19 @@ func (d *Data) CreateUser(avatar, username, email, password string) (int, error)
 	return id, nil
 }
 
-func (d *Data) GetUserByID(authUserID, userID int) (*User_DB, error) {
-	query := baseUsersQuery + `FROM users WHERE id = $2`
+func (d *Data) GetUserByID(authUserID, userID int) (*DBUser, error) {
+	query := `
+		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = users.id
+			AND f.follower_id = $1
+		) AS followed 
+		FROM users WHERE id = $2
+	`
 
-	user := &User_DB{}
+	user := &DBUser{}
 	err := d.DB.Get(user, query, authUserID, userID)
 	if err != nil {
 		fmt.Println(err)
@@ -64,10 +64,19 @@ func (d *Data) GetUserByID(authUserID, userID int) (*User_DB, error) {
 	return user, nil
 }
 
-func (d *Data) GetUserByEmail(userID int, email string) (*User_DB, error) {
-	query := baseUsersQuery + `FROM users WHERE email = $2`
+func (d *Data) GetUserByEmail(userID int, email string) (*DBUser, error) {
+	query := `
+		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = users.id
+			AND f.follower_id = $1
+		) AS followed 	
+		FROM users WHERE email = $2
+	`
 
-	user := &User_DB{}
+	user := &DBUser{}
 	err := d.DB.Get(user, query, userID, email)
 	if err != nil {
 		fmt.Println(err)
@@ -77,10 +86,19 @@ func (d *Data) GetUserByEmail(userID int, email string) (*User_DB, error) {
 	return user, nil
 }
 
-func (d *Data) GetUserByUsername(userID int, username string) (*User_DB, error) {
-	query := baseUsersQuery + `FROM users WHERE username = $2`
+func (d *Data) GetUserByUsername(userID int, username string) (*DBUser, error) {
+	query := `
+		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = users.id
+			AND f.follower_id = $1
+		) AS followed 
+		FROM users WHERE username = $2
+	`
 
-	user := &User_DB{}
+	user := &DBUser{}
 	err := d.DB.Get(user, query, userID, username)
 	if err != nil {
 		fmt.Println(err)
@@ -103,17 +121,24 @@ func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWit
 		postsChan <- posts
 	}()
 
-	query := baseUsersQuery + `,
-	COUNT(f.id) AS followers_count,
-	COUNT(f2.id) AS following_count
-	FROM users
-	LEFT JOIN follows AS f ON f.followee_id = users.id
-	LEFT JOIN follows AS f2 ON f2.follower_id = users.id
-	WHERE username = $2
-	GROUP BY users.id
+	query := `
+		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
+		EXISTS (
+			SELECT 1
+			FROM follows AS f
+			WHERE f.followee_id = users.id
+			AND f.follower_id = $1
+		) AS followed,
+		COUNT(f.id) AS followers_count,
+		COUNT(f2.id) AS following_count
+		FROM users
+		LEFT JOIN follows AS f ON f.followee_id = users.id
+		LEFT JOIN follows AS f2 ON f2.follower_id = users.id
+		WHERE username = $2
+		GROUP BY users.id
 	`
 
-	user := &User_DB{}
+	user := &DBUser{}
 	err := d.DB.Get(user, query, userID, username)
 	if err != nil {
 		fmt.Println(err)
@@ -127,7 +152,7 @@ func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWit
 	}
 
 	return &UserWithPosts{
-		User_DB: *user,
-		Posts:   posts,
+		DBUser: *user,
+		Posts:  posts,
 	}, nil
 }

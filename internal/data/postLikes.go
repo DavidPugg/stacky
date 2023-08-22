@@ -2,13 +2,6 @@ package data
 
 import "fmt"
 
-type PostLike_DB struct {
-	ID        int    `json:"id" db:"id"`
-	UserID    int    `json:"user_id" db:"user_id"`
-	PostID    int    `json:"post_id" db:"post_id"`
-	CreatedAt string `json:"created_at" db:"created_at"`
-}
-
 func (d *Data) CreatePostLike(userID, postID int) error {
 	_, err := d.DB.Exec("INSERT INTO post_likes (user_id, post_id) VALUES ($1, $2)", userID, postID)
 	if err != nil {

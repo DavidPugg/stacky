@@ -19,9 +19,7 @@ func main() {
 	viper.SetConfigFile(".env")
 	viper.SetConfigType("env")
 	viper.AutomaticEnv()
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Printf("Error reading config file, %s", err)
-	}
+	viper.ReadInConfig()
 
 	//Fiber
 	engine := html.New("./views", ".html")
@@ -55,10 +53,10 @@ func main() {
 	db := data.DBconnect()
 	defer db.Close()
 
-	data := data.New(db)
+	dataInstance := data.New(db)
 
 	//Routes
-	handlers.New(data).RegisterRoutes(app)
+	handlers.New(dataInstance).RegisterRoutes(app)
 
 	//Server
 	port := viper.GetInt("PORT")
