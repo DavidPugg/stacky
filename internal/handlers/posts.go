@@ -162,21 +162,21 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 		description = c.FormValue("description")
 		user        = c.Locals("AuthUser").(*middleware.UserTokenData)
 		img, err    = c.FormFile("image")
-		cropData    = c.FormValue("crop-data")
-		data        data.CropData
+		cropString  = c.FormValue("crop-data")
+		cropData    data.CropData
 	)
 
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid image")
 	}
 
-	err = json.Unmarshal([]byte(cropData), &data)
+	err = json.Unmarshal([]byte(cropString), &cropData)
 	if err != nil {
 		fmt.Println(err)
 		return utils.SendAlert(c, 400, "Invalid crop data")
 	}
 
-	id, err := h.data.SaveMediaLocally(img, data)
+	id, err := h.data.SaveMediaLocally(img, cropData)
 	if err != nil {
 		fmt.Println(err)
 		return utils.SendAlert(c, 500, "Internal Server Error")

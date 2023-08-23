@@ -1,3 +1,79 @@
-<div class="centered-page">
-  <h1>{{ . }}</h1>
+<div
+  x-data="{
+    cropper : null,
+    handleDoneClick() {
+      $refs.cropdata.value = JSON.stringify(this.cropper.getData());
+      $refs.cropmodal.close();
+      $refs.cropperimage.src = '';
+    },
+    handleImageChange(event) {
+      const image = $refs.cropperimage;
+
+      if (this.cropper) {
+        this.cropper.destroy();
+      };
+      
+      image.src = URL.createObjectURL(event.target.files[0]);
+      $refs.cropmodal.showModal();
+          
+      this.cropper = new Cropper(image, {
+          aspectRatio: 1,
+          rotatable: false,
+          zoomable: false,
+          scalable: false,
+          viewMode: 1,
+      })
+    },
+  }"
+>
+  <form
+    id="update-user-form"
+    hx-put="/users/{{ .User.ID }}"
+    hx-reset-on-success
+    hx-indicator="#update-user-indicator"
+    hx-swap="none"
+    hx-encoding="multipart/form-data"
+    class="centered-page"
+  >
+    <div class="flex flex-col gap-2">
+      <label class="text-lg" for="avatar">Avatar</label>
+      <input
+        @change="handleImageChange($event)"
+        id="image-upload"
+        type="file"
+        accept="image/*"
+        name="avatar"
+        class="file-input file-input-primary w-full"
+      />
+    </div>
+
+    <input x-ref="cropdata" name="crop-data" type="text" class="hidden" />
+
+    <button class="btn btn-primary mt-3">
+      <span class="relative flex items-center">
+        Update
+        <span
+          id="update-user-indicator"
+          class="absolute -right-8 htmx-indicator loading loading-spinner loading-md"
+      /></span>
+    </button>
+  </form>
+
+  <dialog x-ref="cropmodal" class="modal">
+    <form method="dialog" class="modal-box p-4 max-w-[700px] overflow-hidden">
+      <div class="max-w-full max-h-full">
+        <img x-ref="cropperimage" alt="uploaded" class="w-full block" />
+      </div>
+      <div class="modal-action mt-4">
+        <button
+          @click="handleDoneClick()"
+          id="cropping-done-button"
+          type="button"
+          class="btn btn-ghost btn-primary"
+        >
+          Done
+        </button>
+      </div>
+    </form>
+  </dialog>
 </div>

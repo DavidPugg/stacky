@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
 	"strconv"
 
+	"github.com/davidpugg/stacky/internal/data"
 	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +16,8 @@ func (h *Handlers) registerUserRoutes(c *fiber.App) {
 
 	r.Post("/:id/follow", middleware.Authenticate, h.followUser)
 	r.Delete("/:id/follow", middleware.Authenticate, h.unfollowUser)
+
+	r.Put("/:id", middleware.Authenticate, h.updateUser)
 }
 
 func (h *Handlers) followUser(c *fiber.Ctx) error {
@@ -83,4 +88,43 @@ func (h *Handlers) unfollowUser(c *fiber.Ctx) error {
 		"ID":       followeeID,
 		"Followed": false,
 	})
+}
+
+func (h *Handlers) updateUser(c *fiber.Ctx) error {
+	var (
+		userID      = c.Params("id")
+		cropString  = c.FormValue("crop-data")
+		avatar, err = c.FormFile("avatar")
+		authUser    = c.Locals("AuthUser").(*middleware.UserTokenData)
+		cropData    data.CropData
+		avatarID    string
+	)
+
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid avatar")
+	}
+
+	if userID != strconv.Itoa(authUser.ID) {
+		return utils.SendAlert(c, 403, "You cannot update another user's profile")
+	}
+
+	err = json.Unmarshal([]byte(cropString), &cropData)
+	if err != nil {
+		fmt.Println(err)
+		return utils.SendAlert(c, 400, "Invalid crop data")
+	}
+
+	avatarID, err = h.data.SaveMediaLocally(avatar, cropData)
+	if err != nil {
+		fmt.Println(err)
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	if err := h.data.UpdateUser(authUser.ID, fmt.Sprintf("%s/%s", h.mediaEndpoint, avatarID)); err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	utils.SetRedirect(c, fmt.Sprintf("/u/%s", authUser.Username))
+
+	return utils.SendAlert(c, 200, "Profile updated")
 }

@@ -139,3 +139,13 @@ func (d *Data) GetUserWithPostsByUsername(authUserID int, username string) (*Use
 		Posts: posts,
 	}, nil
 }
+
+func (d *Data) UpdateUser(userID int, avatar string) error {
+	_, err := d.DB.Exec("UPDATE users SET avatar = $1 WHERE id = $2", avatar, userID)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}
