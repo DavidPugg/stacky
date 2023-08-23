@@ -3,22 +3,38 @@
     class="relative flex flex-wrap items-center justify-between w-full gap-5 mb-10 border-b pb-10"
   >
     <div class="flex gap-5 items-center">
-      {{ if .User.Avatar }}
-        <div class="avatar">
-          <div class="w-24 rounded-full">
-            <img src="{{ .User.Avatar }}" />
+      <a
+        {{ if not .ShowFollowButton }}
+          href="/u/{{ .User.Username }}/edit" hx-boost="true"
+        {{ end }}
+        class="relative group overflow-hidden rounded-full"
+      >
+        {{ if not .ShowFollowButton }}
+          <div
+            class="overlay absolute top-0 left-0 w-full h-full bg-black/70 z-10 opacity-0 group-hover:opacity-100 transition-all flex justify-center items-center font-bold"
+          >
+            Edit
           </div>
-        </div>
-      {{ else }}
-        <div class="avatar placeholder">
-          <div class="bg-neutral-focus text-neutral-content rounded-full w-24">
-            <span class="text-5xl font-extrabold uppercase"
-              >{{ slice .User.Username 0 1 }}</span
-            >
-          </div>
-        </div>
-      {{ end }}
+        {{ end }}
 
+        {{ if .User.Avatar }}
+          <div class="avatar">
+            <div class="w-24 rounded-full">
+              <img src="{{ .User.Avatar }}" />
+            </div>
+          </div>
+        {{ else }}
+          <div class="avatar placeholder">
+            <div
+              class="bg-neutral-focus text-neutral-content rounded-full w-24"
+            >
+              <span class="text-5xl font-extrabold uppercase"
+                >{{ slice .User.Username 0 1 }}</span
+              >
+            </div>
+          </div>
+        {{ end }}
+      </a>
 
       <h1 class="font-semibold text-4xl">{{ .User.Username }}</h1>
 

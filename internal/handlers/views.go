@@ -17,6 +17,7 @@ func (h *Handlers) registerViewRoutes(c *fiber.App) {
 	c.Get("/post/:id", h.renderPost)
 	c.Get("/u/:username", h.renderUser)
 	c.Get("/create", middleware.MainAuthGuard, h.renderCreatePost)
+	c.Get("/u/:username/edit", middleware.Authenticate, h.renderEditUser)
 }
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
@@ -116,5 +117,30 @@ func (h *Handlers) renderCreatePost(c *fiber.Ctx) error {
 	return utils.RenderPage(c, "create", fiber.Map{}, &utils.PageDetails{
 		Title:       "Create Post",
 		Description: "Create a post on Stacky",
+	})
+}
+
+func (h *Handlers) renderEditUser(c *fiber.Ctx) error {
+	var (
+		username = c.Params("username")
+		authUser = c.Locals("AuthUser").(*middleware.UserTokenData)
+	)
+
+	if username == "" {
+		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid username")
+	}
+
+	if username != authUser.Username {
+		return utils.RenderError(c, fiber.StatusForbidden, "You do not have permission to edit this user")
+	}
+
+	user, err := h.data.GetUserByUsername(authUser.ID, username)
+	if err != nil {
+		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching user")
+	}
+
+	return utils.RenderPage(c, "editUser", fiber.Map{"User": user}, &utils.PageDetails{
+		Title:       fmt.Sprintf("Edit %s - Stacky", username),
+		Description: fmt.Sprintf("Edit %s's stacky profile", username),
 	})
 }
