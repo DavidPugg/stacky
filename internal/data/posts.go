@@ -28,30 +28,33 @@ type PostWithComments struct {
 
 const pageLimit = 5
 
+const basePostQuery = `
+	SELECT p.id, p.image, p.description, p.created_at,
+	u.id, u.avatar, u.username, u.email, u.created_at,
+	(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
+	COUNT(c.id) AS comment_count,
+	COUNT(*) OVER() AS total_count,
+	EXISTS (
+		SELECT 1
+		FROM post_likes AS pl2
+		WHERE pl2.post_id = p.id
+		AND pl2.user_id = $1
+	) AS liked,
+	EXISTS (
+		SELECT 1
+		FROM follows AS f
+		WHERE f.followee_id = p.user_id
+		AND f.follower_id = $2
+	) AS followed
+	FROM posts AS p
+	LEFT JOIN users AS u ON p.user_id = u.id
+	LEFT JOIN comments AS c ON p.id = c.post_id
+`
+
 func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, error) {
 	var posts []*Post
 
-	query := `
-		SELECT p.id, p.image, p.description, p.created_at,
-		u.id, u.avatar, u.username, u.email, u.created_at,
-		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
-		COUNT(c.id) AS comment_count,
-		COUNT(*) OVER() AS total_count,
-		EXISTS (
-			SELECT 1
-			FROM post_likes AS pl2
-			WHERE pl2.post_id = p.id
-			AND pl2.user_id = $1
-		) AS liked,
-		EXISTS (
-			SELECT 1
-			FROM follows AS f
-			WHERE f.followee_id = p.user_id
-			AND f.follower_id = $2
-		) AS followed
-		FROM posts AS p
-		LEFT JOIN users AS u ON p.user_id = u.id
-		LEFT JOIN comments AS c ON p.id = c.post_id
+	query := basePostQuery + `
 		WHERE u.username = $3
 		GROUP BY p.id, u.id
 		ORDER BY p.created_at DESC
@@ -79,27 +82,7 @@ func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, e
 func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
 	var posts []*Post
 
-	query := `
-		SELECT p.id, p.image, p.description, p.created_at,
-		u.id, u.avatar, u.username, u.email, u.created_at,
-		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
-		COUNT(c.id) AS comment_count,
-		COUNT(*) OVER() AS total_count,
-		EXISTS (
-			SELECT 1
-			FROM post_likes AS pl2
-			WHERE pl2.post_id = p.id
-			AND pl2.user_id = $1
-		) AS liked,
-		EXISTS (
-			SELECT 1
-			FROM follows AS f
-			WHERE f.followee_id = p.user_id
-			AND f.follower_id = $2
-		) AS followed
-		FROM posts AS p
-		LEFT JOIN users AS u ON p.user_id = u.id
-		LEFT JOIN comments AS c ON p.id = c.post_id
+	query := basePostQuery + `
 		LEFT JOIN follows AS f ON p.user_id = f.followee_id
 		WHERE f.follower_id = $3
 		GROUP BY p.id, u.id
@@ -134,27 +117,7 @@ func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
 func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
 	var posts []*Post
 
-	query := `
-		SELECT p.id, p.image, p.description, p.created_at,
-		u.id, u.avatar, u.username, u.email, u.created_at,
-		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
-		COUNT(c.id) AS comment_count,
-		COUNT(*) OVER() AS total_count,
-		EXISTS (
-			SELECT 1
-			FROM post_likes AS pl2
-			WHERE pl2.post_id = p.id
-			AND pl2.user_id = $1
-		) AS liked,
-		EXISTS (
-			SELECT 1
-			FROM follows AS f
-			WHERE f.followee_id = p.user_id
-			AND f.follower_id = $2
-		) AS followed
-		FROM posts AS p
-		LEFT JOIN users AS u ON p.user_id = u.id
-		LEFT JOIN comments AS c ON p.id = c.post_id
+	query := basePostQuery + `
 		WHERE p.user_id != $3
 		GROUP BY p.id, u.id
 		ORDER BY p.created_at DESC
@@ -202,27 +165,7 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 		commentChan <- comments
 	}()
 
-	query := `
-		SELECT p.id, p.image, p.description, p.created_at,
-		u.id, u.avatar, u.username, u.email, u.created_at,
-		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
-		COUNT(c.id) AS comment_count,
-		COUNT(*) OVER() AS total_count,
-		EXISTS (
-			SELECT 1
-			FROM post_likes AS pl2
-			WHERE pl2.post_id = p.id
-			AND pl2.user_id = $1
-		) AS liked,
-		EXISTS (
-			SELECT 1
-			FROM follows AS f
-			WHERE f.followee_id = p.user_id
-			AND f.follower_id = $2
-		) AS followed
-		FROM posts AS p
-		LEFT JOIN users AS u ON p.user_id = u.id
-		LEFT JOIN comments AS c ON p.id = c.post_id
+	query := basePostQuery + `
 		WHERE p.id = $3
 		GROUP BY p.id, u.id
 	`

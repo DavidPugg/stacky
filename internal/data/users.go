@@ -23,6 +23,17 @@ type UserWithPosts struct {
 	Posts []*Post `json:"posts"`
 }
 
+const baseUserQuery = `
+	SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
+	EXISTS (
+		SELECT 1
+		FROM follows AS f
+		WHERE f.followee_id = users.id
+		AND f.follower_id = $1
+	) AS followed
+	FROM users
+`
+
 func (d *Data) CreateUser(avatar, username, email, password string) (int, error) {
 	var id int
 
@@ -46,16 +57,7 @@ func (d *Data) CreateUser(avatar, username, email, password string) (int, error)
 func (d *Data) GetUserByID(authUserID, userID int) (*User, error) {
 	var user = &User{}
 
-	query := `
-		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
-		EXISTS (
-			SELECT 1
-			FROM follows AS f
-			WHERE f.followee_id = users.id
-			AND f.follower_id = $1
-		) AS followed 
-		FROM users WHERE id = $2
-	`
+	query := baseUserQuery + `WHERE id = $2`
 
 	err := d.DB.Get(user, query, authUserID, userID)
 	if err != nil {
@@ -69,16 +71,7 @@ func (d *Data) GetUserByID(authUserID, userID int) (*User, error) {
 func (d *Data) GetUserByEmail(authUserID int, email string) (*User, error) {
 	var user = &User{}
 
-	query := `
-		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
-		EXISTS (
-			SELECT 1
-			FROM follows AS f
-			WHERE f.followee_id = users.id
-			AND f.follower_id = $1
-		) AS followed
-		FROM users WHERE email = $2
-	`
+	query := baseUserQuery + `FROM users WHERE email = $2`
 
 	err := d.DB.Get(user, query, authUserID, email)
 	if err != nil {
@@ -92,16 +85,7 @@ func (d *Data) GetUserByEmail(authUserID int, email string) (*User, error) {
 func (d *Data) GetUserByUsername(authUserID int, username string) (*User, error) {
 	var user = &User{}
 
-	query := `
-		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
-		EXISTS (
-			SELECT 1
-			FROM follows AS f
-			WHERE f.followee_id = users.id
-			AND f.follower_id = $1
-		) AS followed 
-		FROM users WHERE username = $2
-	`
+	query := baseUserQuery + `WHERE username = $2`
 
 	err := d.DB.Get(user, query, authUserID, username)
 	if err != nil {
@@ -130,17 +114,7 @@ func (d *Data) GetUserWithPostsByUsername(authUserID int, username string) (*Use
 		postsChan <- posts
 	}()
 
-	query := `
-		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
-		EXISTS (
-			SELECT 1
-			FROM follows AS f
-			WHERE f.followee_id = users.id
-			AND f.follower_id = $1
-		) AS followed,
-		COUNT(f.id) AS followers_count,
-		COUNT(f2.id) AS following_count
-		FROM users
+	query := baseUserQuery + `
 		LEFT JOIN follows AS f ON f.followee_id = users.id
 		LEFT JOIN follows AS f2 ON f2.follower_id = users.id
 		WHERE username = $2
