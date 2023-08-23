@@ -76,7 +76,7 @@ func (d *Data) GetUserByEmail(authUserID int, email string) (*User, error) {
 			FROM follows AS f
 			WHERE f.followee_id = users.id
 			AND f.follower_id = $1
-		) AS followed 	
+		) AS followed
 		FROM users WHERE email = $2
 	`
 
@@ -116,15 +116,17 @@ func (d *Data) GetUserWithPostsByUsername(authUserID int, username string) (*Use
 	var (
 		user      = &User{}
 		postsChan = make(chan []*Post)
+		errorChan = make(chan error)
 	)
 
 	go func() {
 		posts, err := d.GetPostsOfUserByUsername(authUserID, username)
 		if err != nil {
-			postsChan <- nil
+			errorChan <- err
 			return
 		}
 
+		errorChan <- nil
 		postsChan <- posts
 	}()
 
@@ -151,11 +153,12 @@ func (d *Data) GetUserWithPostsByUsername(authUserID int, username string) (*Use
 		return nil, err
 	}
 
-	posts := <-postsChan
-	if posts == nil {
-		fmt.Println(err)
+	err = <-errorChan
+	if err != nil {
 		return nil, err
 	}
+
+	posts := <-postsChan
 
 	return &UserWithPosts{
 		User:  *user,

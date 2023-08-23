@@ -2,23 +2,6 @@ package data
 
 import "fmt"
 
-type DBPost struct {
-	ID           int    `json:"id" db:"id"`
-	UserID       int    `json:"user_id" db:"user_id"`
-	Image        string `json:"image" db:"image"`
-	Description  string `json:"description" db:"description"`
-	CreatedAt    string `json:"created_at" db:"created_at"`
-	UserAvatar   string `json:"user_avatar" db:"user_avatar"`
-	UserUsername string `json:"user_username" db:"user_username"`
-	UserEmail    string `json:"user_email" db:"user_email"`
-	UserCreated  string `json:"user_created" db:"user_created"`
-	LikeCount    int    `json:"like_count" db:"like_count"`
-	Liked        bool   `json:"liked" db:"liked"`
-	CommentCount int    `json:"comment_count" db:"comment_count"`
-	Followed     bool   `json:"followed" db:"followed"`
-	TotalCount   int    `json:"total_count" db:"total_count"`
-}
-
 type Post struct {
 	ID           int    `json:"id" db:"id"`
 	Image        string `json:"image" db:"image"`
@@ -28,6 +11,7 @@ type Post struct {
 	LikeCount    int    `json:"like_count" db:"like_count"`
 	Liked        bool   `json:"liked" db:"liked"`
 	CommentCount int    `json:"comment_count" db:"comment_count"`
+	TotalCount   int    `json:"total_count" db:"total_count"`
 }
 
 type LastPost struct {
@@ -45,9 +29,11 @@ type PostWithComments struct {
 const pageLimit = 5
 
 func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, error) {
+	var posts []*Post
+
 	query := `
-		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
-		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
+		SELECT p.id, p.image, p.description, p.created_at,
+		u.id, u.avatar, u.username, u.email, u.created_at,
 		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
 		COUNT(c.id) AS comment_count,
 		COUNT(*) OVER() AS total_count,
@@ -67,29 +53,35 @@ func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, e
 		LEFT JOIN users AS u ON p.user_id = u.id
 		LEFT JOIN comments AS c ON p.id = c.post_id
 		WHERE u.username = $3
-		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
-		ORDER BY created_at DESC
+		GROUP BY p.id, u.id
+		ORDER BY p.created_at DESC
 	`
 
-	posts := []*DBPost{}
-	err := d.DB.Select(&posts, query, userID, userID, username)
+	rows, err := d.DB.Query(query, userID, userID, username)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	postsData := []*Post{}
-	for _, p := range posts {
-		postsData = append(postsData, createPostFromDB(p))
+	for rows.Next() {
+		post, err := scanPost(rows)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+
+		posts = append(posts, post)
 	}
 
-	return postsData, nil
+	return posts, nil
 }
 
 func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
+	var posts []*Post
+
 	query := `
-		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
-		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
+		SELECT p.id, p.image, p.description, p.created_at,
+		u.id, u.avatar, u.username, u.email, u.created_at,
 		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
 		COUNT(c.id) AS comment_count,
 		COUNT(*) OVER() AS total_count,
@@ -110,30 +102,41 @@ func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
 		LEFT JOIN comments AS c ON p.id = c.post_id
 		LEFT JOIN follows AS f ON p.user_id = f.followee_id
 		WHERE f.follower_id = $3
-		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
-		ORDER BY created_at DESC
+		GROUP BY p.id, u.id
+		ORDER BY p.created_at DESC
 		LIMIT $4 OFFSET $5
 	`
 
-	posts := []*DBPost{}
-	err := d.DB.Select(&posts, query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
+	rows, err := d.DB.Query(query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	postsData := []*LastPost{}
-	for i, p := range posts {
-		postsData = append(postsData, createLastPost(createPostFromDB(p), i == len(posts)-1, page+1, p.TotalCount <= pageLimit*page))
+	for rows.Next() {
+		post, err := scanPost(rows)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+
+		posts = append(posts, post)
 	}
 
-	return postsData, nil
+	lastPosts := []*LastPost{}
+	for i, p := range posts {
+		lastPosts = append(lastPosts, createLastPost(p, i == len(posts)-1, page+1, p.TotalCount <= pageLimit*page))
+	}
+
+	return lastPosts, nil
 }
 
 func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
+	var posts []*Post
+
 	query := `
-		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
-		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
+		SELECT p.id, p.image, p.description, p.created_at,
+		u.id, u.avatar, u.username, u.email, u.created_at,
 		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
 		COUNT(c.id) AS comment_count,
 		COUNT(*) OVER() AS total_count,
@@ -153,42 +156,55 @@ func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
 		LEFT JOIN users AS u ON p.user_id = u.id
 		LEFT JOIN comments AS c ON p.id = c.post_id
 		WHERE p.user_id != $3
-		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
-		ORDER BY created_at DESC
+		GROUP BY p.id, u.id
+		ORDER BY p.created_at DESC
 		LIMIT $4 OFFSET $5
 	`
 
-	posts := []*DBPost{}
-	err := d.DB.Select(&posts, query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
+	rows, err := d.DB.Query(query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	postsData := []*LastPost{}
-	for i, p := range posts {
-		postsData = append(postsData, createLastPost(createPostFromDB(p), i == len(posts)-1, page+1, p.TotalCount <= pageLimit*page))
+	for rows.Next() {
+		post, err := scanPost(rows)
+		if err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+
+		posts = append(posts, post)
 	}
 
-	return postsData, nil
+	lastPosts := []*LastPost{}
+	for i, p := range posts {
+		lastPosts = append(lastPosts, createLastPost(p, i == len(posts)-1, page+1, p.TotalCount <= pageLimit*page))
+	}
+
+	return lastPosts, nil
 }
 
 func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, error) {
-	commentChan := make(chan []*Comment)
+	var (
+		commentChan = make(chan []*Comment)
+		errorChan   = make(chan error)
+	)
 
 	go func() {
 		comments, err := d.GetPostComments(userID, postID)
 		if err != nil {
-			commentChan <- nil
+			errorChan <- err
 			return
 		}
 
+		errorChan <- nil
 		commentChan <- comments
 	}()
 
 	query := `
-		SELECT p.id, p.user_id, p.image, p.description, p.created_at,
-		u.avatar AS user_avatar, u.username AS user_username, u.email AS user_email, u.created_at AS user_created,
+		SELECT p.id, p.image, p.description, p.created_at,
+		u.id, u.avatar, u.username, u.email, u.created_at,
 		(SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) AS like_count,
 		COUNT(c.id) AS comment_count,
 		COUNT(*) OVER() AS total_count,
@@ -208,24 +224,24 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 		LEFT JOIN users AS u ON p.user_id = u.id
 		LEFT JOIN comments AS c ON p.id = c.post_id
 		WHERE p.id = $3
-		GROUP BY p.id, u.avatar, u.username, u.email, u.created_at
+		GROUP BY p.id, u.id
 	`
+	row := d.DB.QueryRow(query, userID, userID, postID)
 
-	post := &DBPost{}
-	err := d.DB.Get(post, query, userID, userID, postID)
+	post, err := scanPost(row)
 	if err != nil {
-		return nil, err
-	}
-
-	p := createPostFromDB(post)
-
-	comments := <-commentChan
-	if comments == nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	pwc := createPostWithComments(p, comments)
+	err = <-errorChan
+	if err != nil {
+		return nil, err
+	}
+
+	comments := <-commentChan
+
+	pwc := createPostWithComments(post, comments)
 
 	return pwc, nil
 }
@@ -260,24 +276,34 @@ func (d *Data) UpdatePostByID(id int, image, description string) error {
 	return nil
 }
 
-func createPostFromDB(post *DBPost) *Post {
-	return &Post{
-		ID:          post.ID,
-		Image:       post.Image,
-		Description: post.Description,
-		CreatedAt:   post.CreatedAt,
-		User: &User{
-			ID:        post.UserID,
-			Avatar:    post.UserAvatar,
-			Username:  post.UserUsername,
-			Email:     post.UserEmail,
-			CreatedAt: post.UserCreated,
-			Followed:  post.Followed,
-		},
-		LikeCount:    post.LikeCount,
-		Liked:        post.Liked,
-		CommentCount: post.CommentCount,
+func scanPost(row Scanner) (*Post, error) {
+	var (
+		post = &Post{}
+		user = &User{}
+	)
+
+	if err := row.Scan(
+		&post.ID,
+		&post.Image,
+		&post.Description,
+		&post.CreatedAt,
+		&user.ID,
+		&user.Avatar,
+		&user.Username,
+		&user.Email,
+		&user.CreatedAt,
+		&post.LikeCount,
+		&post.CommentCount,
+		&post.TotalCount,
+		&post.Liked,
+		&user.Followed,
+	); err != nil {
+		return nil, err
 	}
+
+	post.User = user
+
+	return post, nil
 }
 
 func createPostWithComments(post *Post, comments []*Comment) *PostWithComments {

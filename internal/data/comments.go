@@ -5,12 +5,12 @@ import (
 )
 
 type Comment struct {
-	ID        int    `json:"id"`
-	PostID    int    `json:"post_id"`
-	Body      string `json:"body"`
-	User      *User  `json:"user"`
-	CreatedAt string `json:"created_at"`
-	IsAuthor  bool   `json:"is_author"`
+	ID        int    `json:"id" db:"id"`
+	PostID    int    `json:"post_id" db:"post_id"`
+	Body      string `json:"body" db:"body"`
+	User      *User  `json:"user" db:"user"`
+	CreatedAt string `json:"created_at" db:"created_at"`
+	IsAuthor  bool   `json:"is_author" db:"is_author"`
 }
 
 func (d *Data) GetCommentByID(authUserID, commentID int) (*Comment, error) {

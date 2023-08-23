@@ -28,7 +28,7 @@ var descriptions = []string{
 	"lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
 }
 
-var posts = []*data.DBPost{
+var posts = []*data.Post{
 	{
 		Image:       "https://dfstudio-d420.kxcdn.com/wordpress/wp-content/uploads/2019/06/digital_camera_photo-1080x675.jpg",
 		Description: "This is a test post",
