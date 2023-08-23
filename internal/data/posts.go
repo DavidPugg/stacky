@@ -20,14 +20,14 @@ type DBPost struct {
 }
 
 type Post struct {
-	ID           int     `json:"id" db:"id"`
-	Image        string  `json:"image" db:"image"`
-	Description  string  `json:"description" db:"description"`
-	CreatedAt    string  `json:"created_at" db:"created_at"`
-	User         *DBUser `json:"user" db:"user"`
-	LikeCount    int     `json:"like_count" db:"like_count"`
-	Liked        bool    `json:"liked" db:"liked"`
-	CommentCount int     `json:"comment_count" db:"comment_count"`
+	ID           int    `json:"id" db:"id"`
+	Image        string `json:"image" db:"image"`
+	Description  string `json:"description" db:"description"`
+	CreatedAt    string `json:"created_at" db:"created_at"`
+	User         *User  `json:"user" db:"user"`
+	LikeCount    int    `json:"like_count" db:"like_count"`
+	Liked        bool   `json:"liked" db:"liked"`
+	CommentCount int    `json:"comment_count" db:"comment_count"`
 }
 
 type LastPost struct {
@@ -266,7 +266,7 @@ func createPostFromDB(post *DBPost) *Post {
 		Image:       post.Image,
 		Description: post.Description,
 		CreatedAt:   post.CreatedAt,
-		User: &DBUser{
+		User: &User{
 			ID:        post.UserID,
 			Avatar:    post.UserAvatar,
 			Username:  post.UserUsername,

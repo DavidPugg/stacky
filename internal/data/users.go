@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type DBUser struct {
+type User struct {
 	ID             int    `json:"id" db:"id"`
 	Avatar         string `json:"avatar" db:"avatar"`
 	Username       string `json:"username" db:"username"`
@@ -19,12 +19,13 @@ type DBUser struct {
 }
 
 type UserWithPosts struct {
-	DBUser
+	User
 	Posts []*Post `json:"posts"`
 }
 
 func (d *Data) CreateUser(avatar, username, email, password string) (int, error) {
 	var id int
+
 	err := d.DB.QueryRow("INSERT INTO users (avatar, username, email, password) VALUES ($1, $2, $3, $4) RETURNING id", avatar, username, email, password).Scan(&id)
 	if err != nil {
 		fmt.Println(err)
@@ -42,7 +43,9 @@ func (d *Data) CreateUser(avatar, username, email, password string) (int, error)
 	return id, nil
 }
 
-func (d *Data) GetUserByID(authUserID, userID int) (*DBUser, error) {
+func (d *Data) GetUserByID(authUserID, userID int) (*User, error) {
+	var user = &User{}
+
 	query := `
 		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
 		EXISTS (
@@ -54,7 +57,6 @@ func (d *Data) GetUserByID(authUserID, userID int) (*DBUser, error) {
 		FROM users WHERE id = $2
 	`
 
-	user := &DBUser{}
 	err := d.DB.Get(user, query, authUserID, userID)
 	if err != nil {
 		fmt.Println(err)
@@ -64,7 +66,9 @@ func (d *Data) GetUserByID(authUserID, userID int) (*DBUser, error) {
 	return user, nil
 }
 
-func (d *Data) GetUserByEmail(userID int, email string) (*DBUser, error) {
+func (d *Data) GetUserByEmail(authUserID int, email string) (*User, error) {
+	var user = &User{}
+
 	query := `
 		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
 		EXISTS (
@@ -76,8 +80,7 @@ func (d *Data) GetUserByEmail(userID int, email string) (*DBUser, error) {
 		FROM users WHERE email = $2
 	`
 
-	user := &DBUser{}
-	err := d.DB.Get(user, query, userID, email)
+	err := d.DB.Get(user, query, authUserID, email)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -86,7 +89,9 @@ func (d *Data) GetUserByEmail(userID int, email string) (*DBUser, error) {
 	return user, nil
 }
 
-func (d *Data) GetUserByUsername(userID int, username string) (*DBUser, error) {
+func (d *Data) GetUserByUsername(authUserID int, username string) (*User, error) {
+	var user = &User{}
+
 	query := `
 		SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
 		EXISTS (
@@ -98,8 +103,7 @@ func (d *Data) GetUserByUsername(userID int, username string) (*DBUser, error) {
 		FROM users WHERE username = $2
 	`
 
-	user := &DBUser{}
-	err := d.DB.Get(user, query, userID, username)
+	err := d.DB.Get(user, query, authUserID, username)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -108,11 +112,14 @@ func (d *Data) GetUserByUsername(userID int, username string) (*DBUser, error) {
 	return user, nil
 }
 
-func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWithPosts, error) {
-	postsChan := make(chan []*Post)
+func (d *Data) GetUserWithPostsByUsername(authUserID int, username string) (*UserWithPosts, error) {
+	var (
+		user      = &User{}
+		postsChan = make(chan []*Post)
+	)
 
 	go func() {
-		posts, err := d.GetPostsOfUserByUsername(userID, username)
+		posts, err := d.GetPostsOfUserByUsername(authUserID, username)
 		if err != nil {
 			postsChan <- nil
 			return
@@ -138,8 +145,7 @@ func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWit
 		GROUP BY users.id
 	`
 
-	user := &DBUser{}
-	err := d.DB.Get(user, query, userID, username)
+	err := d.DB.Get(user, query, authUserID, username)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -152,7 +158,7 @@ func (d *Data) GetUserWithPostsByUsername(userID int, username string) (*UserWit
 	}
 
 	return &UserWithPosts{
-		DBUser: *user,
-		Posts:  posts,
+		User:  *user,
+		Posts: posts,
 	}, nil
 }
