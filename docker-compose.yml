@@ -1,4 +1,4 @@
-version: '1.0'
+version: "1.0"
 
 services:
   postgres:
@@ -6,19 +6,18 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
   web:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
       - uploads:/root/public/assets/images
     depends_on:
       - postgres
@@ -34,3 +33,4 @@ services:
       - DB_SSLMODE=${DB_SSLMODE}
 volumes:
   uploads:
+  pgdata:
