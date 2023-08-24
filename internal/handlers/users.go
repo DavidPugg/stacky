@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/davidpugg/stacky/internal/data"
 	"github.com/davidpugg/stacky/internal/middleware"
@@ -97,7 +99,6 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 		avatar, err = c.FormFile("avatar")
 		authUser    = c.Locals("AuthUser").(*middleware.UserTokenData)
 		cropData    data.CropData
-		avatarID    string
 	)
 
 	if err != nil {
@@ -114,15 +115,37 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid crop data")
 	}
 
-	avatarID, err = h.data.SaveMediaLocally(avatar, cropData)
+	avatarID, err := h.data.SaveMediaLocally(avatar, cropData)
 	if err != nil {
 		fmt.Println(err)
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	if err := h.data.UpdateUser(authUser.ID, fmt.Sprintf("%s/%s", h.mediaEndpoint, avatarID)); err != nil {
+	avatarPath := fmt.Sprintf("%s/%s", h.mediaEndpoint, avatarID)
+
+	if err := h.data.UpdateUser(authUser.ID, avatarPath); err != nil {
+		h.data.DeleteMediaLocally(avatarID)
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
+
+	if authUser.Avatar != "" {
+		avatarArr := strings.Split(authUser.Avatar, "/")
+		err = h.data.DeleteMediaLocally(avatarArr[len(avatarArr)-1])
+	}
+
+	token, err := utils.GenerateToken(authUser.ID, authUser.Username, authUser.Email, avatarPath)
+	if err != nil {
+		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error generating token")
+	}
+
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
 
 	utils.SetRedirect(c, fmt.Sprintf("/u/%s", authUser.Username))
 
