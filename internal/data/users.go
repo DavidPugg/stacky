@@ -71,7 +71,7 @@ func (d *Data) GetUserByID(authUserID, userID int) (*User, error) {
 func (d *Data) GetUserByEmail(authUserID int, email string) (*User, error) {
 	var user = &User{}
 
-	query := baseUserQuery + `FROM users WHERE email = $2`
+	query := baseUserQuery + `WHERE email = $2`
 
 	err := d.DB.Get(user, query, authUserID, email)
 	if err != nil {
