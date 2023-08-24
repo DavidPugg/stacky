@@ -17,6 +17,7 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 
 	r.Get("/", h.getPosts)
 	r.Post("/create", middleware.Authenticate, h.createPost)
+	r.Delete("/:id", middleware.Authenticate, h.deletePost)
 
 	r.Post("/:id/like", middleware.Authenticate, h.likePost)
 	r.Delete("/:id/like", middleware.Authenticate, h.unlikePost)
@@ -217,4 +218,40 @@ func (h *Handlers) getPosts(c *fiber.Ctx) error {
 	}
 
 	return utils.RenderPartial(c, "postList", posts)
+}
+
+func (h *Handlers) deletePost(c *fiber.Ctx) error {
+	var (
+		pID    = c.Params("id")
+		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
+	postID, err := strconv.Atoi(pID)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid post ID")
+	}
+
+	post, err := h.data.GetPostByID(userID, postID)
+	if err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	if post.User.ID != userID {
+		return utils.SendAlert(c, 403, "Forbidden")
+	}
+
+	err = h.data.DeletePostByID(postID)
+	if err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	imageArr := strings.Split(post.Image, "/")
+	err = h.data.DeleteMediaLocally(imageArr[len(imageArr)-1])
+	if err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	utils.SetRedirect(c, fmt.Sprintf("/u/%s", post.User.Username))
+
+	return utils.SendAlert(c, 200, "Post deleted")
 }

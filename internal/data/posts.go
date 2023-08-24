@@ -51,6 +51,23 @@ const basePostQuery = `
 	LEFT JOIN comments AS c ON p.id = c.post_id
 `
 
+func (d *Data) GetPostByID(userID, postID int) (*Post, error) {
+	query := basePostQuery + `
+		WHERE p.id = $3
+		GROUP BY p.id, u.id
+	`
+
+	row := d.DB.QueryRow(query, userID, userID, postID)
+
+	post, err := scanPost(row)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return post, nil
+}
+
 func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, error) {
 	var posts []*Post
 

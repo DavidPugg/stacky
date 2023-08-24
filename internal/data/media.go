@@ -55,3 +55,13 @@ func (d *Data) SaveMediaLocally(img *multipart.FileHeader, cropData CropData) (s
 
 	return id, nil
 }
+
+func (d *Data) DeleteMediaLocally(id string) error {
+	err := os.Remove(fmt.Sprintf("uploads/%s", id))
+	if err != nil {
+		fmt.Println(err)
+		return fmt.Errorf("Error deleting image")
+	}
+
+	return nil
+}
