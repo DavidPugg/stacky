@@ -133,7 +133,14 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 		err = h.data.DeleteMediaLocally(avatarArr[len(avatarArr)-1])
 	}
 
-	token, err := utils.GenerateToken(authUser.ID, authUser.Username, authUser.Email, avatarPath)
+	newAuthData := middleware.NewUserTokenData(
+		authUser.ID,
+		avatarPath,
+		authUser.Username,
+		authUser.Email,
+	)
+
+	token, err := utils.GenerateToken(newAuthData.ID, newAuthData.Username, newAuthData.Email, newAuthData.Avatar)
 	if err != nil {
 		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error generating token")
 	}
@@ -148,6 +155,6 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 	c.Cookie(&cookie)
 
 	utils.SetRedirect(c, fmt.Sprintf("/u/%s", authUser.Username))
-
-	return utils.SendAlert(c, 200, "Profile updated")
+	utils.SetAlert(c, 200, "Profile updated")
+	return utils.RenderPartial(c, "navbar", newAuthData)
 }
