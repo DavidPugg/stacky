@@ -5,7 +5,7 @@
          before:content-normal before:absolute before:w-full before:h-6 before:bg-gradient-to-b from-base-100 from-40%  before:top-[calc(100%+1px)]"
 >
   <div
-    id="navigation-links"
+    id="bottom-navigation-links"
     class="fixed  bottom-0 w-full z-10 flex md:hidden bg-base-200 [&_a]:flex-grow [&_a]:text-center border-t [&_a]:py-3 [&_a]:font-semibold"
   >
     {{ template "nav-links" . }}
@@ -18,28 +18,30 @@
 
     <div
       id="navigation-links"
-      class="tabs tabs-boxed hidden md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
+      class="tabs tabs-boxed hidden  md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
     >
       {{ template "nav-links" . }}
     </div>
 
     <div class="flex gap-3">
-      {{ if .Authenticated }}
+      {{ if .AuthUser.Authenticated }}
         <div class="dropdown dropdown-end">
           <label
             tabindex="0"
             class="btn btn-ghost btn-primary btn-circle avatar"
           >
-            {{ if .Avatar }}
+            {{ if .AuthUser.Avatar }}
               <div class="w-10 rounded-full">
-                <img src="{{ .Avatar }}" />
+                <img src="{{ .AuthUser.Avatar }}" />
               </div>
             {{ else }}
               <div class="avatar placeholder">
                 <div
                   class="bg-neutral-focus text-neutral-content rounded-full w-9"
                 >
-                  <span class="text-md">{{ slice .Username 0 1 }}</span>
+                  <span class="text-md"
+                    >{{ slice .AuthUser.Username 0 1 }}</span
+                  >
                 </div>
               </div>
             {{ end }}
@@ -50,16 +52,14 @@
           >
             <li>
               <a
-                onmouseup="document.activeElement.blur()"
                 class="link-neutral cursor-pointer"
-                href="/u/{{ .Username }}"
+                href="/u/{{ .AuthUser.Username }}"
                 hx-boost="true"
                 >Profile</a
               >
             </li>
             <li>
               <a
-                onmouseup="document.activeElement.blur()"
                 class="link-neutral cursor-pointer"
                 hx-post="/auth/logout"
                 hx-swap="none"
@@ -80,43 +80,27 @@
 {{ block "nav-links" . }}
   <a
     id="-tab"
-    class="{{ if not .Authenticated }}disabled-link{{ end }}"
-    {{ if .Authenticated }}href="/" hx-boost="true"{{ end }}
+    class="
+    {{ if not .AuthUser.Authenticated }}disabled-link{{ end }}
+    {{ if eq .Path "/" }}tab-active{{ end }}
+    "
+    {{ if .AuthUser.Authenticated }}href="/" hx-boost="true"{{ end }}
     >Follows</a
   >
-  <a id="discover-tab" href="/discover" hx-boost="true">Discover</a>
+  <a
+    id="discover-tab"
+    class="{{ if eq .Path "/discover" }}tab-active{{ end }}"
+    href="/discover"
+    hx-boost="true"
+    >Discover</a
+  >
   <a
     id="create-tab"
-    class="{{ if not .Authenticated }}disabled-link{{ end }}"
-    {{ if .Authenticated }}href="/create" hx-boost="true"{{ end }}
+    class="
+    {{ if not .AuthUser.Authenticated }}disabled-link{{ end }}
+    {{ if eq .Path "/create" }}tab-active{{ end }}
+    "
+    {{ if .AuthUser.Authenticated }}href="/create" hx-boost="true"{{ end }}
     >Create</a
   >
 {{ end }}
-
-
-<script>
-  {
-    window.addEventListener("load", function (event) {
-      updateTabs();
-    });
-
-    document.body.addEventListener("updateNavigationLinks", function (event) {
-      updateTabs();
-    });
-
-    function updateTabs() {
-      const containers = document.body.querySelectorAll("#navigation-links");
-      for (let i = 0; i < containers.length; i++) {
-        containers[i]
-          .querySelector(".tab-active")
-          ?.classList?.remove?.("tab-active");
-        const tabs = containers[i].querySelectorAll(
-          `#${window.location.pathname.split("/")[1]}-tab`,
-        );
-        tabs.forEach((tab) => {
-          tab.classList.add("tab-active");
-        });
-      }
-    }
-  }
-</script>
