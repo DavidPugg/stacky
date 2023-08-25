@@ -15,7 +15,8 @@
     <script defer src="/alpinejs/cdn.js"></script>
   </head>
   <body>
-    <div id="alert"></div>
+    {{ template "partials/alert" . }}
+
 
     <header id="header">
       {{ template "partials/navbar" .AuthUser }}
