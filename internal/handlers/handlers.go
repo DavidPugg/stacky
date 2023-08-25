@@ -22,6 +22,5 @@ func (h *Handlers) RegisterRoutes(c *fiber.App) {
 	h.registerPostRoutes(c)
 	h.registerUserRoutes(c)
 	h.registerMediaRoutes(c)
-
-	h.registerViewRoutes(c) //Must be last
+	h.registerViewRoutes(c)
 }

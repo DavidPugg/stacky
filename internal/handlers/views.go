@@ -10,11 +10,6 @@ import (
 )
 
 func (h *Handlers) registerViewRoutes(c *fiber.App) {
-	c.Use(func(c *fiber.Ctx) error {
-		utils.SetPartial(c, "navbar", fiber.Map{"Path": c.Path(), "AuthUser": c.Locals("AuthUser")})
-		return c.Next()
-	})
-
 	c.Get("/", middleware.MainAuthGuard, h.renderMain)
 	c.Get("/discover", h.renderDiscover)
 	c.Get("/register", h.renderRegister)
