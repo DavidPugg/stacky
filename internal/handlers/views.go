@@ -22,10 +22,10 @@ func (h *Handlers) registerViewRoutes(c *fiber.App) {
 
 func (h *Handlers) renderMain(c *fiber.Ctx) error {
 	var (
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
-	posts, err := h.data.GetFollowedPosts(userID, 1)
+	posts, err := h.data.GetFollowedPosts(authUserID, 1)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
@@ -38,10 +38,10 @@ func (h *Handlers) renderMain(c *fiber.Ctx) error {
 
 func (h *Handlers) renderDiscover(c *fiber.Ctx) error {
 	var (
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
-	posts, err := h.data.GetAllPosts(userID, 1)
+	posts, err := h.data.GetAllPosts(authUserID, 1)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
@@ -68,8 +68,8 @@ func (h *Handlers) renderRegister(c *fiber.Ctx) error {
 
 func (h *Handlers) renderPost(c *fiber.Ctx) error {
 	var (
-		pID    = c.Params("id")
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		pID        = c.Params("id")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	if pID == "" {
@@ -81,12 +81,12 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid post ID")
 	}
 
-	post, err := h.data.GetPostWithCommentsByID(userID, postID)
+	post, err := h.data.GetPostWithCommentsByID(authUserID, postID)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
 
-	return utils.RenderPage(c, "post", fiber.Map{"Post": post, "ShowFollowButton": userID != post.User.ID}, &utils.PageDetails{
+	return utils.RenderPage(c, "post", fiber.Map{"Post": post, "ShowFollowButton": authUserID != post.User.ID}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - %d - Stacky", post.User.Username, post.ID),
 		Description: post.Description,
 	})
@@ -94,20 +94,20 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 
 func (h *Handlers) renderUser(c *fiber.Ctx) error {
 	var (
-		username = c.Params("username")
-		userID   = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		username   = c.Params("username")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	if username == "" {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid username")
 	}
 
-	user, err := h.data.GetUserWithPostsByUsername(userID, username)
+	user, err := h.data.GetUserWithPostsByUsername(authUserID, username)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching user")
 	}
 
-	return utils.RenderPage(c, "user", fiber.Map{"User": user, "ShowFollowButton": userID != user.ID}, &utils.PageDetails{
+	return utils.RenderPage(c, "user", fiber.Map{"User": user, "ShowFollowButton": authUserID != user.ID}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - Stacky", user.Username),
 		Description: fmt.Sprintf("%s's stacky profile", user.Username),
 	})

@@ -28,9 +28,9 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 
 func (h *Handlers) likePost(c *fiber.Ctx) error {
 	var (
-		pID    = c.Params("id")
-		count  = c.Query("count")
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		pID        = c.Params("id")
+		count      = c.Query("count")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	likeCount, err := strconv.Atoi(count)
@@ -43,7 +43,7 @@ func (h *Handlers) likePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	err = h.data.CreatePostLike(userID, postID)
+	err = h.data.CreatePostLike(authUserID, postID)
 	if err != nil {
 		fmt.Println(err)
 		return utils.SendAlert(c, 500, "Internal Server Error")
@@ -58,9 +58,9 @@ func (h *Handlers) likePost(c *fiber.Ctx) error {
 
 func (h *Handlers) unlikePost(c *fiber.Ctx) error {
 	var (
-		pID    = c.Params("id")
-		count  = c.Query("count")
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		pID        = c.Params("id")
+		count      = c.Query("count")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	likeCount, err := strconv.Atoi(count)
@@ -73,7 +73,7 @@ func (h *Handlers) unlikePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	err = h.data.DeletePostLike(userID, postID)
+	err = h.data.DeletePostLike(authUserID, postID)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
@@ -128,8 +128,8 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 
 func (h *Handlers) deleteComment(c *fiber.Ctx) error {
 	var (
-		pID    = c.Params("id")
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		pID        = c.Params("id")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	postID, err := strconv.Atoi(pID)
@@ -137,12 +137,12 @@ func (h *Handlers) deleteComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	comment, err := h.data.GetCommentByID(userID, postID)
+	comment, err := h.data.GetCommentByID(authUserID, postID)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	if comment.User.ID != userID {
+	if comment.User.ID != authUserID {
 		return utils.SendAlert(c, 403, "Forbidden")
 	}
 
@@ -222,8 +222,8 @@ func (h *Handlers) getPosts(c *fiber.Ctx) error {
 
 func (h *Handlers) deletePost(c *fiber.Ctx) error {
 	var (
-		pID    = c.Params("id")
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		pID        = c.Params("id")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	postID, err := strconv.Atoi(pID)
@@ -231,12 +231,12 @@ func (h *Handlers) deletePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	post, err := h.data.GetPostByID(userID, postID)
+	post, err := h.data.GetPostByID(authUserID, postID)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	if post.User.ID != userID {
+	if post.User.ID != authUserID {
 		return utils.SendAlert(c, 403, "Forbidden")
 	}
 

@@ -29,8 +29,8 @@ type Form struct {
 
 func (h *Handlers) validateEmail(c *fiber.Ctx) error {
 	var (
-		form   = Form{Email: c.FormValue("email")}
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		form       = Form{Email: c.FormValue("email")}
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	validate := validator.New()
@@ -42,7 +42,7 @@ func (h *Handlers) validateEmail(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Please enter a valid email")
 	}
 
-	user, err := h.data.GetUserByEmail(userID, form.Email)
+	user, err := h.data.GetUserByEmail(authUserID, form.Email)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("")
 	}
@@ -56,8 +56,8 @@ func (h *Handlers) validateEmail(c *fiber.Ctx) error {
 
 func (h *Handlers) validateUsername(c *fiber.Ctx) error {
 	var (
-		form   = Form{Username: c.FormValue("username")}
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		form       = Form{Username: c.FormValue("username")}
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	validate := validator.New()
@@ -73,7 +73,7 @@ func (h *Handlers) validateUsername(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Error validating username")
 	}
 
-	user, err := h.data.GetUserByUsername(userID, form.Username)
+	user, err := h.data.GetUserByUsername(authUserID, form.Username)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("")
 	}
@@ -108,7 +108,6 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 			Username: c.FormValue("username"),
 			Password: c.FormValue("password"),
 		}
-		userID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	validate := validator.New()
@@ -116,7 +115,7 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid username or password")
 	}
 
-	user, err := h.data.GetUserByUsername(userID, form.Username)
+	user, err := h.data.GetUserByUsername(0, form.Username)
 	if err != nil {
 		return utils.SendAlert(c, fiber.StatusInternalServerError, "Invalid username or password")
 	}
@@ -129,31 +128,20 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid username or password")
 	}
 
-	session, err := h.session.Get(c)
-	if err != nil {
-		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error getting session")
+	if err := h.setSession(
+		c,
+		SessionValue{"id", user.ID},
+		SessionValue{"name", user.Username},
+		SessionValue{"email", user.Email},
+		SessionValue{"avatar", user.Avatar},
+	); err != nil {
+		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error saving session")
 	}
-
-	session.Set("id", user.ID)
-	session.Set("name", user.Username)
-	session.Set("email", user.Email)
-	session.Set("avatar", user.Avatar)
-
-	if err := session.Save(); err != nil {
-		panic(err)
-	}
-
-	data := middleware.NewUserTokenData(
-		user.ID,
-		user.Avatar,
-		user.Username,
-		user.Email,
-	)
 
 	utils.SetRedirect(c, "/")
 	utils.SetAlert(c, fiber.StatusOK, "Successfully logged in")
 
-	return utils.RenderPartial(c, "navbar", data)
+	return utils.RenderPartial(c, "navbar", h.getSessionMap(c))
 }
 
 func (h *Handlers) register(c *fiber.Ctx) error {
@@ -193,17 +181,8 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) logout(c *fiber.Ctx) error {
-	session, err := h.session.Get(c)
-	if err != nil {
-		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error getting session")
-	}
-
-	if err := session.Destroy(); err != nil {
+	if err := h.destoySession(c); err != nil {
 		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error destroying session")
-	}
-
-	if err := session.Save(); err != nil {
-		panic(err)
 	}
 
 	utils.SetRedirect(c, "/")

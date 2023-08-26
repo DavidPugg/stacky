@@ -59,7 +59,7 @@ func (h *Handlers) followUser(c *fiber.Ctx) error {
 func (h *Handlers) unfollowUser(c *fiber.Ctx) error {
 	var (
 		userID     = c.Params("id")
-		authUserId = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
 	followeeID, err := strconv.Atoi(userID)
@@ -67,11 +67,11 @@ func (h *Handlers) unfollowUser(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid user ID")
 	}
 
-	if followeeID == authUserId {
+	if followeeID == authUserID {
 		return utils.SendAlert(c, 400, "You can't unfollow yourself")
 	}
 
-	err = h.data.DeleteFollow(authUserId, followeeID)
+	err = h.data.DeleteFollow(authUserID, followeeID)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
