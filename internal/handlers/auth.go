@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"strings"
-	"time"
 
 	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/davidpugg/stacky/internal/utils"
@@ -130,19 +129,19 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusBadRequest, "Invalid username or password")
 	}
 
-	token, err := utils.GenerateToken(user.ID, user.Username, user.Email, user.Avatar)
+	session, err := h.session.Get(c)
 	if err != nil {
-		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error generating token")
+		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error getting session")
 	}
 
-	cookie := fiber.Cookie{
-		Name:     "jwt",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: true,
-	}
+	session.Set("id", user.ID)
+	session.Set("name", user.Username)
+	session.Set("email", user.Email)
+	session.Set("avatar", user.Avatar)
 
-	c.Cookie(&cookie)
+	if err := session.Save(); err != nil {
+		panic(err)
+	}
 
 	data := middleware.NewUserTokenData(
 		user.ID,
@@ -194,14 +193,18 @@ func (h *Handlers) register(c *fiber.Ctx) error {
 }
 
 func (h *Handlers) logout(c *fiber.Ctx) error {
-	cookie := fiber.Cookie{
-		Name:     "jwt",
-		Value:    "",
-		Expires:  time.Now().Add(-time.Hour),
-		HTTPOnly: true,
+	session, err := h.session.Get(c)
+	if err != nil {
+		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error getting session")
 	}
 
-	c.Cookie(&cookie)
+	if err := session.Destroy(); err != nil {
+		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error destroying session")
+	}
+
+	if err := session.Save(); err != nil {
+		panic(err)
+	}
 
 	utils.SetRedirect(c, "/")
 	utils.SetAlert(c, fiber.StatusOK, "Successfully logged out")

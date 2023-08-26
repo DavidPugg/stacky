@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/davidpugg/stacky/internal/data"
 	"github.com/davidpugg/stacky/internal/middleware"
@@ -140,19 +139,16 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 		authUser.Email,
 	)
 
-	token, err := utils.GenerateToken(newAuthData.ID, newAuthData.Username, newAuthData.Email, newAuthData.Avatar)
+	session, err := h.session.Get(c)
 	if err != nil {
-		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error generating token")
+		return utils.SendAlert(c, 500, "Error getting session")
 	}
 
-	cookie := fiber.Cookie{
-		Name:     "jwt",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: true,
-	}
+	session.Set("avatar", avatarPath)
 
-	c.Cookie(&cookie)
+	if err := session.Save(); err != nil {
+		return utils.SendAlert(c, 500, "Error saving session")
+	}
 
 	utils.SetRedirect(c, fmt.Sprintf("/u/%s", authUser.Username))
 	utils.SetAlert(c, 200, "Profile updated")

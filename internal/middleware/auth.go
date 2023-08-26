@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 type UserTokenData struct {
@@ -24,43 +24,29 @@ func NewUserTokenData(id int, avatar, username, email string) *UserTokenData {
 	}
 }
 
-func ParseToken(c *fiber.Ctx) error {
-	c.Locals("AuthUser", &UserTokenData{})
+func CheckSession(s *session.Store) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		session, err := s.Get(c)
+		if err != nil {
+			return utils.SendAlert(c, fiber.StatusInternalServerError, "Error getting session")
+		}
 
-	var t string
-	authHeader := c.Get("Authorization")
-	if authHeader == "" {
-		t = c.Cookies("jwt")
-		if t == "" {
+		if session.Get("id") == nil {
+			c.Locals("AuthUser", &UserTokenData{})
 			return c.Next()
 		}
-	} else {
-		t = authHeader[7:]
-		if t == "" {
-			return c.Next()
-		}
-	}
 
-	token, err := utils.ValidateToken(t)
-	if err != nil {
+		data := NewUserTokenData(
+			session.Get("id").(int),
+			session.Get("avatar").(string),
+			session.Get("name").(string),
+			session.Get("email").(string),
+		)
+
+		c.Locals("AuthUser", data)
+
 		return c.Next()
 	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return c.Next()
-	}
-
-	data := NewUserTokenData(
-		int(claims["id"].(float64)),
-		claims["avatar"].(string),
-		claims["username"].(string),
-		claims["email"].(string),
-	)
-
-	c.Locals("AuthUser", data)
-
-	return c.Next()
 }
 
 func Authenticate(c *fiber.Ctx) error {

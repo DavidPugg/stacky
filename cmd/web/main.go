@@ -10,6 +10,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/gofiber/storage/sqlite3"
 	"github.com/gofiber/template/html/v2"
 	"github.com/spf13/viper"
 )
@@ -35,8 +37,18 @@ func main() {
 	app.Static("/cropperjs", "./node_modules/cropperjs/dist")
 	app.Static("/alpinejs", "./node_modules/alpinejs/dist")
 
-	//Middleware
+	//Data
+	db := data.DBconnect()
+	defer db.Close()
 
+	ss := sqlite3.New()
+	sessionStore := session.New(session.Config{
+		Storage: ss,
+	})
+
+	dataInstance := data.New(db)
+
+	//Middleware
 	app.Use(cors.New(cors.Config{
 		AllowCredentials: true,
 		AllowOrigins:     "*",
@@ -46,17 +58,11 @@ func main() {
 		Level: compress.LevelBestSpeed,
 	}))
 
-	app.Use(middleware.ParseToken)
+	app.Use(middleware.CheckSession(sessionStore))
 	app.Use(middleware.SamePage)
 
-	//Data
-	db := data.DBconnect()
-	defer db.Close()
-
-	dataInstance := data.New(db)
-
 	//Routes
-	handlers.New(dataInstance).RegisterRoutes(app)
+	handlers.New(dataInstance, sessionStore).RegisterRoutes(app)
 
 	//Server
 	port := viper.GetInt("PORT")

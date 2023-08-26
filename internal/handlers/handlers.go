@@ -3,17 +3,20 @@ package handlers
 import (
 	"github.com/davidpugg/stacky/internal/data"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/session"
 )
 
 type Handlers struct {
 	mediaEndpoint string
 	data          *data.Data
+	session       *session.Store
 }
 
-func New(data *data.Data) *Handlers {
+func New(data *data.Data, s *session.Store) *Handlers {
 	return &Handlers{
-		data:          data,
 		mediaEndpoint: "/media",
+		data:          data,
+		session:       s,
 	}
 }
 
