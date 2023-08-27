@@ -73,12 +73,12 @@ func RenderPage(c *fiber.Ctx, view string, data interface{}, pd *PageDetails, la
 		return RenderError(c, fiber.StatusInternalServerError, "Error setting page details")
 	}
 
+	c.Locals("Path", c.Path())
+
 	err := c.Render(view, data, l)
 	if err != nil {
 		return RenderError(c, fiber.StatusInternalServerError, "Error rendering page")
 	}
-
-	SetPartial(c, "navbar", fiber.Map{"Path": c.Path(), "AuthUser": c.Locals("AuthUser")})
 
 	return renderPartials(c)
 }

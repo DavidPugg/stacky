@@ -1,10 +1,35 @@
 <div
+  x-data='{
+      handleLinkClick(event) {
+        if(event.target == document.body) return
+
+        const target = event.target;
+        const top = this.$refs.topnav;
+        const bottom = this.$refs.bottomnav;
+        
+        if (target.classList.contains("disabled-link")) {
+          event.preventDefault();
+          return;
+        }
+        
+        top?.querySelector(".tab-active")?.classList.remove("tab-active");
+        bottom?.querySelector(".tab-active")?.classList.remove("tab-active");
+
+        if (!target.id.includes("tab")) {
+          return
+        }
+
+        target.classList.add("tab-active");
+      }
+  }'
+  @htmx:before-request.window="handleLinkClick($event)"
   id="navbar"
   hx-swap-oob="true"
   class="navbar justify-center fixed top-0 bg-base-200  border-b z-10
          before:content-normal before:absolute before:w-full before:h-6 before:bg-gradient-to-b from-base-100 from-40%  before:top-[calc(100%+1px)]"
 >
   <div
+    x-ref="bottomnav"
     id="bottom-navigation-links"
     class="fixed  bottom-0 w-full z-10 flex md:hidden bg-base-200 [&_a]:flex-grow [&_a]:text-center border-t [&_a]:py-3 [&_a]:font-semibold"
   >
@@ -17,6 +42,7 @@
     >
 
     <div
+      x-ref="topnav"
       id="navigation-links"
       class="tabs tabs-boxed hidden  md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
     >
@@ -47,6 +73,7 @@
             {{ end }}
           </label>
           <ul
+            @click="document.activeElement.blur()"
             tabindex="0"
             class="mt-4 z-[1] p-2 shadow menu menu-md dropdown-content gap-1 [&>li>a]:px-4 rounded-box w-max"
           >
@@ -80,6 +107,7 @@
 {{ define "nav-links" }}
   <a
     id="-tab"
+    @click="handleLinkClick($event)"
     class="
     {{ if not .AuthUser.Authenticated }}disabled-link{{ end }}
     {{ if eq .Path "/" }}tab-active{{ end }}
@@ -89,6 +117,7 @@
   >
   <a
     id="discover-tab"
+    @click="handleLinkClick($event)"
     class="{{ if eq .Path "/discover" }}tab-active{{ end }}"
     href="/discover"
     hx-boost="true"
@@ -96,6 +125,7 @@
   >
   <a
     id="create-tab"
+    @click="handleLinkClick($event)"
     class="
     {{ if not .AuthUser.Authenticated }}disabled-link{{ end }}
     {{ if eq .Path "/create" }}tab-active{{ end }}

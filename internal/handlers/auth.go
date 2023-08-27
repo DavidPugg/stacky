@@ -141,7 +141,10 @@ func (h *Handlers) login(c *fiber.Ctx) error {
 	utils.SetRedirect(c, "/")
 	utils.SetAlert(c, fiber.StatusOK, "Successfully logged in")
 
-	return utils.RenderPartial(c, "navbar", h.getSessionMap(c))
+	return utils.RenderPartial(c, "navbar", fiber.Map{
+		"AuthUser": middleware.NewUserTokenData(user.ID, user.Avatar, user.Username, user.Email),
+		"Path":     "/",
+	})
 }
 
 func (h *Handlers) register(c *fiber.Ctx) error {
@@ -185,8 +188,11 @@ func (h *Handlers) logout(c *fiber.Ctx) error {
 		return utils.SendAlert(c, fiber.StatusInternalServerError, "Error destroying session")
 	}
 
-	utils.SetRedirect(c, "/")
+	utils.SetRedirect(c, "/discover")
 	utils.SetAlert(c, fiber.StatusOK, "Successfully logged out")
 
-	return utils.RenderPartial(c, "navbar", middleware.UserTokenData{})
+	return utils.RenderPartial(c, "navbar", fiber.Map{
+		"AuthUser": middleware.UserTokenData{},
+		"Path":     "/discover",
+	})
 }
