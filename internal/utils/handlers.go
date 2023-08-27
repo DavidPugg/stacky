@@ -175,7 +175,11 @@ func SetAlert(c *fiber.Ctx, status int, message string) error {
 
 func SendAlert(c *fiber.Ctx, status int, message string) error {
 	c.Set("HX-Reswap", "none")
-	return SetAlert(c, status, message)
+	if err := SetAlert(c, status, message); err != nil {
+		return err
+	}
+
+	return renderPartials(c)
 }
 
 func SetRedirect(c *fiber.Ctx, url string) {
