@@ -2,6 +2,8 @@ package data
 
 import (
 	"fmt"
+
+	"github.com/davidpugg/stacky/internal/utils"
 )
 
 type Comment struct {
@@ -57,6 +59,7 @@ func (d *Data) GetPostComments(authUserID, postID int) ([]*Comment, error) {
 			return nil, err
 		}
 
+		comment.CreatedAt = utils.FormatCreateTime(comment.CreatedAt)
 		comments = append(comments, comment)
 	}
 
