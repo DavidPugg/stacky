@@ -9,12 +9,13 @@
     {{ template "partials/followButton" .User }}
   </div>
 
-  <img
-    hx-get="/post/{{ .ID }}"
-    src="{{ .Image }}"
-    alt="Shoes"
-    class="w-full aspect-square cursor-pointer"
-  />
+  <a href="/post/{{ .ID }}" hx-boost="true">
+    <img
+      src="{{ .Image }}"
+      alt="Shoes"
+      class="w-full aspect-square cursor-pointer"
+    />
+  </a>
 
   {{ if .Description }}
     <p class="p-4 border-b">{{ .Description }}</p>

@@ -85,6 +85,7 @@ func RenderPage(c *fiber.Ctx, view string, data interface{}, pd *PageDetails, la
 
 func RenderError(c *fiber.Ctx, status int, details string) error {
 	var message string
+
 	switch status {
 	case fiber.StatusInternalServerError:
 		message = "Internal server error"
@@ -164,8 +165,8 @@ func SetAlert(c *fiber.Ctx, status int, message string) error {
 	}
 
 	value := fiber.Map{
-		"Type":    t,
-		"Message": message,
+		"Type":  t,
+		"Error": message,
 	}
 
 	c.Status(status)
@@ -173,12 +174,8 @@ func SetAlert(c *fiber.Ctx, status int, message string) error {
 }
 
 func SendAlert(c *fiber.Ctx, status int, message string) error {
-	if err := SetAlert(c, status, message); err != nil {
-		return err
-	}
-
 	c.Set("HX-Reswap", "none")
-	return c.SendString(c.Locals("Partials").(string))
+	return SetAlert(c, status, message)
 }
 
 func SetRedirect(c *fiber.Ctx, url string) {

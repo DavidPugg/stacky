@@ -9,11 +9,11 @@
   {{ else if eq .Type "error" }}
     alert-error
   {{ end -}}
-  {{ if .Message }}
+  {{ if .Error }}
     visible
   {{ else }}
     invisible
   {{ end }}"
 >
-  <span id="alert-text" class="text-center w-full">{{ .Message }}</span>
+  <span id="alert-text" class="text-center w-full">{{ .Error }}</span>
 </div>
