@@ -18,7 +18,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - uploads:/root/public/assets/images
+      - uploads:/root/uploads
     depends_on:
       - postgres
     restart: always
