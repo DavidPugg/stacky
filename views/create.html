@@ -33,8 +33,9 @@
     hx-indicator="#create-post-indicator"
     hx-swap="none"
     hx-encoding="multipart/form-data"
-    class="centered-page"
+    class="small-page"
   >
+    <h1 class="page-heading">Create post</h1>
     <div>
       <input
         @change="handleImageChange($event)"
@@ -46,15 +47,15 @@
       />
     </div>
     <div class="flex flex-col gap-2">
-      <label for="password">Description</label>
+      <label for="description">Description</label>
       <div>
-        <input
+        <textarea
           id="description"
-          type="text"
           name="description"
+          maxlength="255"
           placeholder="My first post..."
-          class="input input-bordered focus:input-primary w-full"
-        />
+          class="textarea textarea-bordered focus:textarea-primary w-full"
+        ></textarea>
       </div>
     </div>
 

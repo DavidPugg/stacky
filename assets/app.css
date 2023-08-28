@@ -69,11 +69,15 @@
 }
 
 .page {
-  @apply py-32 min-h-screen;
+  @apply pt-32 pb-20 min-h-screen mx-auto max-w-[1200px];
 }
 
-.centered-page {
-  @apply relative md:fixed md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 px-10 py-32  w-full gap-3 md:p-10 !border-none card md:!border-solid bg-base-200 min-h-screen md:!card-bordered md:!border-primary shadow-xl md:!min-h-0 md:h-auto md:max-w-xs;
+.small-page {
+  @apply pt-32 pb-20 min-h-screen flex flex-col gap-3 mx-auto px-4 !max-w-[600px];
+}
+
+.page-heading {
+  @apply text-center text-2xl font-semibold pb-6 mb-6 border-b;
 }
 
 ::-webkit-scrollbar {
