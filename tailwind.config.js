@@ -40,7 +40,7 @@ module.exports = {
         ...colors,
       },
       animation: {
-        "show-alert": "show 5s ease-in-out",
+        "show-alert": "show 4s ease-in-out",
       },
       keyframes: {
         show: {

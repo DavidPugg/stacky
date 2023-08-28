@@ -1,8 +1,8 @@
-<div class="container page">
+<div class="page">
   <div
-    class="relative flex flex-wrap items-center justify-between w-full gap-5 mb-10 border-b pb-10"
+    class="relative flex flex-wrap flex-col sm:flex-row items-center justify-between w-full gap-5 mb-10 border-b pb-10"
   >
-    <div class="flex gap-5 items-center">
+    <div class="flex gap-3 sm:gap-5 items-center flex-col sm:flex-row">
       <a
         {{ if not .ShowFollowButton }}
           href="/u/{{ .User.Username }}/edit" hx-boost="true"
@@ -47,7 +47,9 @@
       {{ end }}
     </div>
 
-    <div class="text-xs md:text-base stats text-center flex-grow">
+    <div
+      class="text-xs md:text-base stats text-center flex-grow md:!flex-grow-0"
+    >
       <div class="stat place-items-center">
         <div class="stat-value">{{ len .User.Posts }}</div>
         <div class="stat-title">Posts</div>
@@ -72,8 +74,8 @@
       class="grid {{ if eq ( len .User.Posts) 1 }}
         place-content-center grid-cols-[30rem]
       {{ else }}
-        grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]
-      {{ end }} gap-3"
+        grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]
+      {{ end }} gap-1"
     >
       {{ template "partials/smallPostList" .User.Posts }}
     </div>

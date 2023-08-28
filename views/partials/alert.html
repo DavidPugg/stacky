@@ -1,7 +1,10 @@
 <div
   id="alert"
+  x-data="{ isVisible: `{{ .Error }}` ? true : false }"
+  x-init="setTimeout(() => { isVisible = false; }, 4500)"
+  x-show="isVisible"
   hx-swap-oob="true"
-  class="fixed top-20 z-50 max-w-[300px] alert !flex left-[50%] -translate-x-[50%] animate-show-alert opacity-0 rounded-lg text-center font-semibold
+  class="fixed top-0 right-0 xs:top-24 xs:right-10 z-50 w-full xs:max-w-[300px] alert flex animate-show-alert opacity-0 !rounded-none xs:!rounded-lg text-center font-semibold 
    {{ if eq .Type "success" }}
     alert-success
   {{ else if eq .Type "info" }}
@@ -9,11 +12,7 @@
   {{ else if eq .Type "error" }}
     alert-error
   {{ end -}}
-  {{ if .Error }}
-    visible
-  {{ else }}
-    invisible
-  {{ end }}"
+"
 >
   <span id="alert-text" class="text-center w-full">{{ .Error }}</span>
 </div>

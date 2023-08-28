@@ -25,8 +25,7 @@
   @htmx:before-request.window="handleLinkClick($event)"
   id="navbar"
   hx-swap-oob="true"
-  class="navbar justify-center fixed top-0 bg-base-200  border-b z-10
-         before:content-normal before:absolute before:w-full before:h-6 before:bg-gradient-to-b from-base-100 from-40%  before:top-[calc(100%+1px)]"
+  class="navbar justify-center fixed top-0 bg-base-200  border-b z-10 shadow-lg"
 >
   <div
     x-ref="bottomnav"
@@ -44,7 +43,7 @@
     <div
       x-ref="topnav"
       id="navigation-links"
-      class="tabs tabs-boxed hidden  md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
+      class="tabs tabs-boxed hidden hover:[&_a]:bg-base-400  md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
     >
       {{ template "nav-links" . }}
     </div>
