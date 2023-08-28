@@ -152,5 +152,8 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 
 	utils.SetRedirect(c, fmt.Sprintf("/u/%s", authUser.Username))
 	utils.SetAlert(c, 200, "Profile updated")
-	return utils.RenderPartial(c, "navbar", newAuthData)
+	return utils.RenderPartial(c, "navbar", fiber.Map{
+		"AuthUser": newAuthData,
+		"Path":     c.Path(),
+	})
 }
