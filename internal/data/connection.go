@@ -1,6 +1,8 @@
 package data
 
 import (
+	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 
@@ -11,7 +13,7 @@ import (
 func DBconnect() *sqlx.DB {
 	db, err := sqlx.Connect(
 		viper.GetString("DB_DRIVER"),
-		viper.GetString("DB_URL"),
+		fmt.Sprintf("%s://%s", viper.GetString("DB_DRIVER"), viper.GetString("DB_URL")),
 	)
 	if err != nil {
 		panic(err)
