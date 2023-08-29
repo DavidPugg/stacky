@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -164,7 +165,7 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 		user        = c.Locals("AuthUser").(*middleware.UserTokenData)
 		img, err    = c.FormFile("image")
 		cropString  = c.FormValue("crop-data")
-		cropData    data.CropData
+		cropData    utils.CropData
 	)
 
 	if err != nil {
@@ -177,7 +178,9 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid crop data")
 	}
 
-	id, err := h.data.SaveMediaLocally(img, cropData)
+	ci, err := utils.CropImage(img, cropData)
+
+	id, err := h.data.SaveMediaLocally(ci, filepath.Ext(img.Filename))
 	if err != nil {
 		fmt.Println(err)
 		return utils.SendAlert(c, 500, "Internal Server Error")

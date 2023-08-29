@@ -3,10 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
-	"github.com/davidpugg/stacky/internal/data"
 	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/gofiber/fiber/v2"
@@ -97,7 +97,7 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 		cropString  = c.FormValue("crop-data")
 		avatar, err = c.FormFile("avatar")
 		authUser    = c.Locals("AuthUser").(*middleware.UserTokenData)
-		cropData    data.CropData
+		cropData    utils.CropData
 	)
 
 	if err != nil {
@@ -114,7 +114,9 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid crop data")
 	}
 
-	avatarID, err := h.data.SaveMediaLocally(avatar, cropData)
+	ci, err := utils.CropImage(avatar, cropData)
+
+	avatarID, err := h.data.SaveMediaLocally(ci, filepath.Ext(avatar.Filename))
 	if err != nil {
 		fmt.Println(err)
 		return utils.SendAlert(c, 500, "Internal Server Error")

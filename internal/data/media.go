@@ -3,52 +3,23 @@ package data
 import (
 	"fmt"
 	"image"
-	"mime/multipart"
 	"os"
-	"path/filepath"
 
 	"github.com/disintegration/imaging"
 	"github.com/google/uuid"
 )
 
-type CropData struct {
-	X      float32 `json:"x"`
-	Y      float32 `json:"y"`
-	Width  float32 `json:"width"`
-	Height float32 `json:"height"`
-}
-
-func (d *Data) SaveMediaLocally(img *multipart.FileHeader, cropData CropData) (string, error) {
+func (d *Data) SaveMediaLocally(img image.Image, ext string) (string, error) {
 	var (
-		id        = fmt.Sprintf("%s%s", uuid.New().String(), filepath.Ext(img.Filename))
+		id        = fmt.Sprintf("%s%s", uuid.New().String(), ext)
 		imagePath = fmt.Sprintf("uploads/%s", id)
-		i         image.Image
-	)
-
-	file, err := img.Open()
-	if err != nil {
-		fmt.Println(err)
-		return "", fmt.Errorf("Error saving image")
-	}
-
-	defer file.Close()
-
-	i, err = imaging.Decode(file, imaging.AutoOrientation(true))
-	if err != nil {
-		fmt.Println(err)
-		return "", fmt.Errorf("Error saving image")
-	}
-
-	cimg := imaging.Crop(i, image.Rect(
-		int(cropData.X),
-		int(cropData.Y), int(cropData.Width)+int(cropData.X), int(cropData.Height)+int(cropData.Y)),
 	)
 
 	if _, err := os.Stat("uploads"); os.IsNotExist(err) {
 		os.Mkdir("uploads", 0755)
 	}
 
-	if err = imaging.Save(cimg, imagePath); err != nil {
+	if err := imaging.Save(img, imagePath); err != nil {
 		fmt.Println(err)
 		return "", fmt.Errorf("Error saving image")
 	}
@@ -65,3 +36,14 @@ func (d *Data) DeleteMediaLocally(id string) error {
 
 	return nil
 }
+
+// func (d *Data) SaveToS3() error {
+// 	sess, err := session.NewSession(&aws.Config{
+// 		Region: aws.String("us-east-1")},
+// 	)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return nil
+// }
