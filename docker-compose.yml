@@ -1,16 +1,6 @@
 version: "1.0"
 
 services:
-  postgres:
-    image: postgres:latest
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
   web:
     build:
       context: .
@@ -19,18 +9,10 @@ services:
       - "3000:3000"
     volumes:
       - uploads:/root/uploads
-    depends_on:
-      - postgres
     restart: always
     environment:
       - PORT=${PORT}
       - DB_DRIVER=${DB_DRIVER}
-      - DB_HOST=postgres
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - DB_SSLMODE=${DB_SSLMODE}
+      - DB_URL=${DB_URL}
 volumes:
   uploads:
-  pgdata:
