@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handlers) registerMediaRoutes(c *fiber.App) {
-	r := c.Group(h.mediaEndpoint)
+	r := c.Group("/media")
 	r.Get("/:id", h.mediaShow)
 }
 

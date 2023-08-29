@@ -7,16 +7,14 @@ import (
 )
 
 type Handlers struct {
-	mediaEndpoint string
-	data          *data.Data
-	session       *session.Store
+	data    *data.Data
+	session *session.Store
 }
 
 func New(data *data.Data, s *session.Store) *Handlers {
 	return &Handlers{
-		mediaEndpoint: "/media",
-		data:          data,
-		session:       s,
+		data:    data,
+		session: s,
 	}
 }
 

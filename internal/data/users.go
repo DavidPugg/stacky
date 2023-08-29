@@ -3,6 +3,8 @@ package data
 import (
 	"fmt"
 	"strings"
+
+	"github.com/davidpugg/stacky/internal/utils"
 )
 
 type User struct {
@@ -65,6 +67,8 @@ func (d *Data) GetUserByID(authUserID, userID int) (*User, error) {
 		return nil, err
 	}
 
+	user.Avatar = utils.CreateImagePath(user.Avatar)
+
 	return user, nil
 }
 
@@ -79,6 +83,8 @@ func (d *Data) GetUserByEmail(authUserID int, email string) (*User, error) {
 		return nil, err
 	}
 
+	user.Avatar = utils.CreateImagePath(user.Avatar)
+
 	return user, nil
 }
 
@@ -92,6 +98,8 @@ func (d *Data) GetUserByUsername(authUserID int, username string) (*User, error)
 		fmt.Println(err)
 		return nil, err
 	}
+
+	user.Avatar = utils.CreateImagePath(user.Avatar)
 
 	return user, nil
 }
@@ -126,6 +134,8 @@ func (d *Data) GetUserWithPostsByUsername(authUserID int, username string) (*Use
 		fmt.Println(err)
 		return nil, err
 	}
+
+	user.Avatar = utils.CreateImagePath(user.Avatar)
 
 	err = <-errorChan
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 
 	"github.com/disintegration/imaging"
+	"github.com/spf13/viper"
 )
 
 type CropData struct {
@@ -36,4 +37,14 @@ func CropImage(img *multipart.FileHeader, cropData CropData) (image.Image, error
 	)
 
 	return cimg, nil
+}
+
+func CreateImagePath(img string) string {
+	var up string
+	if viper.GetString("S3_BUCKET") != "" {
+		up = fmt.Sprintf("%s/%s", viper.GetString("CDN_URL"), img)
+	} else {
+		up = fmt.Sprintf("/uploads/%s", img)
+	}
+	return up
 }

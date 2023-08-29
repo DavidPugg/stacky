@@ -1,6 +1,10 @@
 package data
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/davidpugg/stacky/internal/utils"
+)
 
 type Post struct {
 	ID           int    `json:"id" db:"id"`
@@ -262,6 +266,7 @@ func scanPost(row Scanner) (*Post, error) {
 	}
 
 	post.User = user
+	post.Image = utils.CreateImagePath(post.Image)
 
 	return post, nil
 }

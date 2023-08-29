@@ -17,7 +17,7 @@ type UserTokenData struct {
 func NewUserTokenData(id int, avatar, username, email string) *UserTokenData {
 	return &UserTokenData{
 		ID:            id,
-		Avatar:        avatar,
+		Avatar:        utils.CreateImagePath(avatar),
 		Username:      username,
 		Email:         email,
 		Authenticated: true,

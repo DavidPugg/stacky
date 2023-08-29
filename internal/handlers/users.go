@@ -122,9 +122,7 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	avatarPath := fmt.Sprintf("%s/%s", h.mediaEndpoint, avatarID)
-
-	if err := h.data.UpdateUser(authUser.ID, avatarPath); err != nil {
+	if err := h.data.UpdateUser(authUser.ID, avatarID); err != nil {
 		h.data.DeleteMedia(avatarID)
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
@@ -136,7 +134,7 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 
 	newAuthData := middleware.NewUserTokenData(
 		authUser.ID,
-		avatarPath,
+		avatarID,
 		authUser.Username,
 		authUser.Email,
 	)
@@ -146,7 +144,7 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Error getting session")
 	}
 
-	session.Set("avatar", avatarPath)
+	session.Set("avatar", avatarID)
 
 	if err := session.Save(); err != nil {
 		return utils.SendAlert(c, 500, "Error saving session")

@@ -33,6 +33,7 @@ func main() {
 		BodyLimit:         20 * 1024 * 1024,
 	})
 
+	app.Static("/uploads", "./uploads")
 	app.Static("/public", "./public")
 	app.Static("/cropperjs", "./node_modules/cropperjs/dist")
 	app.Static("/alpinejs", "./node_modules/alpinejs/dist")

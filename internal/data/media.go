@@ -72,6 +72,8 @@ func saveToS3(img image.Image, ext string) (string, error) {
 		return "", err
 	}
 
+	defer os.Remove(file.Name())
+
 	var format imaging.Format
 	switch ext {
 	case ".png":
@@ -108,7 +110,7 @@ func saveToS3(img image.Image, ext string) (string, error) {
 		Bucket:        aws.String(viper.GetString("S3_BUCKET")),
 		Key:           aws.String(id),
 		ContentLength: aws.Int64(fs),
-		ContentType:   aws.String(fmt.Sprintf("image/%s", ext)),
+		ContentType:   aws.String(fmt.Sprintf("image/%s", ext[1:])),
 	}
 
 	_, err = svc.PutObject(input)
