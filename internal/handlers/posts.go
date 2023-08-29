@@ -180,13 +180,13 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 
 	ci, err := utils.CropImage(img, cropData)
 
-	id, err := h.data.SaveMediaLocally(ci, filepath.Ext(img.Filename))
+	imageID, err := h.data.SaveMedia(ci, filepath.Ext(img.Filename))
 	if err != nil {
 		fmt.Println(err)
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	err = h.data.CreatePost(user.ID, fmt.Sprintf("%s/%s", h.mediaEndpoint, id), description)
+	err = h.data.CreatePost(user.ID, imageID, description)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
@@ -248,8 +248,7 @@ func (h *Handlers) deletePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	imageArr := strings.Split(post.Image, "/")
-	err = h.data.DeleteMediaLocally(imageArr[len(imageArr)-1])
+	err = h.data.DeleteMedia(post.Image)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}

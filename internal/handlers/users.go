@@ -116,7 +116,7 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 
 	ci, err := utils.CropImage(avatar, cropData)
 
-	avatarID, err := h.data.SaveMediaLocally(ci, filepath.Ext(avatar.Filename))
+	avatarID, err := h.data.SaveMedia(ci, filepath.Ext(avatar.Filename))
 	if err != nil {
 		fmt.Println(err)
 		return utils.SendAlert(c, 500, "Internal Server Error")
@@ -125,13 +125,13 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 	avatarPath := fmt.Sprintf("%s/%s", h.mediaEndpoint, avatarID)
 
 	if err := h.data.UpdateUser(authUser.ID, avatarPath); err != nil {
-		h.data.DeleteMediaLocally(avatarID)
+		h.data.DeleteMedia(avatarID)
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
 	if authUser.Avatar != "" {
 		avatarArr := strings.Split(authUser.Avatar, "/")
-		err = h.data.DeleteMediaLocally(avatarArr[len(avatarArr)-1])
+		err = h.data.DeleteMedia(avatarArr[len(avatarArr)-1])
 	}
 
 	newAuthData := middleware.NewUserTokenData(
