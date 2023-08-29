@@ -22,14 +22,11 @@ build:
 start: build
 	./web
 
-migrate-up:
-	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSLMODE}" up
+seed:
+	go run cmd/seed/main.go
 
-migrate-force:
-	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSLMODE}" force 1
-
-migrate-down:
-	docker run -v $(shell pwd)/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database "${DB_DRIVER}://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSLMODE}" down 1
+migrate:
+	atlas schema apply -u "${DB_URL}" --to file://schema.hcl
 
 db:
 	docker run --name some-postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
