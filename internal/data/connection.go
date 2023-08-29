@@ -4,8 +4,10 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
+
+	_ "github.com/lib/pq"
+	_ "github.com/libsql/libsql-client-go/libsql"
 )
 
 func DBconnect() *sqlx.DB {
