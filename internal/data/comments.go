@@ -35,7 +35,7 @@ func (d *Data) GetCommentByID(authUserID, commentID int) (*Comment, error) {
 		GROUP BY c.id, u.id
 	`
 
-	row := d.DB.QueryRow(query, commentID, authUserID)
+	row := d.DB.QueryRow(query, authUserID, commentID)
 
 	comment, err := scanComment(row, authUserID)
 	if err != nil {
@@ -64,6 +64,7 @@ func (d *Data) GetPostComments(authUserID, postID int) ([]*Comment, error) {
 		LEFT JOIN comment_likes AS cl ON cl.comment_id = c.id
 		WHERE c.post_id = $1
 		GROUP BY c.id, u.id
+		ORDER BY c.created_at DESC
 	`
 
 	rows, err := d.DB.Query(query, postID, authUserID)
