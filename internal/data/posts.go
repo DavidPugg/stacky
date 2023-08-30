@@ -267,6 +267,7 @@ func scanPost(row Scanner) (*Post, error) {
 
 	post.User = user
 	post.Image = utils.CreateImagePath(post.Image)
+	user.Avatar = utils.CreateImagePath(user.Avatar)
 
 	return post, nil
 }
