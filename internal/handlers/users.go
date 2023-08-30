@@ -134,7 +134,7 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 
 	newAuthData := middleware.NewUserTokenData(
 		authUser.ID,
-		avatarID,
+		utils.CreateImagePath(avatarID),
 		authUser.Username,
 		authUser.Email,
 	)
