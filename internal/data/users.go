@@ -27,6 +27,8 @@ type UserWithPosts struct {
 
 const baseUserQuery = `
 	SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
+	COUNT(f.id) AS followers_count,
+	COUNT(f2.id) AS following_count,
 	EXISTS (
 		SELECT 1
 		FROM follows AS f
@@ -34,6 +36,8 @@ const baseUserQuery = `
 		AND f.follower_id = $1
 	) AS followed
 	FROM users
+	LEFT JOIN follows AS f ON f.followee_id = users.id
+	LEFT JOIN follows AS f2 ON f2.follower_id = users.id
 `
 
 func (d *Data) CreateUser(avatar, username, email, password string) (int, error) {
@@ -123,8 +127,6 @@ func (d *Data) GetUserWithPostsByUsername(authUserID int, username string) (*Use
 	}()
 
 	query := baseUserQuery + `
-		LEFT JOIN follows AS f ON f.followee_id = users.id
-		LEFT JOIN follows AS f2 ON f2.follower_id = users.id
 		WHERE username = $2
 		GROUP BY users.id
 	`
