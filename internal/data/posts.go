@@ -190,6 +190,7 @@ func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, e
 		WHERE p.id = $3
 		GROUP BY p.id, u.id
 	`
+
 	row := d.DB.QueryRow(query, userID, userID, postID)
 
 	post, err := scanPost(row)

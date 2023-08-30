@@ -25,6 +25,9 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 
 	r.Post("/:id/comment", middleware.Authenticate, h.createComment)
 	r.Delete("/:id/comment", middleware.Authenticate, h.deleteComment)
+
+	r.Post("/:id/comment/like", middleware.Authenticate, h.likeComment)
+	r.Delete("/:id/comment/like", middleware.Authenticate, h.unlikeComment)
 }
 
 func (h *Handlers) likePost(c *fiber.Ctx) error {
@@ -256,4 +259,63 @@ func (h *Handlers) deletePost(c *fiber.Ctx) error {
 	utils.SetRedirect(c, fmt.Sprintf("/u/%s", post.User.Username))
 
 	return utils.SendAlert(c, 200, "Post deleted")
+}
+
+func (h *Handlers) likeComment(c *fiber.Ctx) error {
+	var (
+		cID        = c.Params("id")
+		count      = c.Query("count")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
+	likeCount, err := strconv.Atoi(count)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid count")
+	}
+
+	commentID, err := strconv.Atoi(cID)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid comment ID")
+	}
+
+	err = h.data.CreateCommentLike(authUserID, commentID)
+	if err != nil {
+		fmt.Println(err)
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	return utils.RenderPartial(c, "commentLikeButton", fiber.Map{
+		"ID":        commentID,
+		"Liked":     true,
+		"LikeCount": likeCount + 1,
+	})
+}
+
+func (h *Handlers) unlikeComment(c *fiber.Ctx) error {
+	var (
+		cID        = c.Params("id")
+		count      = c.Query("count")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
+	likeCount, err := strconv.Atoi(count)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid count")
+	}
+
+	commentID, err := strconv.Atoi(cID)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid comment ID")
+	}
+
+	err = h.data.DeleteCommentLike(authUserID, commentID)
+	if err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	return utils.RenderPartial(c, "commentLikeButton", fiber.Map{
+		"ID":        commentID,
+		"Liked":     false,
+		"LikeCount": likeCount - 1,
+	})
 }

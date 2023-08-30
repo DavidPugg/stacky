@@ -10,13 +10,9 @@
 
   <div>{{ .Body }}</div>
 
-  {{ if .IsAuthor }}
+  <!-- 
     <svg
-      {{ if
-        .IsAuthor
-      }}
-        hx-delete="/posts/{{ .ID }}/comment"
-      {{ end }}
+      hx-delete="/posts/{{ .ID }}/comment"
       hx-swap="delete"
       hx-target="#comment-{{ .ID }}"
       class="w-5 h-5 self-end stroke-neutral hover:stroke-error transition-all place-self-end"
@@ -30,6 +26,8 @@
         stroke-linecap="round"
         stroke-linejoin="round"
       />
-    </svg>
+    </svg> -->
+  {{ if .IsAuthor }}
+    {{ template "partials/commentLikeButton" . }}
   {{ end }}
 </div>

@@ -50,7 +50,7 @@ func saveMediaLocally(img image.Image, ext string) (string, error) {
 }
 
 func deleteMediaLocally(id string) error {
-	err := os.Remove(fmt.Sprintf("uploads/%s", id))
+	err := os.Remove(id[1:])
 	if err != nil {
 		fmt.Println(err)
 		return fmt.Errorf("Error deleting image")
