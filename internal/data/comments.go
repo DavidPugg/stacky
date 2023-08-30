@@ -20,13 +20,22 @@ type Comment struct {
 func (d *Data) GetCommentByID(authUserID, commentID int) (*Comment, error) {
 	query := `
 		SELECT c.id, c.post_id, c.body, c.created_at,
-		u.id, u.avatar, u.username, u.email, u.created_at
+		u.id, u.avatar, u.username, u.email, u.created_at,
+		COUNT(cl.id) AS like_count,
+		EXISTS (
+			SELECT 1
+			FROM comment_likes AS cl2
+			WHERE cl2.comment_id = c.id
+			AND cl2.user_id = $1
+		) AS liked
 		FROM comments AS c
 		LEFT JOIN users AS u ON u.id = c.user_id
-		WHERE c.id = $1
+		LEFT JOIN comment_likes AS cl ON cl.comment_id = c.id
+		WHERE c.id = $2
+		GROUP BY c.id, u.id
 	`
 
-	row := d.DB.QueryRow(query, commentID)
+	row := d.DB.QueryRow(query, commentID, authUserID)
 
 	comment, err := scanComment(row, authUserID)
 	if err != nil {

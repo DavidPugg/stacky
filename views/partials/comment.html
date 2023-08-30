@@ -2,20 +2,13 @@
   id="comment-{{ .ID }}"
   class="grid grid-cols-[1fr_max-content] text-start text-sm gap-3 p-4"
 >
-  <span class="[&_.avatar_div]:!w-7 [&>a]:gap-2">
+  <span class="[&_.avatar_div]:!w-7 [&>a]:gap-2 flex items-center gap-2">
     {{ template "partials/avatar" .User }}
-  </span>
-
-  <div class="ml-auto">{{ .CreatedAt }}</div>
-
-  <div>{{ .Body }}</div>
-
-  {{ if .IsAuthor }}
     <svg
       hx-delete="/posts/{{ .ID }}/comment"
       hx-swap="delete"
       hx-target="#comment-{{ .ID }}"
-      class="w-5 h-5 self-end stroke-neutral hover:stroke-error transition-all place-self-end"
+      class="w-5 h-5  stroke-neutral hover:stroke-error transition-all "
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -27,7 +20,11 @@
         stroke-linejoin="round"
       />
     </svg>
-  {{ else }}
-    {{ template "partials/commentLikeButton" . }}
-  {{ end }}
+  </span>
+
+  <div class="ml-auto">{{ .CreatedAt }}</div>
+
+  <div>{{ .Body }}</div>
+
+  {{ template "partials/commentLikeButton" . }}
 </div>
