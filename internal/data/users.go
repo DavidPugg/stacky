@@ -29,8 +29,8 @@ func createUserQuery(q string) string {
 	return fmt.Sprintf(
 		`
 			SELECT users.id, users.avatar, users.username, users.password, users.email, users.created_at, users.updated_at,
-			COUNT(f.id) AS followers_count,
-			COUNT(f2.id) AS following_count,
+			COUNT(DISTINCT f.id) AS followers_count,
+			COUNT(DISTINCT f2.id) AS following_count,
 			EXISTS (
 				SELECT 1
 				FROM follows AS f
