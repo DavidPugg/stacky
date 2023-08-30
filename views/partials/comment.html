@@ -1,4 +1,5 @@
 <div
+  x-data="{ showModal() { this.$refs.delete_modal.showModal()} }"
   id="comment-{{ .ID }}"
   class="grid grid-cols-[1fr_max-content] text-start text-sm gap-3 p-4"
 >
@@ -6,7 +7,7 @@
     {{ template "partials/avatar" .User }}
     {{ if .IsAuthor }}
       <svg
-        onclick="comment_delete_modal.showModal()"
+        @click="showModal()"
         class="w-5 h-5  stroke-neutral hover:stroke-error transition-all "
         viewBox="0 0 24 24"
         fill="none"
@@ -20,7 +21,7 @@
         />
       </svg>
 
-      <dialog id="comment_delete_modal" class="modal">
+      <dialog x-ref="delete_modal" class="modal">
         <form method="dialog" class="modal-box text-center">
           <h3 class="font-bold text-xl">Delete Comment</h3>
           <p class="pt-4 pb-6 text-base">

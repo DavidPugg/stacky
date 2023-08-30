@@ -95,3 +95,15 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.htmx-disappear {
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 50ms ease-out;
+}
+.htmx-request .htmx-disappear {
+  opacity: 0;
+}
+.htmx-request.htmx-disappear {
+  opacity: 0;
+}
