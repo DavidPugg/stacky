@@ -42,8 +42,8 @@ func CropImage(img *multipart.FileHeader, cropData CropData) (image.Image, error
 func CreateImagePath(img string) string {
 	var up string
 
-	if img == "" {
-		return ""
+	if img == "" || img[:4] == "http" {
+		return img
 	}
 
 	if viper.GetString("S3_BUCKET") != "" {
