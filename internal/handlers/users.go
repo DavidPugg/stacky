@@ -144,7 +144,7 @@ func (h *Handlers) updateUser(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Error getting session")
 	}
 
-	session.Set("avatar", avatarID)
+	session.Set("avatar", newAuthData.Avatar)
 
 	if err := session.Save(); err != nil {
 		return utils.SendAlert(c, 500, "Error saving session")
