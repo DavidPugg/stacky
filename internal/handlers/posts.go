@@ -24,7 +24,10 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 	r.Delete("/:id/like", middleware.Authenticate, h.unlikePost)
 
 	r.Post("/:id/comment", middleware.Authenticate, h.createComment)
-	r.Delete("/:id/comment", middleware.Authenticate, h.deleteComment)
+	r.Delete("/:id/comment/:commentID", middleware.Authenticate, h.deleteComment)
+
+	r.Get("/:id/comment/:commentID/replies", h.getCommentReplies)
+	r.Post("/:id/comment/:commentID/replies", h.createReply)
 
 	r.Post("/:id/comment/like", middleware.Authenticate, h.likeComment)
 	r.Delete("/:id/comment/like", middleware.Authenticate, h.unlikeComment)
@@ -105,7 +108,7 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	commentID, err := h.data.CreateComment(user.ID, postID, body)
+	commentID, err := h.data.CreateComment(user.ID, postID, 0, body)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
@@ -132,7 +135,7 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 
 func (h *Handlers) deleteComment(c *fiber.Ctx) error {
 	var (
-		pID        = c.Params("id")
+		pID        = c.Params("commentID")
 		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
@@ -319,4 +322,66 @@ func (h *Handlers) unlikeComment(c *fiber.Ctx) error {
 		"Liked":     false,
 		"LikeCount": likeCount - 1,
 	})
+}
+
+func (h *Handlers) getCommentReplies(c *fiber.Ctx) error {
+	var (
+		cID        = c.Params("commentID")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
+	commentID, err := strconv.Atoi(cID)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid comment ID")
+	}
+
+	comments, err := h.data.GetCommentReplies(authUserID, commentID)
+	if err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	return utils.RenderPartial(c, "replies", comments)
+}
+
+func (h *Handlers) createReply(c *fiber.Ctx) error {
+	var (
+		pID  = c.Params("id")
+		cID  = c.Params("commentID")
+		body = c.FormValue("comment")
+		user = c.Locals("AuthUser").(*middleware.UserTokenData)
+	)
+
+	if len(body) == 0 {
+		return utils.SendAlert(c, 400, "Invalid comment")
+	}
+
+	postID, err := strconv.Atoi(pID)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid post ID")
+	}
+
+	commentID, err := strconv.Atoi(cID)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid comment ID")
+	}
+
+	replyID, err := h.data.CreateComment(user.ID, postID, commentID, body)
+	if err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	reply := data.Comment{
+		ID: int(replyID),
+		User: &data.User{
+			ID:       user.ID,
+			Username: user.Username,
+			Avatar:   user.Avatar,
+			Email:    user.Email,
+		},
+		Body:      body,
+		CreatedAt: "Now",
+		IsAuthor:  true,
+	}
+
+	return utils.RenderPartial(c, "comment", reply)
 }

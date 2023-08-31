@@ -5,7 +5,7 @@
     hx-post="/posts/{{ .ID }}/comment/like?count={{ .LikeCount }}"
   {{ end }}
   hx-swap="outerHTML"
-  class="flex items-center gap-2 [&_svg]:!w-4 [&_svg]:!h-4"
+  class="flex items-center gap-1 [&_svg]:!w-4 [&_svg]:!h-4"
 >
   <p>{{ .LikeCount }}</p>
   {{ template "partials/heartSVG" .Liked }}

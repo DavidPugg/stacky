@@ -26,7 +26,7 @@ seed:
 	go run cmd/seed/main.go
 
 migrate:
-	atlas schema apply -u "${DB_DRIVER}://${DB_URL}" --to file://schema.hcl
+	atlas schema apply -u "${DB_DRIVER}://${DB_URL}" --to file://schema.sql --dev-url "docker://postgres/15"
 
 db:
 	docker run --name some-postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres

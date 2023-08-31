@@ -1,7 +1,7 @@
 <div
   x-data="{ showModal() { this.$refs.delete_modal.showModal()} }"
   id="comment-{{ .ID }}"
-  class="grid grid-cols-[1fr_max-content] text-start text-sm gap-3 p-4"
+  class="comment grid grid-cols-[1fr_max-content] text-start text-sm gap-3 p-4"
 >
   <span class="[&_.avatar_div]:!w-7 [&>a]:gap-2 flex items-center gap-2">
     {{ template "partials/avatar" .User }}
@@ -31,7 +31,7 @@
             <button class="btn">Close</button>
             <button
               class="btn btn-error"
-              hx-delete="/posts/{{ .ID }}/comment"
+              hx-delete="/posts/{{ .PostID }}/comment/{{ .ID }}"
               hx-swap="delete"
               hx-target="#comment-{{ .ID }}"
             >
@@ -48,4 +48,20 @@
   <div>{{ .Body }}</div>
 
   {{ template "partials/commentLikeButton" . }}
+
+  {{ if .HasReplies }}
+    <div
+      id="comment-replies-{{ .ID }}"
+      class="[&_.comment]:border-l-2 col-span-2 [&_.comment]:!pr-0"
+    >
+      <button
+        hx-get="/posts/{{ .PostID }}/comment/{{ .ID }}/replies"
+        hx-swap="innerHTML"
+        hx-target="#comment-replies-{{ .ID }}"
+        class="w-full text-center"
+      >
+        Show replies
+      </button>
+    </div>
+  {{ end }}
 </div>
