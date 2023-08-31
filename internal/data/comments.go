@@ -42,6 +42,7 @@ func createCommentQuery(q string) string {
 			LEFT JOIN comment_likes AS cl ON cl.comment_id = c.id
 			%s
 			GROUP BY c.id, u.id
+			ORDER BY c.created_at DESC
 	`,
 		q,
 	)

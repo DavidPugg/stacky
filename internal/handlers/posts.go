@@ -23,14 +23,13 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 	r.Post("/:id/like", middleware.Authenticate, h.likePost)
 	r.Delete("/:id/like", middleware.Authenticate, h.unlikePost)
 
-	r.Post("/:id/comment", middleware.Authenticate, h.createComment)
+	r.Post("/:id/comment/:commentID", middleware.Authenticate, h.createComment)
 	r.Delete("/:id/comment/:commentID", middleware.Authenticate, h.deleteComment)
 
 	r.Get("/:id/comment/:commentID/replies", h.getCommentReplies)
-	r.Post("/:id/comment/:commentID/replies", h.createReply)
 
-	r.Post("/:id/comment/like", middleware.Authenticate, h.likeComment)
-	r.Delete("/:id/comment/like", middleware.Authenticate, h.unlikeComment)
+	r.Post("/:id/comment/:commentID/like", middleware.Authenticate, h.likeComment)
+	r.Delete("/:id/comment/:commentID/like", middleware.Authenticate, h.unlikeComment)
 }
 
 func (h *Handlers) likePost(c *fiber.Ctx) error {
@@ -94,6 +93,7 @@ func (h *Handlers) unlikePost(c *fiber.Ctx) error {
 
 func (h *Handlers) createComment(c *fiber.Ctx) error {
 	var (
+		cID  = c.Params("commentID")
 		pID  = c.Params("id")
 		body = c.FormValue("comment")
 		user = c.Locals("AuthUser").(*middleware.UserTokenData)
@@ -103,18 +103,23 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid comment")
 	}
 
+	commentID, err := strconv.Atoi(cID)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid comment ID")
+	}
+
 	postID, err := strconv.Atoi(pID)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid post ID")
 	}
 
-	commentID, err := h.data.CreateComment(user.ID, postID, 0, body)
+	id, err := h.data.CreateComment(user.ID, postID, commentID, body)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
 	comment := data.Comment{
-		ID: int(commentID),
+		ID: int(id),
 		User: &data.User{
 			ID:       user.ID,
 			Username: user.Username,
@@ -267,7 +272,7 @@ func (h *Handlers) deletePost(c *fiber.Ctx) error {
 
 func (h *Handlers) likeComment(c *fiber.Ctx) error {
 	var (
-		cID        = c.Params("id")
+		cID        = c.Params("commentID")
 		count      = c.Query("count")
 		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
@@ -290,6 +295,7 @@ func (h *Handlers) likeComment(c *fiber.Ctx) error {
 
 	return utils.RenderPartial(c, "commentLikeButton", fiber.Map{
 		"ID":        commentID,
+		"PostID":    c.Params("id"),
 		"Liked":     true,
 		"LikeCount": likeCount + 1,
 	})
@@ -297,7 +303,7 @@ func (h *Handlers) likeComment(c *fiber.Ctx) error {
 
 func (h *Handlers) unlikeComment(c *fiber.Ctx) error {
 	var (
-		cID        = c.Params("id")
+		cID        = c.Params("commentID")
 		count      = c.Query("count")
 		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
@@ -319,6 +325,7 @@ func (h *Handlers) unlikeComment(c *fiber.Ctx) error {
 
 	return utils.RenderPartial(c, "commentLikeButton", fiber.Map{
 		"ID":        commentID,
+		"PostID":    c.Params("id"),
 		"Liked":     false,
 		"LikeCount": likeCount - 1,
 	})
@@ -341,47 +348,4 @@ func (h *Handlers) getCommentReplies(c *fiber.Ctx) error {
 	}
 
 	return utils.RenderPartial(c, "replies", comments)
-}
-
-func (h *Handlers) createReply(c *fiber.Ctx) error {
-	var (
-		pID  = c.Params("id")
-		cID  = c.Params("commentID")
-		body = c.FormValue("comment")
-		user = c.Locals("AuthUser").(*middleware.UserTokenData)
-	)
-
-	if len(body) == 0 {
-		return utils.SendAlert(c, 400, "Invalid comment")
-	}
-
-	postID, err := strconv.Atoi(pID)
-	if err != nil {
-		return utils.SendAlert(c, 400, "Invalid post ID")
-	}
-
-	commentID, err := strconv.Atoi(cID)
-	if err != nil {
-		return utils.SendAlert(c, 400, "Invalid comment ID")
-	}
-
-	replyID, err := h.data.CreateComment(user.ID, postID, commentID, body)
-	if err != nil {
-		return utils.SendAlert(c, 500, "Internal Server Error")
-	}
-
-	reply := data.Comment{
-		ID: int(replyID),
-		User: &data.User{
-			ID:       user.ID,
-			Username: user.Username,
-			Avatar:   user.Avatar,
-			Email:    user.Email,
-		},
-		Body:      body,
-		CreatedAt: "Now",
-		IsAuthor:  true,
-	}
-
-	return utils.RenderPartial(c, "comment", reply)
 }

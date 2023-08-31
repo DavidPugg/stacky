@@ -1,8 +1,8 @@
 <button
   {{ if .Liked }}
-    hx-delete="/posts/{{ .ID }}/comment/like?count={{ .LikeCount }}"
+    hx-delete="/posts/{{ .PostID }}/comment/{{ .ID }}/like?count={{ .LikeCount }}"
   {{ else }}
-    hx-post="/posts/{{ .ID }}/comment/like?count={{ .LikeCount }}"
+    hx-post="/posts/{{ .PostID }}/comment/{{ .ID }}/like?count={{ .LikeCount }}"
   {{ end }}
   hx-swap="outerHTML"
   class="flex items-center gap-1 [&_svg]:!w-4 [&_svg]:!h-4"

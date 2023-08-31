@@ -56,7 +56,7 @@
       <form
         hx-reset-on-success
         class="relative flex items-center border-t"
-        hx-post="/posts/{{ .Post.ID }}/comment"
+        hx-post="/posts/{{ .Post.ID }}/comment/0"
         hx-swap="afterbegin"
         hx-target="#comment-list"
       >
@@ -72,7 +72,7 @@
           class="absolute top-4 right-4 htmx-disappear stroke-base-200 peer-focus-visible:stroke-base-300"
         >
           <svg
-            class="w-8 h-8 fill-neutral transition-all               hover:fill-primary
+            class="w-8 h-8 fill-neutral transition-all hover:fill-primary
             {{ if not .AuthUser.Authenticated }}
               cursor-not-allowed hover:fill-neutral
             {{ end }}"
