@@ -51,7 +51,7 @@
   <div>{{ .Body }}</div>
 
   <div class="flex gap-4">
-    {{ if not .CommentID }}
+    {{ if eq .CommentID 0 }}
       <button @click="showReplyInput = !showReplyInput">Reply</button>
     {{ end }}
 

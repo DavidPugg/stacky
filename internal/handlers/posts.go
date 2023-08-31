@@ -119,7 +119,9 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 	}
 
 	comment := data.Comment{
-		ID: int(id),
+		ID:        int(id),
+		PostID:    postID,
+		CommentID: commentID,
 		User: &data.User{
 			ID:       user.ID,
 			Username: user.Username,
