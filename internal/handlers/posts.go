@@ -251,7 +251,8 @@ func (h *Handlers) deletePost(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	err = h.data.DeleteMedia(post.Image)
+	imageArray := strings.Split(post.Image, "/")
+	err = h.data.DeleteMedia(imageArray[len(imageArray)-1])
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
