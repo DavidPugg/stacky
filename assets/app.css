@@ -69,11 +69,11 @@
 }
 
 .page {
-  @apply pt-32 pb-20 min-h-screen mx-auto max-w-[800px];
+  @apply pt-24 md:pt-32 pb-20 min-h-screen mx-auto max-w-[800px];
 }
 
 .small-page {
-  @apply pt-32 pb-20 min-h-screen flex flex-col gap-3 mx-auto px-4 !max-w-[600px];
+  @apply pt-24 md:pt-32 pb-20 min-h-screen flex flex-col gap-3 mx-auto px-4 !max-w-[600px];
 }
 
 .page-heading {
