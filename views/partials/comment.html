@@ -4,14 +4,14 @@
     showModal() { this.$refs.delete_modal.showModal()}
   }"
   id="comment-{{ .ID }}"
-  class="comment grid grid-cols-[1fr_max-content] text-start text-sm gap-3 p-4"
+  class="comment grid grid-cols-[1fr_max-content] text-start text-sm gap-3 p-4 !border-primary"
 >
   <span class="[&_.avatar_div]:!w-7 [&>a]:gap-2 flex items-center gap-2">
     {{ template "partials/avatar" .User }}
     {{ if .IsAuthor }}
       <svg
         @click="showModal()"
-        class="w-5 h-5  stroke-neutral hover:stroke-error transition-all "
+        class="w-5 h-5  stroke-neutral hover:stroke-error transition-all cursor-pointer"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

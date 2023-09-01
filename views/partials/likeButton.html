@@ -8,21 +8,14 @@
     hx-post="/posts/{{ .ID }}/like?count={{ .LikeCount }}"
   {{ end }}
 >
-  {{ template "partials/heartSVG" .Liked }}
-  <span class="text-sm"
-    >{{ if .Liked }}
-      Liked post
-    {{ else }}
-      Like post
-    {{ end }}</span
-  >
   <div
-    class="badge {{ if .Liked }}
+    class="badge  {{ if .Liked }}
       badge-primary
     {{ else }}
-      badge-neutral
+      !bg-base-500
     {{ end }}"
   >
     {{ .LikeCount }}
   </div>
+  {{ template "partials/heartSVG" .Liked }}
 </button>

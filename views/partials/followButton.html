@@ -6,7 +6,9 @@
   {{ else }}
     hx-post="/users/{{ .ID }}/follow"
   {{ end }}
-  class="btn font-semibold !border-primary text-xs min-h-0 h-9"
+  class="btn font-semibold !border-primary text-xs min-h-0 h-9   {{ if .Followed }}
+    !bg-primary !text-base-100
+  {{ end }}"
 >
   {{ if .Followed }}
     Following

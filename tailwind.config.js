@@ -1,15 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 
 const colors = {
-  primary: "#EA9010",
+  primary: "#2698BB",
   secondary: "#90BE6D",
   accent: "#f471b5",
-  neutral: "#FDFDFD",
-  "base-100": "#17181C",
-  "base-200": "#1E1F24",
-  "base-300": "#27292F",
-  "base-400": "#33353D",
-  "base-500": "#454853",
+  neutral: "#111111",
+  "base-100": "#ECECEC",
+  "base-200": "#DCDCDC",
+  "base-300": "#BDBDBD",
+  "base-400": "#ACACAC",
+  "base-500": "#9D9D9D",
   info: "#0ca6e9",
   success: "#2bd4bd",
   warning: "#f4c152",
@@ -38,6 +38,9 @@ module.exports = {
       },
       colors: {
         ...colors,
+      },
+      transitionProperty: {
+        bg: "background-color",
       },
       animation: {
         "show-alert": "show 4s ease-in-out",
