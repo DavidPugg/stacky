@@ -1,11 +1,13 @@
 <div
   x-data='{
+      prevScrollPos: window.pageYOffset,
+
       handleLinkClick(event) {
         if(event.target == document.body || !event.detail.boosted) return
 
         const target = event.target;
-        const top = this.$refs.topnav;
-        const bottom = this.$refs.bottomnav;
+        const top = this.$refs.top_nav_links;
+        const bottom = this.$refs.bottom_nav_links;
         
         if (target.classList.contains("disabled-link")) {
           event.preventDefault();
@@ -20,86 +22,106 @@
         }
 
         target.classList.add("tab-active");
+      },
+
+      handleScroll() {
+        const nav = this.$refs.top_nav;
+
+        if (!nav) {
+          return;
+        }
+
+        if (window.scrollY > this.prevScrollPos) {
+          nav.classList.add("-translate-y-full");
+        } else {
+          nav.classList.remove("-translate-y-full");
+        }
+
+        this.prevScrollPos = window.scrollY;
       }
   }'
+  @scroll.window="handleScroll()"
   @htmx:before-request.window="handleLinkClick($event)"
   id="navbar"
   hx-swap-oob="true"
-  class="navbar justify-center fixed top-0 bg-base-200  border-b z-10 shadow-lg"
 >
   <div
-    x-ref="bottomnav"
+    x-ref="top_nav"
+    class="navbar justify-center fixed top-0 bg-base-200/80  backdrop-blur-lg  border-b z-10 shadow-lg xs:translate-y-0 transition-all duration-500"
+  >
+    <div class="flex w-full justify-between container gap-3 px-3 lg:px-0">
+      <a class="link-primary font-bold text-2xl" href="/" hx-boost="true"
+        >Stacky</a
+      >
+
+      <div
+        x-ref="top_nav_links"
+        id="navigation-links"
+        class="tabs tabs-boxed hidden hover:[&_a]:bg-base-400  md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
+      >
+        {{ template "nav-links" . }}
+      </div>
+
+      <div class="flex gap-3">
+        {{ if .AuthUser.Authenticated }}
+          <div class="dropdown dropdown-end">
+            <label
+              tabindex="0"
+              class="btn btn-ghost btn-primary btn-circle avatar"
+            >
+              {{ if .AuthUser.Avatar }}
+                <div class="w-10 rounded-full">
+                  <img src="{{ .AuthUser.Avatar }}" />
+                </div>
+              {{ else }}
+                <div class="avatar placeholder">
+                  <div
+                    class="bg-neutral-focus text-neutral-content rounded-full w-9"
+                  >
+                    <span class="text-md"
+                      >{{ slice .AuthUser.Username 0 1 }}</span
+                    >
+                  </div>
+                </div>
+              {{ end }}
+            </label>
+            <ul
+              @click="document.activeElement.blur()"
+              tabindex="0"
+              class="mt-4 z-[1] p-2 shadow menu menu-md dropdown-content gap-1 [&>li>a]:px-4 rounded-box w-max"
+            >
+              <li>
+                <a
+                  class="link-neutral cursor-pointer"
+                  href="/u/{{ .AuthUser.Username }}"
+                  hx-boost="true"
+                  >Profile</a
+                >
+              </li>
+              <li>
+                <a
+                  class="link-neutral cursor-pointer"
+                  hx-post="/auth/logout"
+                  hx-swap="none"
+                  >Logout</a
+                >
+              </li>
+            </ul>
+          </div>
+        {{ else }}
+          <a class="btn btn-primary btn-ghost" href="/login" hx-boost="true"
+            >Sign in</a
+          >
+        {{ end }}
+      </div>
+    </div>
+  </div>
+  <div
+    x-ref="bottom_nav_links"
     id="bottom-navigation-links"
-    class="fixed  bottom-0 w-full z-10 flex md:hidden bg-base-200 [&_a]:flex-grow [&_a]:text-center border-t [&_a]:py-3 [&_a]:font-semibold"
+    class="fixed bottom-0 w-full z-10 flex md:hidden bg-base-200/80  backdrop-blur-lg [&_a]:flex-grow  [&_.tab-active]:!border-none [&_a]:text-center border-t [&_a]:py-[10px] [&_a]:font-semibold"
   >
     {{ template "nav-links" . }}
-  </div>
-
-  <div class="flex w-full justify-between container gap-3 px-3 lg:px-0">
-    <a class="link-primary font-bold text-2xl" href="/" hx-boost="true"
-      >Stacky</a
-    >
-
-    <div
-      x-ref="topnav"
-      id="navigation-links"
-      class="tabs tabs-boxed hidden hover:[&_a]:bg-base-400  md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
-    >
-      {{ template "nav-links" . }}
-    </div>
-
-    <div class="flex gap-3">
-      {{ if .AuthUser.Authenticated }}
-        <div class="dropdown dropdown-end">
-          <label
-            tabindex="0"
-            class="btn btn-ghost btn-primary btn-circle avatar"
-          >
-            {{ if .AuthUser.Avatar }}
-              <div class="w-10 rounded-full">
-                <img src="{{ .AuthUser.Avatar }}" />
-              </div>
-            {{ else }}
-              <div class="avatar placeholder">
-                <div
-                  class="bg-neutral-focus text-neutral-content rounded-full w-9"
-                >
-                  <span class="text-md"
-                    >{{ slice .AuthUser.Username 0 1 }}</span
-                  >
-                </div>
-              </div>
-            {{ end }}
-          </label>
-          <ul
-            @click="document.activeElement.blur()"
-            tabindex="0"
-            class="mt-4 z-[1] p-2 shadow menu menu-md dropdown-content gap-1 [&>li>a]:px-4 rounded-box w-max"
-          >
-            <li>
-              <a
-                class="link-neutral cursor-pointer"
-                href="/u/{{ .AuthUser.Username }}"
-                hx-boost="true"
-                >Profile</a
-              >
-            </li>
-            <li>
-              <a
-                class="link-neutral cursor-pointer"
-                hx-post="/auth/logout"
-                hx-swap="none"
-                >Logout</a
-              >
-            </li>
-          </ul>
-        </div>
-      {{ else }}
-        <a class="btn btn-primary btn-ghost" href="/login" hx-boost="true"
-          >Sign in</a
-        >
-      {{ end }}
-    </div>
   </div>
 </div>
 
