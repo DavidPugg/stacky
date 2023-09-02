@@ -36,15 +36,6 @@ document.body.addEventListener("addNoComments", function (event) {
 });
 
 document.body.addEventListener("updateFollowCount", function (event) {
-  //update follow button text
-  const buttons = document.querySelectorAll(
-    `#follow-button-${event.detail.followeeID}`,
-  );
-  buttons?.forEach((button) => {
-    button.innerHTML = event.detail.buttonText;
-  });
-
-  //update follow count
   const count = document.getElementById("followers-count");
   if (!count) return;
   count.innerHTML =
