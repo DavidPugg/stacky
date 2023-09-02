@@ -34,12 +34,3 @@ document.body.addEventListener("addNoComments", function (event) {
     commentsList.classList.add("hidden");
   }
 });
-
-document.body.addEventListener("updateFollowCount", function (event) {
-  const count = document.getElementById("followers-count");
-  if (!count) return;
-  count.innerHTML =
-    event.detail.method === "follow"
-      ? +count.innerHTML + 1
-      : +count.innerHTML - 1;
-});

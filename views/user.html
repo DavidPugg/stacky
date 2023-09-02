@@ -1,4 +1,13 @@
-<div class="page">
+<div
+  class="page"
+  x-data='{
+    updateFollowersCount() {
+      const ref = this.$refs.followers_count
+      ref.innerHTML = event.detail.method === "follow" ?  +ref.innerHTML + 1 : +ref.innerHTML - 1
+    }
+  }'
+  @update-follow-count.window="updateFollowersCount()"
+>
   <div
     class="relative flex flex-wrap flex-col sm:flex-row items-center justify-between w-full gap-5 mb-10 border-b pb-10"
   >
@@ -56,7 +65,7 @@
       </div>
 
       <div class="stat place-items-center">
-        <div id="followers-count" class="stat-value">
+        <div x-ref="followers_count" class="stat-value">
           {{ .User.FollowersCount }}
         </div>
         <div class="stat-title">Followers</div>
