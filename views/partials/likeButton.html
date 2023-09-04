@@ -9,10 +9,10 @@
   {{ end }}
 >
   <div
-    class="badge  {{ if .Liked }}
+    class="badge {{ if .Liked }}
       badge-primary
     {{ else }}
-      !bg-base-500
+      !bg-base-400
     {{ end }}"
   >
     {{ .LikeCount }}

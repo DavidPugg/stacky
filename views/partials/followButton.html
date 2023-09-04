@@ -13,8 +13,7 @@
     updateElement(event) {
         if ({{ .ID }} === event.detail.followeeID) {
           this.$refs.button.innerHTML = event.detail.buttonText;
-          this.$refs.button.classList.toggle("!bg-primary");
-          this.$refs.button.classList.toggle("!text-base-100");
+          this.$refs.button.classList.toggle("btn-primary");
           if (this.method === "POST") {
             this.method = "DELETE";
            } else {
@@ -26,8 +25,10 @@
   x-ref="button"
   @update-follow-count.window="updateElement($event)"
   @click="follow()"
-  class="btn font-semibold !border-primary text-xs min-h-0 h-9   {{ if .Followed }}
-    !bg-primary !text-base-100
+  class="btn font-semibold !border-primary text-xs min-h-0 h-9 {{ if .Followed }}
+    btn-primary
+  {{ else }}
+    !text-neutral
   {{ end }}"
 >
   {{ if .Followed }}

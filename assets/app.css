@@ -6,8 +6,8 @@
   @apply text-neutral;
 }
 
-.btn {
-  @apply border text-neutral;
+.btn-primary {
+  @apply bg-primary text-white;
 }
 
 .tabs-boxed {
@@ -19,7 +19,7 @@
 }
 
 .tab-active {
-  @apply !text-neutral border !bg-primary !border-primary;
+  @apply !text-base-100 border !bg-primary !border-primary;
 }
 
 .menu {
