@@ -1,4 +1,8 @@
 <div
+  {{ if and .IsLast (not .LastPage) }}
+    hx-get="/posts/{{ .User.Username }}?page={{ .Page }}" hx-trigger="revealed"
+    hx-swap="afterend"
+  {{ end }}
   class="card card-bordered w-full bg-base-200 hover:shadow-2xl transition-all !outline-none overflow-hidden "
 >
   <img

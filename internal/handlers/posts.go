@@ -17,6 +17,8 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 	r := c.Group("/posts")
 
 	r.Get("/", h.getPosts)
+	r.Get("/:username", h.getUserPosts)
+
 	r.Post("/create", middleware.Authenticate, h.createPost)
 	r.Delete("/:id", middleware.Authenticate, h.deletePost)
 
@@ -211,21 +213,21 @@ func (h *Handlers) createPost(c *fiber.Ctx) error {
 
 func (h *Handlers) getPosts(c *fiber.Ctx) error {
 	var (
-		location = strings.Split(c.Get("Referer"), "/")[3]
-		user     = c.Locals("AuthUser").(*middleware.UserTokenData)
+		p          = c.Query("page")
+		location   = strings.Split(c.Get("Referer"), "/")[3]
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
-	page, err := strconv.Atoi(c.Query("page"))
+	page, err := strconv.Atoi(p)
 	if err != nil {
 		page = 1
 	}
 
-	var posts []*data.LastPost
-
-	if location == "discover" {
-		posts, err = h.data.GetAllPosts(user.ID, page)
-	} else if location == "" {
-		posts, err = h.data.GetFollowedPosts(user.ID, page)
+	posts := []*data.LastPost{}
+	if location == "" {
+		posts, err = h.data.GetFollowedPosts(authUserID, page)
+	} else {
+		posts, err = h.data.GetAllPosts(authUserID, page)
 	}
 
 	if err != nil {
@@ -234,6 +236,28 @@ func (h *Handlers) getPosts(c *fiber.Ctx) error {
 	}
 
 	return utils.RenderPartial(c, "postList", posts)
+}
+
+func (h *Handlers) getUserPosts(c *fiber.Ctx) error {
+	var (
+		p          = c.Query("page")
+		username   = c.Params("username")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
+	page, err := strconv.Atoi(p)
+	if err != nil {
+		page = 1
+	}
+
+	posts, err := h.data.GetPostsOfUserByUsername(authUserID, username, page)
+
+	if err != nil {
+		utils.SendAlert(c, 500, "Internal Server Error")
+		return err
+	}
+
+	return utils.RenderPartial(c, "smallPostList", posts)
 }
 
 func (h *Handlers) deletePost(c *fiber.Ctx) error {

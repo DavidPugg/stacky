@@ -31,6 +31,7 @@ type PostWithComments struct {
 }
 
 const pageLimit = 5
+const smallPostPageLimit = 10
 
 const basePostQuery = `
 	SELECT p.id, p.image, p.description, p.created_at,
@@ -72,16 +73,17 @@ func (d *Data) GetPostByID(userID, postID int) (*Post, error) {
 	return post, nil
 }
 
-func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, error) {
+func (d *Data) GetPostsOfUserByUsername(userID int, username string, page int) ([]*LastPost, error) {
 	var posts []*Post
 
 	query := basePostQuery + `
 		WHERE u.username = $3
 		GROUP BY p.id, u.id
 		ORDER BY p.created_at DESC
+		LIMIT $4 OFFSET $5
 	`
 
-	rows, err := d.DB.Query(query, userID, userID, username)
+	rows, err := d.DB.Query(query, userID, userID, username, smallPostPageLimit, (page-1)*smallPostPageLimit)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -97,7 +99,9 @@ func (d *Data) GetPostsOfUserByUsername(userID int, username string) ([]*Post, e
 		posts = append(posts, post)
 	}
 
-	return posts, nil
+	lastPosts := createLastPosts(posts, page, smallPostPageLimit)
+
+	return lastPosts, nil
 }
 
 func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
@@ -127,10 +131,7 @@ func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
 		posts = append(posts, post)
 	}
 
-	lastPosts := []*LastPost{}
-	for i, p := range posts {
-		lastPosts = append(lastPosts, createLastPost(p, i == len(posts)-1, page+1, p.TotalCount <= pageLimit*page))
-	}
+	lastPosts := createLastPosts(posts, page, pageLimit)
 
 	return lastPosts, nil
 }
@@ -161,10 +162,7 @@ func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
 		posts = append(posts, post)
 	}
 
-	lastPosts := []*LastPost{}
-	for i, p := range posts {
-		lastPosts = append(lastPosts, createLastPost(p, i == len(posts)-1, page+1, p.TotalCount <= pageLimit*page))
-	}
+	lastPosts := createLastPosts(posts, page, pageLimit)
 
 	return lastPosts, nil
 }
@@ -278,6 +276,15 @@ func createPostWithComments(post *Post, comments []*Comment) *PostWithComments {
 		Post:     *post,
 		Comments: comments,
 	}
+}
+
+func createLastPosts(posts []*Post, page, limit int) []*LastPost {
+	lastPosts := []*LastPost{}
+	for i, p := range posts {
+		lastPosts = append(lastPosts, createLastPost(p, i == len(posts)-1, page+1, p.TotalCount <= limit*page))
+	}
+
+	return lastPosts
 }
 
 func createLastPost(post *Post, isLast bool, page int, lastPage bool) *LastPost {

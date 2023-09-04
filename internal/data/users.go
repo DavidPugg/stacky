@@ -22,7 +22,7 @@ type User struct {
 
 type UserWithPosts struct {
 	User
-	Posts []*Post `json:"posts"`
+	Posts []*LastPost `json:"posts"`
 }
 
 func createUserQuery(q string) string {
@@ -115,15 +115,15 @@ func (d *Data) GetUserByUsername(authUserID int, username string) (*User, error)
 	return user, nil
 }
 
-func (d *Data) GetUserWithPostsByUsername(authUserID int, username string) (*UserWithPosts, error) {
+func (d *Data) GetUserWithPostsByUsername(authUserID int, username string, page int) (*UserWithPosts, error) {
 	var (
 		user      = &User{}
-		postsChan = make(chan []*Post)
+		postsChan = make(chan []*LastPost)
 		errorChan = make(chan error)
 	)
 
 	go func() {
-		posts, err := d.GetPostsOfUserByUsername(authUserID, username)
+		posts, err := d.GetPostsOfUserByUsername(authUserID, username, page)
 		if err != nil {
 			errorChan <- err
 			return
