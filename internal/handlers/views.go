@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/davidpugg/stacky/internal/data"
 	"github.com/davidpugg/stacky/internal/middleware"
 	"github.com/davidpugg/stacky/internal/utils"
 	"github.com/gofiber/fiber/v2"
@@ -68,8 +69,10 @@ func (h *Handlers) renderRegister(c *fiber.Ctx) error {
 
 func (h *Handlers) renderPost(c *fiber.Ctx) error {
 	var (
-		pID        = c.Params("id")
-		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		pID         = c.Params("id")
+		authUserID  = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		commentChan = make(chan []*data.Comment)
+		errorChan   = make(chan error)
 	)
 
 	if pID == "" {
@@ -81,12 +84,31 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid post ID")
 	}
 
-	post, err := h.data.GetPostWithCommentsByID(authUserID, postID, 1)
+	go func() {
+		comments, err := h.data.GetPostComments(authUserID, postID, 1, commentsPageLimit)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		errorChan <- nil
+		commentChan <- comments
+	}()
+
+	post, err := h.data.GetPostByID(authUserID, postID)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
 
-	return utils.RenderPage(c, "post", fiber.Map{"Post": post, "ShowFollowButton": authUserID != post.User.ID}, &utils.PageDetails{
+	err = <-errorChan
+	if err != nil {
+		return err
+	}
+
+	comments := <-commentChan
+	rc := utils.CreateRevealeObjects(comments, 1, 15)
+
+	return utils.RenderPage(c, "post", fiber.Map{"Post": post, "Comments": rc, "ShowFollowButton": authUserID != post.User.ID}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - %d - Stacky", post.User.Username, post.ID),
 		Description: post.Description,
 	})

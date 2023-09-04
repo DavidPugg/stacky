@@ -25,11 +25,6 @@ type LastPost struct {
 	LastPage bool `json:"last_page"`
 }
 
-type PostWithComments struct {
-	Post
-	Comments []*LastComment `json:"comments"`
-}
-
 const pageLimit = 5
 const smallPostPageLimit = 10
 
@@ -167,48 +162,6 @@ func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
 	return lastPosts, nil
 }
 
-func (d *Data) GetPostWithCommentsByID(userID, postID, page int) (*PostWithComments, error) {
-	var (
-		commentChan = make(chan []*LastComment)
-		errorChan   = make(chan error)
-	)
-
-	go func() {
-		comments, err := d.GetPostComments(userID, postID, page)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
-		errorChan <- nil
-		commentChan <- comments
-	}()
-
-	query := basePostQuery + `
-		WHERE p.id = $3
-		GROUP BY p.id, u.id
-	`
-
-	row := d.DB.QueryRow(query, userID, userID, postID)
-
-	post, err := scanPost(row)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	err = <-errorChan
-	if err != nil {
-		return nil, err
-	}
-
-	comments := <-commentChan
-
-	pwc := createPostWithComments(post, comments)
-
-	return pwc, nil
-}
-
 func (d *Data) CreatePost(userID int, image, description string) error {
 	_, err := d.DB.Exec("INSERT INTO posts (user_id, image, description) VALUES ($1, $2, $3)", userID, image, description)
 	if err != nil {
@@ -269,13 +222,6 @@ func scanPost(row Scanner) (*Post, error) {
 	user.Avatar = utils.CreateImagePath(user.Avatar)
 
 	return post, nil
-}
-
-func createPostWithComments(post *Post, comments []*LastComment) *PostWithComments {
-	return &PostWithComments{
-		Post:     *post,
-		Comments: comments,
-	}
 }
 
 func createLastPosts(posts []*Post, page, limit int) []*LastPost {

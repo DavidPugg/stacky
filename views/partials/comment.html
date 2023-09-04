@@ -1,9 +1,9 @@
 <div
   {{ if and .IsLast (not .LastPage) }}
-    {{ if .CommentID }}
-      hx-get="/posts/{{ .PostID }}/comment/{{ .CommentID }}/replies?page={{ .Page }}"
+    {{ if .Data.CommentID }}
+      hx-get="/posts/{{ .Data.PostID }}/comment/{{ .Data.CommentID }}/replies?page={{ .Page }}"
     {{ else }}
-      hx-get="/posts/{{ .PostID }}/comment?page={{ .Page }}"
+      hx-get="/posts/{{ .Data.PostID }}/comment?page={{ .Page }}"
     {{ end }}
     hx-trigger="revealed" hx-swap="afterend"
   {{ end }}
@@ -11,12 +11,12 @@
     showReplyInput: false,
     showModal() { this.$refs.delete_modal.showModal()}
   }"
-  id="comment-{{ .ID }}"
+  id="comment-{{ .Data.ID }}"
   class="comment grid grid-cols-[1fr_max-content] text-start text-sm gap-3 p-4 !border-primary"
 >
   <span class="[&_.avatar_div]:!w-7 [&>a]:gap-2 flex items-center gap-2">
-    {{ template "partials/avatar" .User }}
-    {{ if .IsAuthor }}
+    {{ template "partials/avatar" .Data.User }}
+    {{ if .Data.IsAuthor }}
       <svg
         @click="showModal()"
         class="w-5 h-5  stroke-neutral hover:stroke-error transition-all cursor-pointer"
@@ -42,9 +42,9 @@
             <button class="btn">Close</button>
             <button
               class="btn btn-error"
-              hx-delete="/posts/{{ .PostID }}/comment/{{ .ID }}"
+              hx-delete="/posts/{{ .Data.PostID }}/comment/{{ .Data.ID }}"
               hx-swap="delete"
-              hx-target="#comment-{{ .ID }}"
+              hx-target="#comment-{{ .Data.ID }}"
             >
               Delete
             </button>
@@ -54,29 +54,29 @@
     {{ end }}
   </span>
 
-  <div class="ml-auto">{{ .CreatedAt }}</div>
+  <div class="ml-auto">{{ .Data.CreatedAt }}</div>
 
-  <div>{{ .Body }}</div>
+  <div>{{ .Data.Body }}</div>
 
   <div class="flex gap-4">
-    {{ if eq .CommentID 0 }}
+    {{ if eq .Data.CommentID 0 }}
       <button @click="showReplyInput = !showReplyInput">Reply</button>
     {{ end }}
 
-    {{ template "partials/commentLikeButton" . }}
+    {{ template "partials/commentLikeButton" .Data }}
   </div>
 
   <form
     x-show="showReplyInput"
     class="relative col-span-2"
     hx-reset-on-success
-    hx-post="/posts/{{ .PostID }}/comment/{{ .ID }}"
+    hx-post="/posts/{{ .Data.PostID }}/comment/{{ .Data.ID }}"
     hx-swap="afterbegin"
-    hx-target="#comment-replies-{{ .ID }}"
+    hx-target="#comment-replies-{{ .Data.ID }}"
   >
     <textarea
       type="text"
-      placeholder="Reply to {{ .User.Username }}"
+      placeholder="Reply to {{ .Data.User.Username }}"
       name="comment"
       rows="1"
       class="textarea textarea-bordered px-4 py-2 pr-14 bg-base-200  !rounded-none  w-full resize-y"
@@ -100,14 +100,14 @@
   </form>
 
   <div
-    id="comment-replies-{{ .ID }}"
+    id="comment-replies-{{ .Data.ID }}"
     class="[&_.comment]:border-l-2 col-span-2 [&_.comment]:!pr-0"
   >
-    {{ if .HasReplies }}
+    {{ if .Data.HasReplies }}
       <button
-        hx-get="/posts/{{ .PostID }}/comment/{{ .ID }}/replies"
+        hx-get="/posts/{{ .Data.PostID }}/comment/{{ .Data.ID }}/replies"
         hx-swap="innerHTML"
-        hx-target="#comment-replies-{{ .ID }}"
+        hx-target="#comment-replies-{{ .Data.ID }}"
         class="w-full text-center"
       >
         Show replies

@@ -13,6 +13,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+const commentsPageLimit = 15
+
 func (h *Handlers) registerPostRoutes(c *fiber.App) {
 	r := c.Group("/posts")
 
@@ -121,8 +123,8 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	comment := data.LastComment{
-		Comment: data.Comment{
+	comment := utils.RevealeObject[*data.Comment]{
+		Data: &data.Comment{
 			ID:        int(id),
 			PostID:    postID,
 			CommentID: commentID,
@@ -380,12 +382,13 @@ func (h *Handlers) getCommentReplies(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid comment ID")
 	}
 
-	comments, err := h.data.GetCommentReplies(authUserID, commentID, page)
+	comments, err := h.data.GetCommentReplies(authUserID, commentID, page, commentsPageLimit)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
+	rc := utils.CreateRevealeObjects(comments, page, commentsPageLimit)
 
-	return utils.RenderPartial(c, "replies", comments)
+	return utils.RenderPartial(c, "replies", rc)
 }
 
 func (h *Handlers) getComments(c *fiber.Ctx) error {
@@ -405,10 +408,11 @@ func (h *Handlers) getComments(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 400, "Invalid comment ID")
 	}
 
-	comments, err := h.data.GetPostComments(authUserID, postID, page)
+	comments, err := h.data.GetPostComments(authUserID, postID, page, commentsPageLimit)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
+	rc := utils.CreateRevealeObjects(comments, page, commentsPageLimit)
 
-	return utils.RenderPartial(c, "replies", comments)
+	return utils.RenderPartial(c, "replies", rc)
 }

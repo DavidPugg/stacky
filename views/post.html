@@ -60,17 +60,17 @@
       <di class="flex flex-col-reverse md:flex-col flex-grow">
         <div
           id="comment-list"
-          class="flex-grow [&>*:nth-child(even)]:bg-base-100 basis-full md:basis-0 md:overflow-y-auto overflow-x-hidden flex flex-col border-t {{ if .Post.Comments }}
+          class="flex-grow [&>*:nth-child(even)]:bg-base-100 basis-full md:basis-0 md:overflow-y-auto overflow-x-hidden flex flex-col border-t {{ if .Comments }}
             visible
           {{ else }}
             hidden
           {{ end }}"
         >
-          {{ range .Post.Comments }}{{ template "partials/comment" . }}{{ end }}
+          {{ range .Comments }}{{ template "partials/comment" . }}{{ end }}
         </div>
         <div
           id="no-comments"
-          class="flex justify-center items-center p-10 border-t flex-grow {{ if not .Post.Comments }}
+          class="flex justify-center items-center p-10 border-t flex-grow {{ if not .Comments }}
             visible
           {{ else }}
             hidden

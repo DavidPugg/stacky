@@ -21,14 +21,9 @@ type Comment struct {
 	TotalCount int    `json:"total_count" db:"total_count"`
 }
 
-type LastComment struct {
-	Comment
-	IsLast   bool `json:"is_last"`
-	Page     int  `json:"page"`
-	LastPage bool `json:"last_page"`
+func (c *Comment) GetTotalCount() int {
+	return c.TotalCount
 }
-
-const commentsPageLimit = 15
 
 func createCommentQuery(q string) string {
 	return fmt.Sprintf(
@@ -73,10 +68,10 @@ func (d *Data) GetCommentByID(authUserID, commentID int) (*Comment, error) {
 	return comment, nil
 }
 
-func (d *Data) GetPostComments(authUserID, postID, page int) ([]*LastComment, error) {
+func (d *Data) GetPostComments(authUserID, postID, page, limit int) ([]*Comment, error) {
 	var comments []*Comment
 
-	query := createCommentQuery("WHERE c.post_id = $2 AND c.comment_id IS NULL") + fmt.Sprintf(" LIMIT %d OFFSET %d", commentsPageLimit, (page-1)*commentsPageLimit)
+	query := createCommentQuery("WHERE c.post_id = $2 AND c.comment_id IS NULL") + fmt.Sprintf(" LIMIT %d OFFSET %d", limit, (page-1)*limit)
 
 	rows, err := d.DB.Query(query, authUserID, postID)
 	if err != nil {
@@ -94,15 +89,13 @@ func (d *Data) GetPostComments(authUserID, postID, page int) ([]*LastComment, er
 		comments = append(comments, comment)
 	}
 
-	lastComments := createLastComments(comments, page, commentsPageLimit)
-
-	return lastComments, nil
+	return comments, nil
 }
 
-func (d *Data) GetCommentReplies(authUserID, commentID, page int) ([]*LastComment, error) {
+func (d *Data) GetCommentReplies(authUserID, commentID, page, limit int) ([]*Comment, error) {
 	var comments []*Comment
 
-	query := createCommentQuery("WHERE c.comment_id = $2") + fmt.Sprintf(" LIMIT %d OFFSET %d", commentsPageLimit, (page-1)*commentsPageLimit)
+	query := createCommentQuery("WHERE c.comment_id = $2") + fmt.Sprintf(" LIMIT %d OFFSET %d", limit, (page-1)*limit)
 
 	rows, err := d.DB.Query(query, authUserID, commentID)
 	if err != nil {
@@ -119,9 +112,7 @@ func (d *Data) GetCommentReplies(authUserID, commentID, page int) ([]*LastCommen
 		comments = append(comments, comment)
 	}
 
-	lastComments := createLastComments(comments, page, commentsPageLimit)
-
-	return lastComments, nil
+	return comments, nil
 }
 
 func (d *Data) CreateComment(authUserID, postID, commentID int, body string) (int, error) {
@@ -177,22 +168,4 @@ func scanComment(row Scanner, authUserID int) (*Comment, error) {
 	comment.IsAuthor = comment.User.ID == authUserID
 
 	return comment, nil
-}
-
-func createLastComments(comments []*Comment, page, limit int) []*LastComment {
-	lastComments := []*LastComment{}
-	for i, c := range comments {
-		lastComments = append(lastComments, createLastComment(c, i == len(comments)-1, page+1, c.TotalCount <= limit*page))
-	}
-
-	return lastComments
-}
-
-func createLastComment(comment *Comment, isLast bool, page int, lastPage bool) *LastComment {
-	return &LastComment{
-		Comment:  *comment,
-		IsLast:   isLast,
-		Page:     page,
-		LastPage: lastPage,
-	}
 }
