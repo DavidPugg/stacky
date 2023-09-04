@@ -15,6 +15,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+const localMediaPath = "uploads"
+
 func (d *Data) SaveMedia(img image.Image, ext string) (string, error) {
 	if viper.GetString("S3_BUCKET") != "" {
 		return saveToS3(img, ext)
@@ -34,11 +36,11 @@ func (d *Data) DeleteMedia(imageID string) error {
 func saveMediaLocally(img image.Image, ext string) (string, error) {
 	var (
 		id        = fmt.Sprintf("%s%s", uuid.New().String(), ext)
-		imagePath = fmt.Sprintf("uploads/%s", id)
+		imagePath = fmt.Sprintf("%s/%s", localMediaPath, id)
 	)
 
-	if _, err := os.Stat("uploads"); os.IsNotExist(err) {
-		os.Mkdir("uploads", 0755)
+	if _, err := os.Stat(localMediaPath); os.IsNotExist(err) {
+		os.Mkdir(localMediaPath, 0755)
 	}
 
 	if err := imaging.Save(img, imagePath); err != nil {
@@ -50,7 +52,7 @@ func saveMediaLocally(img image.Image, ext string) (string, error) {
 }
 
 func deleteMediaLocally(id string) error {
-	err := os.Remove(id[1:])
+	err := os.Remove(fmt.Sprintf("%s/%s", localMediaPath, id))
 	if err != nil {
 		fmt.Println(err)
 		return fmt.Errorf("Error deleting image")
