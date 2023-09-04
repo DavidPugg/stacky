@@ -26,12 +26,14 @@ func (h *Handlers) renderMain(c *fiber.Ctx) error {
 		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
-	posts, err := h.data.GetFollowedPosts(authUserID, 1)
+	posts, err := h.data.GetFollowedPosts(authUserID, 1, postsPageLimit)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
 
-	return utils.RenderPage(c, "index", fiber.Map{"Posts": posts}, &utils.PageDetails{
+	rp := utils.CreateRevealeObjects(posts, 1, postsPageLimit)
+
+	return utils.RenderPage(c, "index", fiber.Map{"Posts": rp}, &utils.PageDetails{
 		Title:       "Stacky",
 		Description: "Stacky is a simple social media platform",
 	})
@@ -42,12 +44,14 @@ func (h *Handlers) renderDiscover(c *fiber.Ctx) error {
 		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
 
-	posts, err := h.data.GetAllPosts(authUserID, 1)
+	posts, err := h.data.GetAllPosts(authUserID, 1, postsPageLimit)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}
 
-	return utils.RenderPage(c, "index", fiber.Map{"Posts": posts}, &utils.PageDetails{
+	rp := utils.CreateRevealeObjects(posts, 1, postsPageLimit)
+
+	return utils.RenderPage(c, "index", fiber.Map{"Posts": rp}, &utils.PageDetails{
 		Title:       "Stacky",
 		Description: "Stacky is a simple social media platform",
 	})
@@ -106,7 +110,7 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 	}
 
 	comments := <-commentChan
-	rc := utils.CreateRevealeObjects(comments, 1, 15)
+	rc := utils.CreateRevealeObjects(comments, 1, smallPostsPageLimit)
 
 	return utils.RenderPage(c, "post", fiber.Map{"Post": post, "Comments": rc, "ShowFollowButton": authUserID != post.User.ID}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - %d - Stacky", post.User.Username, post.ID),
@@ -118,18 +122,39 @@ func (h *Handlers) renderUser(c *fiber.Ctx) error {
 	var (
 		username   = c.Params("username")
 		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+		postsChan  = make(chan []*data.Post)
+		errorChan  = make(chan error)
 	)
 
 	if username == "" {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid username")
 	}
 
-	user, err := h.data.GetUserWithPostsByUsername(authUserID, username, 1)
+	go func() {
+		posts, err := h.data.GetPostsOfUserByUsername(authUserID, username, 1, smallPostsPageLimit)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		errorChan <- nil
+		postsChan <- posts
+	}()
+
+	user, err := h.data.GetUserByUsername(authUserID, username)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching user")
 	}
 
-	return utils.RenderPage(c, "user", fiber.Map{"User": user, "ShowFollowButton": authUserID != user.ID}, &utils.PageDetails{
+	err = <-errorChan
+	if err != nil {
+		return err
+	}
+
+	posts := <-postsChan
+	rp := utils.CreateRevealeObjects(posts, 1, smallPostsPageLimit)
+
+	return utils.RenderPage(c, "user", fiber.Map{"User": user, "Posts": rp, "ShowFollowButton": authUserID != user.ID}, &utils.PageDetails{
 		Title:       fmt.Sprintf("%s - Stacky", user.Username),
 		Description: fmt.Sprintf("%s's stacky profile", user.Username),
 	})

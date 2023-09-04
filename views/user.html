@@ -60,7 +60,7 @@
       class="text-xs md:text-base stats text-center flex-grow md:!flex-grow-0"
     >
       <div class="stat place-items-center">
-        <div class="stat-value">{{ len .User.Posts }}</div>
+        <div class="stat-value">{{ len .Posts }}</div>
         <div class="stat-title">Posts</div>
       </div>
 
@@ -78,15 +78,15 @@
     </div>
   </div>
 
-  {{ if .User.Posts }}
+  {{ if .Posts }}
     <div
-      class="grid {{ if eq ( len .User.Posts) 1 }}
+      class="grid {{ if eq ( len .Posts) 1 }}
         place-content-center grid-cols-[30rem]
       {{ else }}
         grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]
       {{ end }} gap-1"
     >
-      {{ template "partials/smallPostList" .User.Posts }}
+      {{ template "partials/smallPostList" .Posts }}
     </div>
   {{ else }}
     {{ template "partials/noPosts" . }}

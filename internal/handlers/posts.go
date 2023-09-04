@@ -13,6 +13,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+const postsPageLimit = 5
+const smallPostsPageLimit = 10
 const commentsPageLimit = 15
 
 func (h *Handlers) registerPostRoutes(c *fiber.App) {
@@ -231,19 +233,21 @@ func (h *Handlers) getPosts(c *fiber.Ctx) error {
 		page = 1
 	}
 
-	posts := []*data.LastPost{}
+	posts := []*data.Post{}
 	if location == "" {
-		posts, err = h.data.GetFollowedPosts(authUserID, page)
+		posts, err = h.data.GetFollowedPosts(authUserID, page, postsPageLimit)
 	} else {
-		posts, err = h.data.GetAllPosts(authUserID, page)
+		posts, err = h.data.GetAllPosts(authUserID, page, postsPageLimit)
 	}
+
+	rp := utils.CreateRevealeObjects(posts, page, postsPageLimit)
 
 	if err != nil {
 		utils.SendAlert(c, 500, "Internal Server Error")
 		return err
 	}
 
-	return utils.RenderPartial(c, "postList", posts)
+	return utils.RenderPartial(c, "postList", rp)
 }
 
 func (h *Handlers) getUserPosts(c *fiber.Ctx) error {
@@ -258,14 +262,15 @@ func (h *Handlers) getUserPosts(c *fiber.Ctx) error {
 		page = 1
 	}
 
-	posts, err := h.data.GetPostsOfUserByUsername(authUserID, username, page)
-
+	posts, err := h.data.GetPostsOfUserByUsername(authUserID, username, page, smallPostsPageLimit)
 	if err != nil {
 		utils.SendAlert(c, 500, "Internal Server Error")
 		return err
 	}
 
-	return utils.RenderPartial(c, "smallPostList", posts)
+	rp := utils.CreateRevealeObjects(posts, page, postsPageLimit)
+
+	return utils.RenderPartial(c, "smallPostList", rp)
 }
 
 func (h *Handlers) deletePost(c *fiber.Ctx) error {

@@ -20,11 +20,6 @@ type User struct {
 	FollowersCount int    `json:"followers_count" db:"followers_count"`
 }
 
-type UserWithPosts struct {
-	User
-	Posts []*LastPost `json:"posts"`
-}
-
 func createUserQuery(q string) string {
 	return fmt.Sprintf(
 		`
@@ -113,47 +108,6 @@ func (d *Data) GetUserByUsername(authUserID int, username string) (*User, error)
 	user.Avatar = utils.CreateImagePath(user.Avatar)
 
 	return user, nil
-}
-
-func (d *Data) GetUserWithPostsByUsername(authUserID int, username string, page int) (*UserWithPosts, error) {
-	var (
-		user      = &User{}
-		postsChan = make(chan []*LastPost)
-		errorChan = make(chan error)
-	)
-
-	go func() {
-		posts, err := d.GetPostsOfUserByUsername(authUserID, username, page)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
-		errorChan <- nil
-		postsChan <- posts
-	}()
-
-	query := createUserQuery("WHERE username = $2")
-
-	err := d.DB.Get(user, query, authUserID, username)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	user.Avatar = utils.CreateImagePath(user.Avatar)
-
-	err = <-errorChan
-	if err != nil {
-		return nil, err
-	}
-
-	posts := <-postsChan
-
-	return &UserWithPosts{
-		User:  *user,
-		Posts: posts,
-	}, nil
 }
 
 func (d *Data) UpdateUser(userID int, avatar string) error {

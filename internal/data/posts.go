@@ -18,15 +18,9 @@ type Post struct {
 	TotalCount   int    `json:"total_count" db:"total_count"`
 }
 
-type LastPost struct {
-	Post
-	IsLast   bool `json:"is_last"`
-	Page     int  `json:"page"`
-	LastPage bool `json:"last_page"`
+func (p *Post) GetTotalCount() int {
+	return p.TotalCount
 }
-
-const pageLimit = 5
-const smallPostPageLimit = 10
 
 const basePostQuery = `
 	SELECT p.id, p.image, p.description, p.created_at,
@@ -68,7 +62,7 @@ func (d *Data) GetPostByID(userID, postID int) (*Post, error) {
 	return post, nil
 }
 
-func (d *Data) GetPostsOfUserByUsername(userID int, username string, page int) ([]*LastPost, error) {
+func (d *Data) GetPostsOfUserByUsername(userID int, username string, page, limit int) ([]*Post, error) {
 	var posts []*Post
 
 	query := basePostQuery + `
@@ -78,7 +72,7 @@ func (d *Data) GetPostsOfUserByUsername(userID int, username string, page int) (
 		LIMIT $4 OFFSET $5
 	`
 
-	rows, err := d.DB.Query(query, userID, userID, username, smallPostPageLimit, (page-1)*smallPostPageLimit)
+	rows, err := d.DB.Query(query, userID, userID, username, limit, (page-1)*limit)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -94,12 +88,10 @@ func (d *Data) GetPostsOfUserByUsername(userID int, username string, page int) (
 		posts = append(posts, post)
 	}
 
-	lastPosts := createLastPosts(posts, page, smallPostPageLimit)
-
-	return lastPosts, nil
+	return posts, nil
 }
 
-func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
+func (d *Data) GetFollowedPosts(userID, page, limit int) ([]*Post, error) {
 	var posts []*Post
 
 	query := basePostQuery + `
@@ -110,7 +102,7 @@ func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
 		LIMIT $4 OFFSET $5
 	`
 
-	rows, err := d.DB.Query(query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
+	rows, err := d.DB.Query(query, userID, userID, userID, limit, (page-1)*limit)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -126,12 +118,10 @@ func (d *Data) GetFollowedPosts(userID, page int) ([]*LastPost, error) {
 		posts = append(posts, post)
 	}
 
-	lastPosts := createLastPosts(posts, page, pageLimit)
-
-	return lastPosts, nil
+	return posts, nil
 }
 
-func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
+func (d *Data) GetAllPosts(userID, page, limit int) ([]*Post, error) {
 	var posts []*Post
 
 	query := basePostQuery + `
@@ -141,7 +131,7 @@ func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
 		LIMIT $4 OFFSET $5
 	`
 
-	rows, err := d.DB.Query(query, userID, userID, userID, pageLimit, (page-1)*pageLimit)
+	rows, err := d.DB.Query(query, userID, userID, userID, limit, (page-1)*limit)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -157,9 +147,7 @@ func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
 		posts = append(posts, post)
 	}
 
-	lastPosts := createLastPosts(posts, page, pageLimit)
-
-	return lastPosts, nil
+	return posts, nil
 }
 
 func (d *Data) CreatePost(userID int, image, description string) error {
@@ -222,22 +210,4 @@ func scanPost(row Scanner) (*Post, error) {
 	user.Avatar = utils.CreateImagePath(user.Avatar)
 
 	return post, nil
-}
-
-func createLastPosts(posts []*Post, page, limit int) []*LastPost {
-	lastPosts := []*LastPost{}
-	for i, p := range posts {
-		lastPosts = append(lastPosts, createLastPost(p, i == len(posts)-1, page+1, p.TotalCount <= limit*page))
-	}
-
-	return lastPosts
-}
-
-func createLastPost(post *Post, isLast bool, page int, lastPage bool) *LastPost {
-	return &LastPost{
-		Post:     *post,
-		IsLast:   isLast,
-		Page:     page,
-		LastPage: lastPage,
-	}
 }

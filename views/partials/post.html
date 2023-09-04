@@ -5,22 +5,22 @@
   class="card w-full xs:w-xs max-w-xs !rounded-none xs:!rounded-lg bg-base-200 !border-0 !border-y xs:!border shadow-xl hover:shadow-2xl transition-all !outline-none overflow-hidden"
 >
   <div class="p-4 flex justify-between items-center">
-    {{ template "partials/avatar" .User }}
-    {{ template "partials/followButton" .User }}
+    {{ template "partials/avatar" .Data.User }}
+    {{ template "partials/followButton" .Data.User }}
   </div>
 
-  <a href="/post/{{ .ID }}" hx-boost="true">
+  <a href="/post/{{ .Data.ID }}" hx-boost="true">
     <img
-      src="{{ .Image }}"
+      src="{{ .Data.Image }}"
       alt="Shoes"
       class="w-full aspect-square cursor-pointer"
     />
   </a>
 
   <div class="flex items-center">
-    {{ if .Description }}
-      <p class="p-4">{{ .Description }}</p>
+    {{ if .Data.Description }}
+      <p class="p-4">{{ .Data.Description }}</p>
     {{ end }}
-    <span class="ml-auto p-4"> {{ template "partials/likeButton" . }}</span>
+    <span class="ml-auto p-4"> {{ template "partials/likeButton" .Data }}</span>
   </div>
 </div>
