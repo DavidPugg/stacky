@@ -27,7 +27,7 @@ type LastPost struct {
 
 type PostWithComments struct {
 	Post
-	Comments []*Comment `json:"comments"`
+	Comments []*LastComment `json:"comments"`
 }
 
 const pageLimit = 5
@@ -167,14 +167,14 @@ func (d *Data) GetAllPosts(userID, page int) ([]*LastPost, error) {
 	return lastPosts, nil
 }
 
-func (d *Data) GetPostWithCommentsByID(userID, postID int) (*PostWithComments, error) {
+func (d *Data) GetPostWithCommentsByID(userID, postID, page int) (*PostWithComments, error) {
 	var (
-		commentChan = make(chan []*Comment)
+		commentChan = make(chan []*LastComment)
 		errorChan   = make(chan error)
 	)
 
 	go func() {
-		comments, err := d.GetPostComments(userID, postID)
+		comments, err := d.GetPostComments(userID, postID, page)
 		if err != nil {
 			errorChan <- err
 			return
@@ -271,7 +271,7 @@ func scanPost(row Scanner) (*Post, error) {
 	return post, nil
 }
 
-func createPostWithComments(post *Post, comments []*Comment) *PostWithComments {
+func createPostWithComments(post *Post, comments []*LastComment) *PostWithComments {
 	return &PostWithComments{
 		Post:     *post,
 		Comments: comments,

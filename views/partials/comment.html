@@ -1,4 +1,12 @@
 <div
+  {{ if and .IsLast (not .LastPage) }}
+    {{ if .CommentID }}
+      hx-get="/posts/{{ .PostID }}/comment/{{ .CommentID }}/replies?page={{ .Page }}"
+    {{ else }}
+      hx-get="/posts/{{ .PostID }}/comment?page={{ .Page }}"
+    {{ end }}
+    hx-trigger="revealed" hx-swap="afterend"
+  {{ end }}
   x-data="{
     showReplyInput: false,
     showModal() { this.$refs.delete_modal.showModal()}

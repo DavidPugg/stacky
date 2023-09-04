@@ -18,7 +18,17 @@ type Comment struct {
 	LikeCount  int    `json:"like_count" db:"like_count"`
 	Liked      bool   `json:"liked" db:"liked"`
 	HasReplies bool   `json:"has_replies" db:"has_replies"`
+	TotalCount int    `json:"total_count" db:"total_count"`
 }
+
+type LastComment struct {
+	Comment
+	IsLast   bool `json:"is_last"`
+	Page     int  `json:"page"`
+	LastPage bool `json:"last_page"`
+}
+
+const commentsPageLimit = 15
 
 func createCommentQuery(q string) string {
 	return fmt.Sprintf(
@@ -36,7 +46,8 @@ func createCommentQuery(q string) string {
 				SELECT 1
 				FROM comments AS c2
 				WHERE c2.comment_id = c.id
-			) AS has_replies
+			) AS has_replies,
+			COUNT(*) OVER() AS total_count
 			FROM comments AS c
 			LEFT JOIN users AS u ON u.id = c.user_id
 			LEFT JOIN comment_likes AS cl ON cl.comment_id = c.id
@@ -62,10 +73,10 @@ func (d *Data) GetCommentByID(authUserID, commentID int) (*Comment, error) {
 	return comment, nil
 }
 
-func (d *Data) GetPostComments(authUserID, postID int) ([]*Comment, error) {
+func (d *Data) GetPostComments(authUserID, postID, page int) ([]*LastComment, error) {
 	var comments []*Comment
 
-	query := createCommentQuery("WHERE c.post_id = $2 AND c.comment_id IS NULL")
+	query := createCommentQuery("WHERE c.post_id = $2 AND c.comment_id IS NULL") + fmt.Sprintf(" LIMIT %d OFFSET %d", commentsPageLimit, (page-1)*commentsPageLimit)
 
 	rows, err := d.DB.Query(query, authUserID, postID)
 	if err != nil {
@@ -83,13 +94,15 @@ func (d *Data) GetPostComments(authUserID, postID int) ([]*Comment, error) {
 		comments = append(comments, comment)
 	}
 
-	return comments, nil
+	lastComments := createLastComments(comments, page, commentsPageLimit)
+
+	return lastComments, nil
 }
 
-func (d *Data) GetCommentReplies(authUserID, commentID int) ([]*Comment, error) {
+func (d *Data) GetCommentReplies(authUserID, commentID, page int) ([]*LastComment, error) {
 	var comments []*Comment
 
-	query := createCommentQuery("WHERE c.comment_id = $2")
+	query := createCommentQuery("WHERE c.comment_id = $2") + fmt.Sprintf(" LIMIT %d OFFSET %d", commentsPageLimit, (page-1)*commentsPageLimit)
 
 	rows, err := d.DB.Query(query, authUserID, commentID)
 	if err != nil {
@@ -106,7 +119,9 @@ func (d *Data) GetCommentReplies(authUserID, commentID int) ([]*Comment, error) 
 		comments = append(comments, comment)
 	}
 
-	return comments, nil
+	lastComments := createLastComments(comments, page, commentsPageLimit)
+
+	return lastComments, nil
 }
 
 func (d *Data) CreateComment(authUserID, postID, commentID int, body string) (int, error) {
@@ -146,7 +161,7 @@ func scanComment(row Scanner, authUserID int) (*Comment, error) {
 	if err := row.Scan(
 		&comment.ID, &comment.PostID, &commentID, &comment.Body, &comment.CreatedAt,
 		&user.ID, &user.Avatar, &user.Username, &user.Email, &user.CreatedAt,
-		&comment.LikeCount, &comment.Liked, &comment.HasReplies,
+		&comment.LikeCount, &comment.Liked, &comment.HasReplies, &comment.TotalCount,
 	); err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -162,4 +177,22 @@ func scanComment(row Scanner, authUserID int) (*Comment, error) {
 	comment.IsAuthor = comment.User.ID == authUserID
 
 	return comment, nil
+}
+
+func createLastComments(comments []*Comment, page, limit int) []*LastComment {
+	lastComments := []*LastComment{}
+	for i, c := range comments {
+		lastComments = append(lastComments, createLastComment(c, i == len(comments)-1, page+1, c.TotalCount <= limit*page))
+	}
+
+	return lastComments
+}
+
+func createLastComment(comment *Comment, isLast bool, page int, lastPage bool) *LastComment {
+	return &LastComment{
+		Comment:  *comment,
+		IsLast:   isLast,
+		Page:     page,
+		LastPage: lastPage,
+	}
 }

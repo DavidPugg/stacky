@@ -81,7 +81,7 @@ func (h *Handlers) renderPost(c *fiber.Ctx) error {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Invalid post ID")
 	}
 
-	post, err := h.data.GetPostWithCommentsByID(authUserID, postID)
+	post, err := h.data.GetPostWithCommentsByID(authUserID, postID, 1)
 	if err != nil {
 		return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching posts")
 	}

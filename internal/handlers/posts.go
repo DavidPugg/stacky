@@ -25,6 +25,7 @@ func (h *Handlers) registerPostRoutes(c *fiber.App) {
 	r.Post("/:id/like", middleware.Authenticate, h.likePost)
 	r.Delete("/:id/like", middleware.Authenticate, h.unlikePost)
 
+	r.Get("/:id/comment", h.getComments)
 	r.Post("/:id/comment/:commentID", middleware.Authenticate, h.createComment)
 	r.Delete("/:id/comment/:commentID", middleware.Authenticate, h.deleteComment)
 
@@ -120,19 +121,24 @@ func (h *Handlers) createComment(c *fiber.Ctx) error {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
 
-	comment := data.Comment{
-		ID:        int(id),
-		PostID:    postID,
-		CommentID: commentID,
-		User: &data.User{
-			ID:       user.ID,
-			Username: user.Username,
-			Avatar:   user.Avatar,
-			Email:    user.Email,
+	comment := data.LastComment{
+		Comment: data.Comment{
+			ID:        int(id),
+			PostID:    postID,
+			CommentID: commentID,
+			User: &data.User{
+				ID:       user.ID,
+				Username: user.Username,
+				Avatar:   user.Avatar,
+				Email:    user.Email,
+			},
+			Body:      body,
+			CreatedAt: "Now",
+			IsAuthor:  true,
 		},
-		Body:      body,
-		CreatedAt: "Now",
-		IsAuthor:  true,
+		IsLast:   true,
+		Page:     1,
+		LastPage: true,
 	}
 
 	utils.SetTrigger(c, "swap", utils.Trigger{
@@ -359,16 +365,47 @@ func (h *Handlers) unlikeComment(c *fiber.Ctx) error {
 
 func (h *Handlers) getCommentReplies(c *fiber.Ctx) error {
 	var (
+		p          = c.Query("page")
 		cID        = c.Params("commentID")
 		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
 	)
+
+	page, err := strconv.Atoi(p)
+	if err != nil {
+		page = 1
+	}
 
 	commentID, err := strconv.Atoi(cID)
 	if err != nil {
 		return utils.SendAlert(c, 400, "Invalid comment ID")
 	}
 
-	comments, err := h.data.GetCommentReplies(authUserID, commentID)
+	comments, err := h.data.GetCommentReplies(authUserID, commentID, page)
+	if err != nil {
+		return utils.SendAlert(c, 500, "Internal Server Error")
+	}
+
+	return utils.RenderPartial(c, "replies", comments)
+}
+
+func (h *Handlers) getComments(c *fiber.Ctx) error {
+	var (
+		p          = c.Query("page")
+		pID        = c.Params("id")
+		authUserID = c.Locals("AuthUser").(*middleware.UserTokenData).ID
+	)
+
+	page, err := strconv.Atoi(p)
+	if err != nil {
+		page = 1
+	}
+
+	postID, err := strconv.Atoi(pID)
+	if err != nil {
+		return utils.SendAlert(c, 400, "Invalid comment ID")
+	}
+
+	comments, err := h.data.GetPostComments(authUserID, postID, page)
 	if err != nil {
 		return utils.SendAlert(c, 500, "Internal Server Error")
 	}
