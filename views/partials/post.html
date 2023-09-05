@@ -1,4 +1,5 @@
 <div
+  id="post-{{ .Data.ID }}"
   {{ if and .IsLast (not .LastPage) }}
     hx-get="/posts?page={{ .Page }}" hx-trigger="revealed" hx-swap="afterend"
   {{ end }}
@@ -9,7 +10,7 @@
     {{ template "partials/followButton" .Data.User }}
   </div>
 
-  <a href="/post/{{ .Data.ID }}" hx-boost="true">
+  <a id="post-{{ .Data.ID }}-link" href="/post/{{ .Data.ID }}" hx-boost="true">
     <img
       src="{{ .Data.Image }}"
       alt="Shoes"

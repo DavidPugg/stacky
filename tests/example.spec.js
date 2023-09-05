@@ -84,6 +84,54 @@ test("should show avatar", async () => {
   expect(avatarCount).toBe(1);
 });
 
+test("clicking on post img should navigate to post", async () => {
+  const page = await authContext.newPage();
+  await page.goto(discoverPageURL);
+  const post = await page.$("[id^=post-]");
+  const postId = await post.getAttribute("id");
+  await page.click(`#${postId} #${postId}-link`);
+  await page.waitForURL(`${pageURL}/post/${postId.replace("post-", "")}`);
+  expect(page.url()).toBe(`${pageURL}/post/${postId.replace("post-", "")}`);
+});
+
+test("clicking on post avatar should navigate to user", async () => {
+  const page = await authContext.newPage();
+  await page.goto(discoverPageURL);
+  const post = await page.$("[id^=post-]");
+  const postId = await post.getAttribute("id");
+  const avatar = await page.$(`#${postId} a`);
+  await avatar.click();
+  const href = await avatar.getAttribute("href");
+  await page.waitForURL(`${pageURL}${href}`);
+  expect(page.url()).toBe(`${pageURL}${href}`);
+});
+
+test("clicking like button should update likecount", async () => {
+  const page = await authContext.newPage();
+  await page.goto(discoverPageURL);
+  const post = await page.$("[id^=post-]");
+  const postId = await post.getAttribute("id");
+  const id = postId.split("-")[1];
+  const likeButton = await page.$(`#${postId} #like-button-${id}`);
+  const likeCount = await page.$(`#${postId} #like-count-${id}`);
+  const likeCountText = await likeCount.innerText();
+
+  await likeButton.click();
+
+  await page.waitForFunction(
+    (id, oldCount) => {
+      const likeCount = document.querySelector(`#like-count-${id}`);
+      return likeCount?.innerHTML !== oldCount;
+    },
+    id,
+    likeCountText,
+  );
+
+  const newLikeCount = await page.$(`#${postId} #like-count-${id}`);
+  const likeCountTextAfter = await newLikeCount.innerText();
+  expect(+likeCountText).not.toBe(+likeCountTextAfter);
+});
+
 //Auth functions
 
 async function register(context) {

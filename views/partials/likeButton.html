@@ -1,4 +1,5 @@
 <button
+  id="like-button-{{ .ID }}"
   type="button"
   class="flex items-center gap-2"
   hx-swap="outerHTML"
@@ -9,6 +10,7 @@
   {{ end }}
 >
   <div
+    id="like-count-{{ .ID }}"
     class="badge {{ if .Liked }}
       badge-primary
     {{ else }}
