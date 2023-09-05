@@ -4,10 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "test": "yarn playwright test",
     "build-css": "npx tailwindcss -i ./assets/app.css -o ./public/assets/app.css",
     "watch-css": "npx tailwindcss -i ./assets/app.css -o ./public/assets/app.css --watch"
   },
   "devDependencies": {
+    "@playwright/test": "^1.37.1",
     "daisyui": "^3.2.1",
     "prettier": "^3.0.2",
     "prettier-plugin-go-template": "^0.0.15",
