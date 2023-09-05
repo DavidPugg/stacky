@@ -55,6 +55,7 @@
       >
 
       <div
+        data-testid="navigation-links"
         x-ref="top_nav_links"
         id="navigation-links"
         class="tabs tabs-boxed hidden hover:[&_a]:bg-base-300 hover:[&_a]:transition-bg !bg-base-100  md:flex gap-1 !border-primary [&_a]:tab [&_a]:link-neutral [&_a]:rounded-md "
@@ -64,7 +65,7 @@
 
       <div class="flex gap-3">
         {{ if .AuthUser.Authenticated }}
-          <div class="dropdown dropdown-end">
+          <div class="dropdown dropdown-end" data-testid="avatar">
             <label
               tabindex="0"
               class="btn btn-ghost btn-primary btn-circle avatar"
