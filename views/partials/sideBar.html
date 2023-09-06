@@ -4,8 +4,8 @@
         chatUser: null
     }"
 >
-  <div
-    class="fixed right-6 bottom-16 bg-base-200/80 border rounded-full p-3 z-30 shadow-lg"
+  <button
+    class="fixed right-6 bottom-16 bg-base-200/80 border rounded-full p-3 z-30 shadow-lg md:right-16"
     @click="open = !open"
     x-show="!open"
     x-transition
@@ -23,7 +23,7 @@
         stroke-linejoin="round"
       />
     </svg>
-  </div>
+  </button>
 
   <div
     x-show="open"
@@ -31,21 +31,40 @@
     x-transition:enter-start="transform translate-x-full"
     x-transition:leave="transition ease-out duration-300"
     x-transition:leave-end="transform translate-x-full"
-    class="fixed w-full h-full top-0 left-0 bg-base-200 z-30 flex flex-col gap-6 p-8 pt-16 overflow-y-auto"
+    class="fixed w-full md:w-64 h-full top-0 right-0 bg-base-200 border z-30 flex flex-col gap-6 px-8 py-4 overflow-y-auto"
   >
-    <svg
-      @click="open = !open"
-      class="w-12 h-12 fixed top-4 right-4 cursor-pointer stroke-neutral"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M6 12H18M18 12L13 7M18 12L13 17"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
+    <div class="ml-auto flex">
+      <button>
+        <svg
+          @click="open = !open"
+          class="w-12 h-12   stroke-neutral translate-x-4 block md:hidden"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6 12H18M18 12L13 7M18 12L13 17"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <button>
+        <svg
+          @click="open = !open"
+          class="w-12 h-12  stroke-neutral hidden md:block"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M6.99486 7.00636C6.60433 7.39689 6.60433 8.03005 6.99486 8.42058L10.58 12.0057L6.99486 15.5909C6.60433 15.9814 6.60433 16.6146 6.99486 17.0051C7.38538 17.3956 8.01855 17.3956 8.40907 17.0051L11.9942 13.4199L15.5794 17.0051C15.9699 17.3956 16.6031 17.3956 16.9936 17.0051C17.3841 16.6146 17.3841 15.9814 16.9936 15.5909L13.4084 12.0057L16.9936 8.42059C17.3841 8.03007 17.3841 7.3969 16.9936 7.00638C16.603 6.61585 15.9699 6.61585 15.5794 7.00638L11.9942 10.5915L8.40907 7.00636C8.01855 6.61584 7.38538 6.61584 6.99486 7.00636Z"
+            fill="#0F0F0F"
+          />
+        </svg>
+      </button>
+    </div>
 
     <button @click="chatUser = 'DavidPugg'" class="flex gap-3 items-center">
       <div class="avatar placeholder">
@@ -54,7 +73,11 @@
         </div>
       </div>
 
-      <p class="text-lg font-semibold">DavidPugg</p>
+      <p
+        class="text-lg font-semibold text-ellipsis whitespace-nowrap overflow-hidden"
+      >
+        DavidPugg
+      </p>
     </button>
   </div>
 
@@ -64,7 +87,7 @@
     x-transition:enter-start="opacity-0"
     x-transition:leave="transition ease-out duration-150"
     x-transition:leave-end="opacity-0"
-    class="fixed bottom-0 left-0 w-full h-full bg-black/50 z-40"
+    class="fixed bottom-0 md:hidden left-0 w-full h-full bg-black/50 z-40"
   ></div>
 
   <div
@@ -73,23 +96,43 @@
     x-transition:enter-start="transform translate-y-full"
     x-transition:leave="transition ease-out duration-300"
     x-transition:leave-end="transform translate-y-full"
-    class="bg-base-200 w-full h-[80%] fixed bottom-0 left-0 z-40 rounded-t-xl"
+    class="bg-base-200 w-full h-[80%] md:w-[350px] md:h-[400px] fixed bottom-0 right-0 md:right-80 z-40 rounded-t-xl transition-all border shadow-lg"
+    x-bind:class="{ 'translate-x-52': !open }"
   >
-    <div class="flex justify-between items-center p-4">
+    <div class="flex justify-between items-center py-2 px-4 border-b">
       <p class="text-lg font-semibold" x-text="chatUser"></p>
-      <svg
-        @click="chatUser = null"
-        class="w-12 h-12 cursor-pointer stroke-neutral"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M6 12H18M18 12L13 7M18 12L13 17"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
+      <div class="flex">
+        <button>
+          <svg
+            @click="chatUser = null"
+            class="w-12 h-12 md:w-10 md:h-10 cursor-pointer stroke-neutral block md:hidden"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M6 12H18M18 12L13 7M18 12L13 17"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+  
+          <button>
+            <svg
+              @click="chatUser = null"
+              class="w-12 h-12  md:w-10 md:h-10 cursor-pointer stroke-neutral hidden md:block"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M6.99486 7.00636C6.60433 7.39689 6.60433 8.03005 6.99486 8.42058L10.58 12.0057L6.99486 15.5909C6.60433 15.9814 6.60433 16.6146 6.99486 17.0051C7.38538 17.3956 8.01855 17.3956 8.40907 17.0051L11.9942 13.4199L15.5794 17.0051C15.9699 17.3956 16.6031 17.3956 16.9936 17.0051C17.3841 16.6146 17.3841 15.9814 16.9936 15.5909L13.4084 12.0057L16.9936 8.42059C17.3841 8.03007 17.3841 7.3969 16.9936 7.00638C16.603 6.61585 15.9699 6.61585 15.5794 7.00638L11.9942 10.5915L8.40907 7.00636C8.01855 6.61584 7.38538 6.61584 6.99486 7.00636Z"
+                fill="#0F0F0F"
+              />
+            </svg>
+          </button>
+      </div>
+      </button>
     </div>
   </div>
 </div>
