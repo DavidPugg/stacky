@@ -11,6 +11,22 @@ import (
 )
 
 func (h *Handlers) registerViewRoutes(c *fiber.App) {
+
+	c.Use(func(c *fiber.Ctx) error {
+		authUserID := c.Locals("AuthUser").(*middleware.UserTokenData).ID
+
+		if c.Get("HX-Request") != "true" {
+			followedUsers, err := h.data.GetAllFollowedUsers(authUserID)
+			if err != nil {
+				return utils.RenderError(c, fiber.StatusInternalServerError, "Error fetching followed users")
+			}
+
+			c.Locals("FollowedUsers", followedUsers)
+		}
+
+		return c.Next()
+	})
+
 	c.Get("/", middleware.MainAuthGuard, h.renderMain)
 	c.Get("/discover", h.renderDiscover)
 	c.Get("/register", h.renderRegister)

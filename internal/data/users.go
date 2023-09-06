@@ -119,3 +119,21 @@ func (d *Data) UpdateUser(userID int, avatar string) error {
 
 	return nil
 }
+
+func (d *Data) GetAllFollowedUsers(authUserID int) ([]*User, error) {
+	var users = []*User{}
+
+	query := createUserQuery("WHERE users.id IN (SELECT followee_id FROM follows WHERE follower_id = $1) AND users.id != $2")
+
+	err := d.DB.Select(&users, query, authUserID, authUserID)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	for _, user := range users {
+		user.Avatar = utils.CreateImagePath(user.Avatar)
+	}
+
+	return users, nil
+}
