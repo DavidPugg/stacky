@@ -47,7 +47,7 @@
 >
   <div
     x-ref="top_nav"
-    class="navbar justify-center fixed top-0 bg-base-200/80  backdrop-blur-lg  border-b z-10 shadow-lg xs:translate-y-0 transition-all duration-500"
+    class="navbar justify-center fixed top-0 bg-base-200/80  backdrop-blur-lg  border-b z-20 shadow-lg xs:translate-y-0 transition-all duration-500"
   >
     <div class="flex w-full justify-between container gap-3 px-3 lg:px-0">
       <a class="link-primary font-bold text-2xl" href="/" hx-boost="true"
@@ -120,7 +120,7 @@
   <div
     x-ref="bottom_nav_links"
     id="bottom-navigation-links"
-    class="fixed bottom-0 w-full z-10 flex md:hidden bg-base-200/80  backdrop-blur-lg [&_a]:flex-grow  [&_.tab-active]:!border-none [&_a]:text-center border-t [&_a]:py-[10px] [&_a]:font-semibold"
+    class="fixed bottom-0 w-full z-20 flex md:hidden bg-base-200/80  backdrop-blur-lg [&_a]:flex-grow  [&_.tab-active]:!border-none [&_a]:text-center border-t [&_a]:py-[10px] [&_a]:font-semibold"
   >
     {{ template "nav-links" . }}
   </div>
